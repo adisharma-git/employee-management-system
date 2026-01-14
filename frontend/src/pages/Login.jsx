@@ -112,9 +112,9 @@ export default function Login() {
               </Link>
             </div>
 
-          <button className="w-full bg-[#021f54] text-white py-3 rounded-full font-semibold hover:opacity-90">
-  Login
-</button>
+            <button className="w-full bg-[#021f54] text-white py-3 rounded-full font-semibold hover:opacity-90">
+              Login
+            </button>
 
           </form>
 
