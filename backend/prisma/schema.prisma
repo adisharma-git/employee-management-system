@@ -1,0 +1,132 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+
+// --------------------------------------
+// 1. Users Table (Authentication)
+// --------------------------------------
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   // 'admin', 'manager', 'employee'
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  employee       Employee?
+  assignedTasks  Task[]   @relation("AssignedBy")
+  approvedLeaves Leave[]  @relation("ApprovedBy")
+
+  @@map("users")
+  @@index([email])
+  @@index([role])
+}
+
+// --------------------------------------
+// 2. Employees Table (Profile)
+// --------------------------------------
+model Employee {
+  id            String    @id @default(uuid())
+  userId        String    @unique @map("user_id")
+  name          String
+  department    String?
+  designation   String?
+  phone         String?
+  dateOfJoining DateTime? @map("date_of_joining") @db.Date
+  
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendance Attendance[]
+  leaves     Leave[]
+  tasks      Task[]
+
+  @@map("employees")
+  @@index([userId])
+  @@index([department])
+  @@index([name])
+}
+
+// --------------------------------------
+// 3. Attendance Table
+// --------------------------------------
+model Attendance {
+  id           String    @id @default(uuid())
+  employeeId   String    @map("employee_id")
+  date         DateTime  @db.Date
+  status       String    // 'present', 'absent', 'half-day', 'leave'
+  checkInTime  DateTime? @map("check_in_time") @db.Time
+  checkOutTime DateTime? @map("check_out_time") @db.Time
+  
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relationships
+  employee     Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("attendance")
+  @@unique([employeeId, date]) // Prevent duplicate attendance for same day
+  @@index([employeeId])
+  @@index([date])
+  @@index([status])
+}
+
+// --------------------------------------
+// 4. Leaves Table
+// --------------------------------------
+model Leave {
+  id         String   @id @default(uuid())
+  employeeId String   @map("employee_id")
+  fromDate   DateTime @map("from_date") @db.Date
+  toDate     DateTime @map("to_date") @db.Date
+  reason     String?
+  status     String   @default("pending") // 'pending', 'approved', 'rejected'
+  approvedBy String?  @map("approved_by")
+  
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  approver   User?    @relation("ApprovedBy", fields: [approvedBy], references: [id])
+
+  @@map("leaves")
+  @@index([employeeId])
+  @@index([status])
+}
+
+// --------------------------------------
+// 5. Tasks Table
+// --------------------------------------
+model Task {
+  id          String    @id @default(uuid())
+  assignedTo  String    @map("assigned_to")
+  assignedBy  String?   @map("assigned_by")
+  title       String
+  description String?
+  status      String    @default("pending") // 'pending', 'in-progress', 'completed'
+  priority    String?   // 'low', 'medium', 'high'
+  dueDate     DateTime? @map("due_date") @db.Date
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  employee    Employee  @relation(fields: [assignedTo], references: [id], onDelete: Cascade)
+  assigner    User?     @relation("AssignedBy", fields: [assignedBy], references: [id])
+
+  @@map("tasks")
+  @@index([assignedTo])
+  @@index([status])
+  @@index([priority])
+}
