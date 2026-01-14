@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import Input from '../components/Input';
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    department: '',
-    designation: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -18,31 +17,25 @@ export default function Register() {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = "Name is required";
     }
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    if (!formData.department) {
-      newErrors.department = 'Department is required';
-    }
-
-    if (!formData.designation) {
-      newErrors.designation = 'Designation is required';
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Confirm password is required";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -51,140 +44,151 @@ export default function Register() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setLoading(true);
-    try {
-      console.log('Register:', formData);
-      alert('Registration form validated successfully!');
-    } catch (error) {
-      console.error('Registration error:', error);
-    } finally {
+    setTimeout(() => {
+      console.log("Register Data:", formData);
+      alert("Registration successful!");
       setLoading(false);
-    }
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Join the Employee Management System
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+      
+      
+      <div className="w-full max-w-5xl h-[600px] bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+
+      
+        <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-[#021f54] to-[#043a8f] text-white relative">
+  <div className="text-center px-8">
+    <h2 className="text-3xl font-bold mb-4">
+      Start your journey <br /> with us
+    </h2>
+    <p className="text-blue-200 text-sm">
+      Build skills, track growth and achieve more.
+    </p>
+  </div>
+</div>
+
+
+        <div className="p-10 flex flex-col justify-center">
+          <h1 className="text-3xl font-bold mb-2">Create Account</h1>
+          <p className="text-gray-500 text-sm mb-6">
+             Welcome to the Employee Management System
           </p>
-        </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <Input
-              label="Full Name"
-              name="name"
-              type="text"
-              value={formData.name}
-              onChange={handleChange}
-              error={errors.name}
-              placeholder="John Doe"
-            />
-
-            <Input
-              label="Email address"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              placeholder="you@example.com"
-            />
-
-            <Input
-              label="Password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              placeholder="••••••••"
-            />
-
-            <Input
-              label="Confirm Password"
-              name="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              placeholder="••••••••"
-            />
-
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Department
-              </label>
-              <select
-                name="department"
-                value={formData.department}
+              <input
+                type="text"
+                name="name"
+                placeholder="Full Name"
+                value={formData.name}
                 onChange={handleChange}
-                className={`input-field ${errors.department ? 'border-red-500' : ''}`}
-              >
-                <option value="">Select Department</option>
-                <option value="Engineering">Engineering</option>
-                <option value="HR">Human Resources</option>
-                <option value="Sales">Sales</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Finance">Finance</option>
-              </select>
-              {errors.department && (
-                <p className="mt-1 text-sm text-red-600">{errors.department}</p>
+                className={`w-full px-4 py-3 rounded-full border ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
               )}
             </div>
 
-            <Input
-              label="Designation"
-              name="designation"
-              type="text"
-              value={formData.designation}
-              onChange={handleChange}
-              error={errors.designation}
-              placeholder="Software Engineer"
-            />
-          </div>
+            {/* Email */}
+            <div>
+              <input
+                type="email"
+                name="email"
+                placeholder="mail@website.com"
+                value={formData.email}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 rounded-full border ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              )}
+            </div>
 
-          <div>
+           
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Min. 6 characters"
+                value={formData.password}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 rounded-full border ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+                <i
+                  className={`fas fa-${
+                    showPassword ? "eye-slash" : "eye"
+                  }`}
+                ></i>
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-red-500 text-xs">{errors.password}</p>
+            )}
+
+           
+            <div>
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 rounded-full border ${
+                  errors.confirmPassword
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+         
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full disabled:opacity-50"
+              className="w-full bg-[#021f54] text-white py-3 rounded-full font-semibold hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
-          </div>
+          </form>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </form>
+          <p className="text-sm text-center mt-6">
+            Already have an account?{" "}
+            <Link to="/login" className="text-indigo-600 font-semibold">
+              Login here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
