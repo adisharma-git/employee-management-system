@@ -1,13 +1,14 @@
-// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
 }
 
+// ✅ RESTORED: This is the standard setup for Prisma 5
 datasource db {
   provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
-
 
 // --------------------------------------
 // 1. Users Table (Authentication)
