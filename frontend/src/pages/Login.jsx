@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../api/axios";
+
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -34,13 +37,45 @@ export default function Login() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    alert("Login successful!");
+
+    setLoading(true);
+    try {
+      const payload = {
+        email: formData.email,
+        password: formData.password,
+      };
+
+      const response = await api.post("/auth/login", payload);
+      
+      console.log("Login successful:", response.data);
+      alert("Login successful!");
+      
+     
+      setFormData({
+        email: "",
+        password: "",
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      
+      
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else if (error.response?.data?.error) {
+        alert(error.response.data.error);
+      } else {
+        alert("Login failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
+    
     <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
 
 
@@ -107,33 +142,38 @@ export default function Login() {
 
 
               </label>
-              <Link to="/forgetPassword" className="text-indigo-600">
+              <Link to="/forgetPassword" className="text-orange-500">
                 Forgot password?
               </Link>
+         
             </div>
 
-            <button className="w-full bg-[#021f54] text-white py-3 rounded-full font-semibold hover:opacity-90">
-              Login
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#021f54] text-white py-3 rounded-full font-semibold hover:opacity-90 disabled:opacity-60"
+            >
+              {loading ? "Logging in..." : "Login"}
             </button>
 
           </form>
 
           <p className="text-sm text-center mt-6">
             Not registered yet?{" "}
-            <Link to="/register" className="text-indigo-600 font-semibold">
+            <Link to="/register" className="text-orange-500">
               Create an Account
             </Link>
           </p>
         </div>
 
-        {/* RIGHT IMAGE / DESIGN */}
+      
         <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-[#021f54] to-[#043a8f] text-white relative">
   <div className="text-center px-8">
     <h2 className="text-3xl font-bold mb-4">
-      Turn your ideas <br /> into reality
+      Turn your ideas <br /> <span className="text-orange-500"> into reality</span>
     </h2>
     <p className="text-blue-200 text-sm">
-      Consistent quality and experience across all platforms.
+      Consistent quality and experience across <span className="text-orange-500"> all platforms.</span>
     </p>
   </div>
 </div>
