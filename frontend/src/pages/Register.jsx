@@ -65,27 +65,27 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-      
-      
+
+
       <div className="w-full max-w-5xl h-[600px] bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
 
-      
+
         <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-[#021f54] to-[#043a8f] text-white relative">
-  <div className="text-center px-8">
-    <h2 className="text-3xl font-bold mb-4">
-      Start your journey <br /> with us
-    </h2>
-    <p className="text-blue-200 text-sm">
-      Build skills, track growth and achieve more.
-    </p>
-  </div>
-</div>
+          <div className="text-center px-8">
+            <h2 className="text-3xl font-bold mb-4">
+              Start your journey <br /> with us
+            </h2>
+            <p className="text-blue-200 text-sm">
+              Build skills, track growth and achieve more.
+            </p>
+          </div>
+        </div>
 
 
         <div className="p-10 flex flex-col justify-center">
           <h1 className="text-3xl font-bold mb-2">Create Account</h1>
           <p className="text-gray-500 text-sm mb-6">
-             Welcome to the Employee Management System
+            Welcome to the Employee Management System
           </p>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
@@ -97,9 +97,8 @@ export default function Register() {
                 placeholder="Full Name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-full border ${
-                  errors.name ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-4 py-3 rounded-full border ${errors.name ? "border-red-500" : "border-gray-300"
+                  }`}
               />
               {errors.name && (
                 <p className="text-red-500 text-xs mt-1">{errors.name}</p>
@@ -114,16 +113,15 @@ export default function Register() {
                 placeholder="mail@website.com"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-full border ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-4 py-3 rounded-full border ${errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
               />
               {errors.email && (
                 <p className="text-red-500 text-xs mt-1">{errors.email}</p>
               )}
             </div>
 
-           
+
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -131,9 +129,8 @@ export default function Register() {
                 placeholder="Min. 6 characters"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-full border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-4 py-3 rounded-full border ${errors.password ? "border-red-500" : "border-gray-300"
+                  }`}
               />
               <button
                 type="button"
@@ -141,9 +138,8 @@ export default function Register() {
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
               >
                 <i
-                  className={`fas fa-${
-                    showPassword ? "eye-slash" : "eye"
-                  }`}
+                  className={`fas fa-${showPassword ? "eye-slash" : "eye"
+                    }`}
                 ></i>
               </button>
             </div>
@@ -151,7 +147,7 @@ export default function Register() {
               <p className="text-red-500 text-xs">{errors.password}</p>
             )}
 
-           
+
             <div>
               <input
                 type="password"
@@ -159,11 +155,10 @@ export default function Register() {
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-full border ${
-                  errors.confirmPassword
+                className={`w-full px-4 py-3 rounded-full border ${errors.confirmPassword
                     ? "border-red-500"
                     : "border-gray-300"
-                }`}
+                  }`}
               />
               {errors.confirmPassword && (
                 <p className="text-red-500 text-xs mt-1">
@@ -172,7 +167,7 @@ export default function Register() {
               )}
             </div>
 
-         
+
             <button
               type="submit"
               disabled={loading}
