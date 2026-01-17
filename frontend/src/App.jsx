@@ -3,7 +3,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgetPassword from './pages/ForgetPassword'
 import LandingPage from './pages/LandingPage'
-import DashboardNew from './Dashboard/DashboardNew'
+import Dashboard from './Dashboard/Dashboard'
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgetPassword" element={<ForgetPassword />} />
-        <Route path='/dashboardNew' element={<DashboardNew />} />
+        <Route path='/dashboardNew' element={<Dashboard/>} />
 
       </Routes>
     </BrowserRouter>

@@ -1,10 +1,10 @@
 export default function Sidebar({ selectedTab, setSelectedTab }) {
   return (
-    <div className="w-24 bg-white border-r border-gray-200 flex flex-col items-center py-8">
+    <div className="w-24 bg-[#021f54] border-r border-gray-200 flex flex-col items-center py-8">
 
 
-      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 
-                      rounded-lg flex items-center justify-center text-white 
+      <div className="w-12 h-12 bg-gradient-to-br from-white to-white 
+                      rounded-lg flex items-center justify-center text-black
                       font-bold mb-8 text-lg">
         L
       </div>
