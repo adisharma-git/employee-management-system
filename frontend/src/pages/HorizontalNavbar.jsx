@@ -47,15 +47,20 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
 
           </div>
 
-         
+
           <div className="flex items-center gap-6 text-sm font-medium">
-            <button className="text-gray-500 hover:text-orange-500 transition">
+            <button className="text-white hover:text-orange-400 transition">
               Help
             </button>
-            <button className="text-gray-500 hover:text-orange-500 transition" onClick={handleLogout}>
+
+            <button
+              className="text-white hover:text-orange-400 transition"
+              onClick={handleLogout}
+            >
               Logout
             </button>
           </div>
+
 
         </div>
       </div>
