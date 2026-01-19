@@ -60,10 +60,6 @@ export default function MainPageLanding() {
 
           </div>
 
-          <p className="text-xs text-gray-400 mt-5">
-            No credit card required · Cancel anytime
-          </p>
-
         </div>
 
       </div>

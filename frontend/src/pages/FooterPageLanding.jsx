@@ -64,7 +64,7 @@ const FooterPageLanding = () => {
 
 
                     <p className="text-xs text-gray-400">
-                        © {new Date().getFullYear()} Payzo. All rights reserved.
+                        © {new Date().getFullYear()} Aaah. All rights reserved.
                     </p>
 
 
