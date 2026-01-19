@@ -1,4 +1,7 @@
 export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
+  const handleLogout = () => {
+    window.location.href = '/login';
+  }
   return (
     <nav className="bg-[#021f54] border-b border-[#021f54] shadow-sm sticky top-0 z-40">
       <div className="px-8">
@@ -14,7 +17,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
               className={
                 selectedTab === "employees"
                   ? "text-orange-500 border-b-2 border-orange-500 pb-1"
-                  : "text-gray-500 hover:text-orange-500 pb-1"
+                  : "text-white-500 hover:text-orange-500 pb-1"
               }
             >
               Employees
@@ -25,7 +28,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
               className={
                 selectedTab === "attendance"
                   ? "text-orange-500 border-b-2 border-orange-500 pb-1"
-                  : "text-gray-500 hover:text-orange-500 pb-1"
+                  : "text-white-500 hover:text-orange-500 pb-1"
               }
             >
               Attendance
@@ -36,7 +39,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
               className={
                 selectedTab === "reports"
                   ? "text-orange-500 border-b-2 border-orange-500 pb-1"
-                  : "text-gray-500 hover:text-orange-500 pb-1"
+                  : "text-white-500 hover:text-orange-500 pb-1"
               }
             >
               Reports
@@ -49,7 +52,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
             <button className="text-gray-500 hover:text-orange-500 transition">
               Help
             </button>
-            <button className="text-gray-500 hover:text-orange-500 transition">
+            <button className="text-gray-500 hover:text-orange-500 transition" onClick={handleLogout}>
               Logout
             </button>
           </div>

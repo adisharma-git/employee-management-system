@@ -4,6 +4,7 @@ import Register from './pages/Register'
 import ForgetPassword from './pages/ForgetPassword'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './Dashboard/Dashboard'
+import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
 
 function App() {
   return (
@@ -17,7 +18,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgetPassword" element={<ForgetPassword />} />
-        <Route path='/dashboardNew' element={<Dashboard/>} />
+        <Route
+          path='/dashboardNew'
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+
+          } />
 
       </Routes>
     </BrowserRouter>
