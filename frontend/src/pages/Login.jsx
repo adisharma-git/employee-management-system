@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
 
@@ -11,6 +11,7 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
@@ -37,42 +38,48 @@ export default function Login() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  
 
-    setLoading(true);
-    try {
-      const payload = {
-        email: formData.email,
-        password: formData.password,
-      };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      const response = await api.post("/auth/login", payload);
-      
-      console.log("Login successful:", response.data);
-      alert("Login successful!");
-      
-     
-      setFormData({
-        email: "",
-        password: "",
-      });
-    } catch (error) {
-      console.error("Login error:", error);
-      
-      
-      if (error.response?.data?.message) {
-        alert(error.response.data.message);
-      } else if (error.response?.data?.error) {
-        alert(error.response.data.error);
-      } else {
-        alert("Login failed. Please try again.");
-      }
-    } finally {
-      setLoading(false);
+  if (!validateForm()) return;
+
+  setLoading(true);
+
+  try {
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+    };
+
+    const response = await api.post("/auth/login", payload);
+
+    if (response.status === 200) {
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate("/dashboardNew", { replace: true });
     }
-  };
+
+    setFormData({
+      email: "",
+      password: "",
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+
+    if (error.response?.data?.message) {
+      alert(error.response.data.message);
+    } else if (error.response?.data?.error) {
+      alert(error.response.data.error);
+    } else {
+      alert("Login failed. Please try again.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     
