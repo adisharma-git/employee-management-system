@@ -5,7 +5,7 @@ import TaskCompletionCard from "./TaskCard"
 const DashboardHome = () => {
   const announcementsData = [
     {
-      title: "Zoho Support Process Update – Important Announcement",
+      title: "Aaah Support Process Update – Important Announcement",
       time: "13 January 10:53 AM",
       avatar: "https://i.pravatar.cc/40?img=12",
     },
@@ -13,6 +13,16 @@ const DashboardHome = () => {
       title: "Special Festival Permission – Lohri & Makar Sankranti",
       time: "13 January 10:41 AM",
       avatar: "https://i.pravatar.cc/40?img=32",
+    },
+    {
+      title: "Update on Leave Policy",
+      time: "12 January 4:34 PM",
+      avatar: "https://i.pravatar.cc/40?img=22",
+    },
+    {
+      title: "Update on Leave Policy",
+      time: "12 January 4:34 PM",
+      avatar: "https://i.pravatar.cc/40?img=22",
     },
     {
       title: "Update on Leave Policy",
@@ -52,13 +62,24 @@ const DashboardHome = () => {
           accentColor="teal"
         />
       </div>
-      <div className="w-1/2">
-        <AnnouncementsCard
-          title="Announcements"
-          announcements={announcementsData}
-          height="h-[420px]"
-        />
-      </div>
+ <div className="flex w-full mt-6 gap-6">
+  <div className="w-1/2">
+    <AnnouncementsCard
+      title="Announcements"
+      announcements={announcementsData}
+      height="h-[320px]"
+    />
+  </div>
+
+  <div className="w-1/2">
+    <AnnouncementsCard
+      title="Upcoming Holidays"
+      announcements={announcementsData}
+      height="h-[320px]"
+    />
+  </div>
+</div>
+
 
     </div>
   )
