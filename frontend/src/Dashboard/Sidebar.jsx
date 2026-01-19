@@ -1,6 +1,6 @@
 export default function Sidebar({ selectedTab, setSelectedTab }) {
   return (
-    <div className="w-24 bg-[#021f54] border-r border-gray-200 flex flex-col items-center py-8">
+    <div className="w-16 bg-[#021f54] border-r border-gray-200 flex flex-col items-center py-8">
 
 
       <div className="w-12 h-12 bg-gradient-to-br from-white to-white 
