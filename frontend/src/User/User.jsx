@@ -97,7 +97,7 @@ export default function EmployeeForm() {
               className="flex items-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition"
             >
               <FontAwesomeIcon icon={faPlus} className="text-lg" />
-              Spremi
+              Add
             </button>
           </div>
         </div>
@@ -128,10 +128,10 @@ export default function EmployeeForm() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">SirName</label>
                   <input
                     type="text"
-                    name="prezime"
+                    name="Sir Name"
                     value={formData.prezime}
                     onChange={handleInputChange}
-                    placeholder="Unesite prezime"
+                    placeholder="Sir Name"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
@@ -144,7 +144,7 @@ export default function EmployeeForm() {
                     name="oib"
                     value={formData.oib}
                     onChange={handleInputChange}
-                    placeholder="Unesite OIB (11 znamenki)"
+                    placeholder="Phone Number"
                     maxLength="11"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
@@ -183,7 +183,7 @@ export default function EmployeeForm() {
                       name="kontaktBroj"
                       value={formData.kontaktBroj}
                       onChange={handleInputChange}
-                      placeholder="Unesite kontakt broj"
+                      placeholder="Alternative Number"
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
@@ -191,26 +191,26 @@ export default function EmployeeForm() {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email adresa</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                   <input
                     type="email"
                     name="emailAdresa"
                     value={formData.emailAdresa}
                     onChange={handleInputChange}
-                    placeholder="Unesite email adresu"
+                    placeholder="Email Address"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
 
                 {/* Adresa */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Adresa</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
                   <input
                     type="text"
                     name="adresa"
                     value={formData.adresa}
                     onChange={handleInputChange}
-                    placeholder="Unesite prezime"
+                    placeholder=" Address"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
@@ -230,30 +230,30 @@ export default function EmployeeForm() {
 
                 {/* Poštanski broj */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Poštanski broj</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
                   <input
                     type="text"
-                    name="postavkaBroj"
+                    name="State"
                     value={formData.postavkaBroj}
                     onChange={handleInputChange}
-                    placeholder="Unesite prezime"
+                    placeholder="State"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
 
                 {/* Država */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Država</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
                   <select
                     name="drzava"
                     value={formData.drzava}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
                   >
-                    <option value="">Odaberite državu</option>
-                    <option value="hr">Hrvatska</option>
-                    <option value="de">Njemačka</option>
-                    <option value="at">Austrija</option>
+                    <option value="">Gender</option>
+                    <option value="hr">Male</option>
+                    <option value="de">Female</option>
+                    <option value="at">Others</option>
                   </select>
                 </div>
               </div>
@@ -264,7 +264,7 @@ export default function EmployeeForm() {
           <div className="lg:col-span-1">
             {/* Documents Section */}
             <div className="bg-white rounded-lg p-6 mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Dokumenti</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">Documents</h2>
 
               {/* Upload Area */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6 cursor-pointer hover:border-teal-500 transition"
@@ -272,7 +272,7 @@ export default function EmployeeForm() {
               >
                 <FontAwesomeIcon icon={faUpload} className="text-4xl text-gray-400 mb-3" />
                 <p className="text-sm text-gray-600">
-                  <span className="font-semibold text-teal-500">Kliknite da dodate</span> ili prevucite u ovo polje
+                  <span className="font-semibold text-teal-500">Add Your Documents</span> Image Format should be 
                 </p>
                 <p className="text-xs text-gray-500 mt-2">svg, PNG, JPG or GIF (max. 800×400px)</p>
                 <input
@@ -319,7 +319,7 @@ export default function EmployeeForm() {
 
             {/* Profile Picture Section */}
             <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Slika profila</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">Add Profile Image</h2>
               <p className="text-xs text-gray-600 mb-4">max. 2MB</p>
 
               {/* Profile Picture Preview */}
@@ -339,7 +339,7 @@ export default function EmployeeForm() {
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
               >
                 <FontAwesomeIcon icon={faCamera} />
-                Priloži fotografiju
+                Take Image
               </button>
               <input
                 id="imageInput"
