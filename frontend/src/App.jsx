@@ -5,6 +5,7 @@ import ForgetPassword from './pages/ForgetPassword'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './Dashboard/Dashboard'
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
+import EmployeeForm from './User/User'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             </ProtectedRoute>
 
           } />
+        <Route path="/employeeForm" element={<EmployeeForm/>} />
 
       </Routes>
     </BrowserRouter>

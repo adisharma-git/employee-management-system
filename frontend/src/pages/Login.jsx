@@ -54,8 +54,10 @@ const handleSubmit = async (e) => {
     };
 
     const response = await api.post("/auth/login", payload);
+   
 
     if (response.status === 200) {
+      
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       navigate("/dashboardNew", { replace: true });
