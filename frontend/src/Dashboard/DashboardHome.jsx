@@ -69,11 +69,21 @@ const DashboardHome = () => {
       announcements={announcementsData}
       height="h-[320px]"
     />
+     <AnnouncementsCard
+      title="New Employees"
+      announcements={announcementsData}
+      height="h-[320px]"
+    />
   </div>
 
   <div className="w-1/2">
     <AnnouncementsCard
       title="Upcoming Holidays"
+      announcements={announcementsData}
+      height="h-[320px]"
+    />
+    <AnnouncementsCard
+      title="Scheduled Meetings"
       announcements={announcementsData}
       height="h-[320px]"
     />
