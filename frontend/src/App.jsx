@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage'
 import Dashboard from './Dashboard/Dashboard'
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
 import EmployeeForm from './User/User'
+import HelpPage from './Dashboard/HelpPage'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
 
           } />
         <Route path="/employeeForm" element={<EmployeeForm/>} />
+        <Route path='/dashboardNew/help' element={<HelpPage/>}/>
 
       </Routes>
     </BrowserRouter>

@@ -2,6 +2,9 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
   const handleLogout = () => {
     window.location.href = '/login';
   }
+  const handleNavigateHelpPage = () => {
+    window.location.href = '/dashboardNew/help';
+  }
   return (
     <nav className="bg-[#021f54] border-b border-[#021f54] shadow-sm sticky top-0 z-40">
       <div className="px-8">
@@ -49,7 +52,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
 
 
           <div className="flex items-center gap-6 text-sm font-medium">
-            <button className="text-white hover:text-orange-400 transition">
+            <button className="text-white hover:text-orange-400 transition"onClick={handleNavigateHelpPage}>
               Help
             </button>
 
