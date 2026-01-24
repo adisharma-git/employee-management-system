@@ -8,6 +8,8 @@ import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
 import EmployeeForm from './User/User'
 import HelpPage from './Dashboard/HelpPage'
 
+import Attendence from './Attendence/attendence'
+
 function App() {
   return (
     <BrowserRouter>
@@ -28,6 +30,7 @@ function App() {
             </ProtectedRoute>
 
           } />
+          <Route path="attendence" element={<Attendence/>}/>
         <Route path="/employeeForm" element={<EmployeeForm/>} />
         <Route path='/dashboardNew/help' element={<HelpPage/>}/>
 
