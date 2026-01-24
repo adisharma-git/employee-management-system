@@ -30,7 +30,7 @@ function App() {
             </ProtectedRoute>
 
           } />
-          <Route path="attendence" element={<Attendence/>}/>
+          <Route path="/attendance" element={<Attendence/>}/>
         <Route path="/employeeForm" element={<EmployeeForm/>} />
         <Route path='/dashboardNew/help' element={<HelpPage/>}/>
 
