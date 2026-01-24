@@ -25,10 +25,10 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         </button>
 
         <button
-          onClick={() => setSelectedTab("team")}
-          title="My Team"
+          onClick={() => setSelectedTab("EmployeeForm")}
+          title="EmployeeForm"
           className={
-            selectedTab === "team"
+            selectedTab === "EmployeeForm"
               ? "w-12 h-12 rounded-lg flex items-center justify-center text-lg bg-orange-500 text-white shadow-lg"
               : "w-12 h-12 rounded-lg flex items-center justify-center text-lg text-gray-400 hover:bg-gray-100"
           }
