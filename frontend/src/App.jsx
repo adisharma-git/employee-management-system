@@ -6,6 +6,8 @@ import LandingPage from './pages/LandingPage'
 import Dashboard from './Dashboard/Dashboard'
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
 
+import Attendence from './Attendence/attendence'
+
 function App() {
   return (
     <BrowserRouter>
@@ -26,6 +28,7 @@ function App() {
             </ProtectedRoute>
 
           } />
+          <Route path="attendence" element={<Attendence/>}/>
 
       </Routes>
     </BrowserRouter>
