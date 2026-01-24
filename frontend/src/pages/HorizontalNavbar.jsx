@@ -27,9 +27,9 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
             </button>
 
             <button
-              onClick={() => setSelectedTab("attendance")}
+              onClick={() => setSelectedTab("Attendance")}
               className={
-                selectedTab === "attendance"
+                selectedTab === "Attendance"
                   ? "text-orange-500 border-b-2 border-orange-500 pb-1"
                   : "text-white-500 hover:text-orange-500 pb-1"
               }
