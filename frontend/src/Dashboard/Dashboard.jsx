@@ -5,6 +5,7 @@ import HorizontalNavbar from "../pages/HorizontalNavbar";
 import Employees from "./Employees";
 import Reports from "./Reports";
 import EmployeeForm from "../User/User";
+import Attendance from "../Attendence/attendence";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
@@ -21,10 +22,13 @@ export default function Dashboard() {
         return <Reports/>;
       case "EmployeeForm":
         return <EmployeeForm/>;
+      case "Attendance":
+        return <Attendance/>;
       case "performance":
       case "expenses":
       default:
         return <DashboardHome />;
+
     }
   };
 
