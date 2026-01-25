@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faX, faPlus, faUpload, faCamera, faFileAlt, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faX, faPlus, faUpload, faCamera, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 
 export default function EmployeeForm() {
   const [formData, setFormData] = useState({
