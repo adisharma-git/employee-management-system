@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faRocket,
@@ -9,7 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function HelpPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [expandedFAQ, setExpandedFAQ] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -85,12 +85,12 @@ export default function HelpPage() {
         <div className="max-w-4xl mx-auto">
 
           {/* Back Button */}
-          <button
+          {/* <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 px-6 py-2 bg-[#021f54]  text-white text-sm hover:bg-blue-500 rounded-lg"
           >
             ← Back
-          </button>
+          </button> */}
 
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">

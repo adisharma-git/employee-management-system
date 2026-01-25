@@ -7,8 +7,8 @@ import Dashboard from './Dashboard/Dashboard'
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
 import EmployeeForm from './User/User'
 import HelpPage from './Dashboard/HelpPage'
-
 import Attendence from './Attendence/attendence'
+import EmployeePerformance from './EmployeeReport/EmployeePerformance'
 
 function App() {
   return (
@@ -25,14 +25,17 @@ function App() {
         <Route
           path='/dashboardNew'
           element={
-            <ProtectedRoute>
+            // <ProtectedRoute>
               <Dashboard />
-            </ProtectedRoute>
+            // </ProtectedRoute>
 
           } />
           <Route path="/attendance" element={<Attendence/>}/>
         <Route path="/employeeForm" element={<EmployeeForm/>} />
         <Route path='/dashboardNew/help' element={<HelpPage/>}/>
+        { /*this will remove after review */}
+        <Route path="/performance" element={<EmployeePerformance />}/> 
+
 
       </Routes>
     </BrowserRouter>

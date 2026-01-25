@@ -3,7 +3,8 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
     window.location.href = '/login';
   }
   const handleNavigateHelpPage = () => {
-    window.location.href = '/dashboardNew/help';
+    // window.location.href = '/dashboardNew/help';
+    window.open('/dashboardNew/help', '_blank');
   }
   return (
     <nav className="bg-[#021f54] border-b border-[#021f54] shadow-sm sticky top-0 z-40">

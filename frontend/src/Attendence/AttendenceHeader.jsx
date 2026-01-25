@@ -52,10 +52,10 @@ const AttendenceHeader = () => {
         <div>
           <button
             onClick={handleCheckInToggle}
-            className={`flex items-center gap-2 px-6 py-3 text-white rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg
+            className={`flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium transition-all duration-300 shadow-md hover:shadow-lg
               ${isCheckedIn 
-                 ? 'bg-[#f97316] hover:bg-orange-600' 
-                 : 'bg-[#021f54] hover:bg-blue-900'   
+                 ? 'bg-[#d63725] hover:bg-red-400' 
+                 : 'bg-[#4dc95c] hover:bg-green-300'   
               }`}
           >
             <FontAwesomeIcon icon={isCheckedIn ? faSignOutAlt : faSignInAlt} />
