@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import AttendanceTable from '../Employees/EmployeesTable';
-import EmployeesTable from '../Employees/EmployeesTable';
-
+import AttendanceTable from './AttendenceTable';
+import Tabs from './Tabs'; 
+import AttendenceHeader from './attendenceheader';
 
 
 const EMPLOYEES_DATA = [
@@ -22,14 +22,10 @@ const Attendance = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-     
-      
-      
+      {/* <AttendenceHeader/> */}
+      {/* <Tabs currentFilter={filterStatus} onFilterChange={setFilterStatus} /> */}
       <main className="p-8">
-       {/* <EmployeesTabs currentFilter={filterStatus} onFilterChange={setFilterStatus}/> */}
-       {/* <AttendanceTable employees={filteredEmployees}/> */}
-       <EmployeesTable employees={filteredEmployees}/>
-        
+        {/* <AttendanceTable employees={filteredEmployees} /> */}
       </main>
     </div>
   );
