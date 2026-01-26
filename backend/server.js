@@ -2,29 +2,24 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet'); // Recommended for security
+const helmet = require('helmet');
 const authRoutes = require('./src/routes/authRoutes');
-const prisma = require('./src/utils/prisma'); // <--- Import the shared DB connection
+const employeeRoutes = require('./src/routes/employeeRoutes');
+const prisma = require('./src/utils/prisma');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(helmet());
-app.use(express.json());
+app.use(express.json()); 
 
-// Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/employee', employeeRoutes);
 
-// ----------------------------------------------------
-// Health Check (Verifies DB Connection) [cite: 295-308]
-// ----------------------------------------------------
 app.get('/api/health', async (req, res) => {
   try {
-    // Actually ping the database to ensure connection works
     await prisma.$queryRaw`SELECT 1`;
-    
     res.status(200).json({ 
       status: 'success', 
       message: 'Server is running and Database is connected!' 
@@ -39,7 +34,6 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Start Server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
