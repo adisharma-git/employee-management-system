@@ -1,342 +1,232 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faX, faPlus, faUpload, faCamera, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faPlus,
+  faUpload,
+  faCamera,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function EmployeeForm() {
+  const [name, setName] = useState("");
+
+
   const [formData, setFormData] = useState({
-    ime: '',
-    prezime: '',
-    oib: '',
-    datumRodenja: '',
-    kontaktBroj: '',
-    emailAdresa: '',
-    adresa: '',
-    grad: '',
-    postavkaBroj: '',
-    drzava: '',
+    phone: "",
+    department: "",
+    designation: "",
+    dateOfJoining: "",
   });
 
   const [profileImage, setProfileImage] = useState(null);
-  const [documents, setDocuments] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  /* ---------------- GET API (TEMP) ---------------- */
+  useEffect(() => {
+    const fetchName = async () => {
+      try {
+        const res = await fetch("/api/employee/me");
+
+        const data = await res.json();
+        setName(name);
+      } catch (err) {
+        console.error("Failed to fetch name", err);
+      }
+    };
+
+    fetchName();
+  }, []);
 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
+
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setProfileImage(file);
+    if (!file) return;
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    setProfileImage(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => setPreviewImage(reader.result);
+    reader.readAsDataURL(file);
   };
 
 
-  const handleDocumentUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const newDocuments = files.map((file) => ({
-      id: Math.random(),
-      name: file.name,
-      size: (file.size / 1024).toFixed(2),
-      file: file,
-      progress: 100,
-    }));
-    setDocuments((prev) => [...prev, ...newDocuments]);
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!formData.phone.trim())
+      newErrors.phone = "Phone is required";
+    if (!formData.department.trim())
+      newErrors.department = "Department is required";
+    if (!formData.designation.trim())
+      newErrors.designation = "Designation is required";
+    if (!formData.dateOfJoining)
+      newErrors.dateOfJoining = "Date of joining is required";
+    if (!profileImage)
+      newErrors.profileImage = "Profile image is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const removeDocument = (id) => {
-    setDocuments((prev) => prev.filter((doc) => doc.id !== id));
-  };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', {
-      formData,
+    if (!validateForm()) return;
+
+    console.log("FINAL DATA", {
+      name,
+      ...formData,
       profileImage,
-      documents,
     });
-    // API call will be added here later
   };
 
+  const ErrorText = ({ msg }) =>
+    msg ? <p className="text-red-500 text-xs mt-1">{msg}</p> : null;
 
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
-
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Personal Details</h1>
-          <div className="flex gap-4">
-
-            <button
-              onClick={handleSubmit}
-              className="flex items-center gap-2 px-6 py-2 bg-[#021f54]  text-white text-sm hover:bg-blue-500 rounded-lg"
-            >
-              <FontAwesomeIcon icon={faPlus} className="text-lg" />
-              Add
-            </button>
-          </div>
+          <h1 className="text-3xl font-bold">Personal Details</h1>
+          <button
+            onClick={handleSubmit}
+            className="flex items-center gap-2 px-6 py-2 bg-[#021f54] text-white rounded-lg hover:bg-blue-500"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <form className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white p-6 rounded-lg">
+              <h2 className="font-semibold mb-6">Employee Details</h2>
 
-            <div className="bg-white rounded-lg p-6 mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Personal Details</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-6">
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
                   <input
                     type="text"
-                    name="ime"
-                    value={formData.ime}
-                    onChange={handleInputChange}
-                    placeholder="Unesite ime"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
+                    value={name}
+                    disabled
+                    placeholder="Name"
+                    className="input bg-gray-100 cursor-not-allowed"
                   />
                 </div>
 
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">SirName</label>
                   <input
-                    type="text"
-                    name="Sir Name"
-                    value={formData.prezime}
+                    name="phone"
+                    placeholder="Phone"
+                    value={formData.phone}
                     onChange={handleInputChange}
-                    placeholder="Sir Name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
+                    className="input"
                   />
+                  <ErrorText msg={errors.phone} />
                 </div>
 
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                   <input
-                    type="text"
-                    name="oib"
-                    value={formData.oib}
+                    name="department"
+                    placeholder="Department"
+                    value={formData.department}
                     onChange={handleInputChange}
-                    placeholder="Phone Number"
-                    maxLength="11"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
+                    className="input"
                   />
+                  <ErrorText msg={errors.department} />
                 </div>
 
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Date Of Birth</label>
                   <input
-                    type="text"
-                    name="datumRodenja"
-                    value={formData.datumRodenja}
+                    name="designation"
+                    placeholder="Designation"
+                    value={formData.designation}
                     onChange={handleInputChange}
-                    placeholder="DD/MM/GGGG"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
+                    className="input"
                   />
-                </div>
-              </div>
-            </div>
-
-
-            <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Other Details</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Alternative Number</label>
-                  <div className="flex gap-2">
-                    <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54] bg-white">
-                      <option>+1</option>
-                      <option>+44</option>
-                    </select>
-                    <input
-                      type="tel"
-                      name="kontaktBroj"
-                      value={formData.kontaktBroj}
-                      onChange={handleInputChange}
-                      placeholder="Alternative Number"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
-                    />
-                  </div>
+                  <ErrorText msg={errors.designation} />
                 </div>
 
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                   <input
-                    type="email"
-                    name="emailAdresa"
-                    value={formData.emailAdresa}
+                    type="date"
+                    name="dateOfJoining"
+                    value={formData.dateOfJoining}
                     onChange={handleInputChange}
-                    placeholder="Email Address"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
+                    className="input"
                   />
-                </div>
-
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                  <input
-                    type="text"
-                    name="adresa"
-                    value={formData.adresa}
-                    onChange={handleInputChange}
-                    placeholder=" Address"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
-                  />
-                </div>
-
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Grad</label>
-                  <input
-                    type="text"
-                    name="grad"
-                    value={formData.grad}
-                    onChange={handleInputChange}
-                    placeholder="Unesite ime"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
-                  />
-                </div>
-
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                  <input
-                    type="text"
-                    name="State"
-                    value={formData.postavkaBroj}
-                    onChange={handleInputChange}
-                    placeholder="State"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-                  <select
-                    name="drzava"
-                    value={formData.drzava}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#021f54] bg-white"
-                  >
-                    <option value="">Gender</option>
-                    <option value="hr">Male</option>
-                    <option value="de">Female</option>
-                    <option value="at">Others</option>
-                  </select>
+                  <ErrorText msg={errors.dateOfJoining} />
                 </div>
               </div>
             </div>
           </div>
 
 
-          <div className="lg:col-span-1">
-
-            <div className="bg-white rounded-lg p-6 mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Documents</h2>
-
-
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6 cursor-pointer hover:border-teal-500 transition"
-                onClick={() => document.getElementById('documentInput').click()}
-              >
-                <FontAwesomeIcon icon={faUpload} className="text-4xl text-gray-400 mb-3" />
-                <p className="text-sm text-gray-600">
-                  <span className="font-semibold text-#021f54">Add Your Documents</span> Image Format should be
-                </p>
-                <p className="text-xs text-gray-500 mt-2">svg, PNG, JPG or GIF (max. 800×400px)</p>
-                <input
-                  id="documentInput"
-                  type="file"
-                  multiple
-                  onChange={handleDocumentUpload}
-                  className="hidden"
-                />
-              </div>
-
-
-              {documents.length > 0 && (
-                <div className="space-y-4">
-                  {documents.map((doc) => (
-                    <div key={doc.id} className="bg-gray-50 p-4 rounded-lg">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-start gap-3 flex-1">
-                          <FontAwesomeIcon icon={faFileAlt} className="text-red-500 text-lg mt-1" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">{doc.name}</p>
-                            <p className="text-xs text-gray-600">{doc.size} KB</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => removeDocument(doc.id)}
-                          className="text-teal-500 hover:text-#021f54"
-                        >
-                          <FontAwesomeIcon icon={faX} />
-                        </button>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-teal-500 h-2 rounded-full"
-                          style={{ width: `${doc.progress}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-2">{doc.progress}%</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-
-            <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Add Profile Image</h2>
-              <p className="text-xs text-gray-600 mb-4">max. 2MB</p>
-
+          <div className="space-y-8">
+            <div className="bg-white p-6 rounded-lg">
+              <h2 className="font-semibold mb-4">Profile Image</h2>
 
               {previewImage ? (
-                <div className="mb-4">
-                  <img src={previewImage || "/placeholder.svg"} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
-                </div>
+                <img
+                  src={previewImage}
+                  alt="preview"
+                  className="h-32 w-full object-cover rounded mb-3"
+                />
               ) : (
-                <div className="bg-gray-100 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
-                  <FontAwesomeIcon icon={faUser} className="text-gray-400 text-xl" />
-                </div>
+                <FontAwesomeIcon icon={faUser} className="text-3xl mb-3" />
               )}
 
-
               <button
-                onClick={() => document.getElementById('imageInput').click()}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                type="button"
+                onClick={() =>
+                  document.getElementById("imageInput").click()
+                }
+                className="w-full border py-2 rounded"
               >
-                <FontAwesomeIcon icon={faCamera} />
-                Take Image
+                <FontAwesomeIcon icon={faCamera} /> Upload / Take Photo
               </button>
+
               <input
                 id="imageInput"
                 type="file"
                 accept="image/*"
+                hidden
                 onChange={handleImageUpload}
-                className="hidden"
               />
+
+              <ErrorText msg={errors.profileImage} />
             </div>
           </div>
         </form>
       </div>
+
+
+      <style>{`
+        .input {
+          width: 100%;
+          padding: 8px 12px;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          outline: none;
+        }
+        .input:focus {
+          border-color: #021f54;
+        }
+      `}</style>
     </div>
   );
 }
