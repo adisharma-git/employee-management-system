@@ -6,6 +6,8 @@ const helmet = require('helmet');
 const authRoutes = require('./src/routes/authRoutes');
 const employeeRoutes = require('./src/routes/employeeRoutes');
 const prisma = require('./src/utils/prisma');
+const attendanceRoutes = require('./src/routes/attendanceRoutes'); //added for attendance
+const prisma = require('./src/utils/prisma'); // <--- Import the shared DB connection
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,6 +18,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/employee', employeeRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {
