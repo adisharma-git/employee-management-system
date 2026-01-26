@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet'); // Recommended for security
 const authRoutes = require('./src/routes/authRoutes');
+const attendanceRoutes = require('./src/routes/attendanceRoutes'); //added for attendance
 const prisma = require('./src/utils/prisma'); // <--- Import the shared DB connection
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // ----------------------------------------------------
 // Health Check (Verifies DB Connection) [cite: 295-308]
