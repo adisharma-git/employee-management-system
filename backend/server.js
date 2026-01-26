@@ -5,7 +5,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const authRoutes = require('./src/routes/authRoutes');
 const employeeRoutes = require('./src/routes/employeeRoutes');
-const prisma = require('./src/utils/prisma');
 const attendanceRoutes = require('./src/routes/attendanceRoutes'); //added for attendance
 const prisma = require('./src/utils/prisma'); // <--- Import the shared DB connection
 
