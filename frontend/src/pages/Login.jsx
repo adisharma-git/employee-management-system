@@ -37,32 +37,23 @@ export default function Login() {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-
-  
-
 const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (!validateForm()) return;
-
   setLoading(true);
-
   try {
     const payload = {
       email: formData.email,
       password: formData.password,
     };
-
     const response = await api.post("/auth/login", payload);
-   
-
     if (response.status === 200) {
       
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       navigate("/dashboardNew", { replace: true });
     }
-
     setFormData({
       email: "",
       password: "",
@@ -81,35 +72,25 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
-
-
   return (
     
     <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-
-
       <div className="w-full max-w-5xl h-[600px] bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
-
-
         <div className="p-10 flex flex-col justify-center">
           <h1 className="text-3xl font-bold mb-2">Login</h1>
           <p className="text-gray-500 text-sm mb-6">
             Welcome to the Employee Management System
           </p>
-
           <button className="w-full border rounded-full py-3 flex items-center justify-center gap-2 mb-6">
             <i className="fab fa-google text-red-500"></i>
             Sign in with Google
           </button>
-
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1 border-t"></div>
             <span className="text-xs text-gray-400">or Sign in with Email</span>
             <div className="flex-1 border-t"></div>
           </div>
-
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
-
             <div>
               <input
                 type="email"
@@ -124,8 +105,6 @@ const handleSubmit = async (e) => {
                 <p className="text-red-500 text-xs mt-1">{errors.email}</p>
               )}
             </div>
-
-
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -144,19 +123,13 @@ const handleSubmit = async (e) => {
                 <i className={`fas fa-${showPassword ? "eye-slash" : "eye"}`}></i>
               </button>
             </div>
-
-
             <div className="flex justify-between items-center text-sm">
               <label className="flex items-center">
-
-
               </label>
               <Link to="/forgetPassword" className="text-orange-500">
                 Forgot password?
               </Link>
-         
             </div>
-
             <button
               type="submit"
               disabled={loading}
@@ -164,18 +137,14 @@ const handleSubmit = async (e) => {
             >
               {loading ? "Logging in..." : "Login"}
             </button>
-
           </form>
-
           <p className="text-sm text-center mt-6">
             Not registered yet?{" "}
             <Link to="/register" className="text-orange-500">
               Create an Account
             </Link>
           </p>
-        </div>
-
-      
+        </div>     
         <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-[#021f54] to-[#043a8f] text-white relative">
   <div className="text-center px-8">
     <h2 className="text-3xl font-bold mb-4">
