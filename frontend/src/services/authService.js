@@ -11,3 +11,7 @@ export const loginUser = (data) => {
 export const userName = () => {
   return api.get("/employee/me");
 };
+
+export const userData=(data)=>{
+  return api.put("/employee/update",data);
+}
