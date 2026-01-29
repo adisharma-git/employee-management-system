@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faPlus, faCamera } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faPlus, faCamera, faEdit } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/axios";
 
 export default function EmployeeForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const [formData, setFormData] = useState({
     phone: "",
@@ -19,78 +20,79 @@ export default function EmployeeForm() {
   const [previewImage, setPreviewImage] = useState(null);
   const [errors, setErrors] = useState({});
 
-  /* ================= GET EMPLOYEE DATA ================= */
-  useEffect(() => {
-    const fetchEmployee = async () => {
-      setLoading(true);
-      try {
-        const response = await api.get("/employee/me");
+  const fetchEmployee = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/employee/me");
+      const emp = res.data.data;
 
+      setName(emp.name || "");
+      setEmail(emp.user?.email || "");
 
-        const emp = response.data.data;
+      setFormData({
+        phone: emp.phone || "",
+        department:
+          emp.department === "Not Assigned" ? "" : emp.department,
+        designation:
+          emp.designation === "Not Assigned" ? "" : emp.designation,
+        dateOfJoining: emp.dateOfJoining
+          ? emp.dateOfJoining.split("T")[0]
+          : "",
+      });
 
-        setName(emp.name || "");
-        setEmail(emp.user?.email || "");
-
-        setFormData({
-          phone: emp.phone || "",
-          department:
-            emp.department === "Not Assigned" ? "" : emp.department,
-          designation:
-            emp.designation === "Not Assigned" ? "" : emp.designation,
-          dateOfJoining: emp.dateOfJoining
-            ? emp.dateOfJoining.split("T")[0]
-            : "",
-        });
-
-        if (emp.profileImage) {
-          setPreviewImage(emp.profileImage);
-        }
-      } catch (error) {
-        console.error("Failed to fetch employee", error);
-
-        if (error.response?.status === 401) {
-          alert("Unauthorized. Please login again.");
-          window.location.href = "/login";
-        } else {
-          alert("Failed to load employee data.");
-        }
-      } finally {
-        setLoading(false);
+      if (emp.profileImage) {
+        setPreviewImage(emp.profileImage);
       }
-    };
 
+
+      setIsEditMode(false);
+      setProfileImage(null);
+      setErrors({});
+
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load employee data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchEmployee();
   }, []);
 
   /* ================= INPUT HANDLER ================= */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
-  /* ================= IMAGE UPLOAD ================= */
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setErrors({ profileImage: "Please upload an image file" });
+      setErrors({ profileImage: "Only image files allowed" });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrors({ profileImage: "Image size should be less than 5MB" });
+      setErrors({ profileImage: "Image must be under 5MB" });
       return;
     }
 
     setProfileImage(file);
-
-    const reader = new FileReader();
-    reader.onloadend = () => setPreviewImage(reader.result);
-    reader.readAsDataURL(file);
-
+    setPreviewImage(URL.createObjectURL(file));
     setErrors({});
   };
 
@@ -98,8 +100,8 @@ export default function EmployeeForm() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.phone || !/^\d{10}$/.test(formData.phone))
-      newErrors.phone = "Valid 10-digit phone required";
+    if (!/^\d{10}$/.test(formData.phone))
+      newErrors.phone = "Enter valid 10 digit phone number";
 
     if (!formData.department)
       newErrors.department = "Department is required";
@@ -108,40 +110,52 @@ export default function EmployeeForm() {
       newErrors.designation = "Designation is required";
 
     if (!formData.dateOfJoining)
-      newErrors.dateOfJoining = "Date of joining required";
-
-    if (!profileImage && !previewImage)
-      newErrors.profileImage = "Profile image required";
+      newErrors.dateOfJoining = "Date of joining is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  /* ================= SUBMIT ================= */
+  /* ================= EDIT MODE TOGGLE ================= */
+  const handleEditClick = () => {
+    setIsEditMode(true);
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setLoading(true);
+
     try {
-      const submitData = new FormData();
-      submitData.append("phone", formData.phone);
-      submitData.append("department", formData.department);
-      submitData.append("designation", formData.designation);
-      submitData.append("dateOfJoining", formData.dateOfJoining);
+      const payload = new FormData();
+
+      payload.append("phone", formData.phone);
+      payload.append("department", formData.department);
+      payload.append("designation", formData.designation);
+      payload.append("dateOfJoining", formData.dateOfJoining);
 
       if (profileImage) {
-        submitData.append("profileImage", profileImage);
+        payload.append("profileImage", profileImage);
       }
 
-      await api.put("/employee/update", submitData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.put("/employee/update", payload);
 
-      alert("Profile updated successfully!");
+      alert("Profile updated successfully ✅");
+
+
+      const fileInput = document.getElementById("imageInput");
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
+
+      await fetchEmployee();
+
     } catch (error) {
       console.error(error);
-      alert("Failed to update profile");
+      alert("Profile update failed ❌");
     } finally {
       setLoading(false);
     }
@@ -150,7 +164,6 @@ export default function EmployeeForm() {
   const ErrorText = ({ msg }) =>
     msg ? <p className="text-red-500 text-xs mt-1">{msg}</p> : null;
 
-  /* ================= UI ================= */
   if (loading && !name) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -159,80 +172,131 @@ export default function EmployeeForm() {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between mb-6">
+        <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Personal Details</h1>
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="px-6 py-2 bg-[#021f54] text-white rounded-lg"
-          >
-            <FontAwesomeIcon icon={faPlus} /> Update Profile
-          </button>
+          <div className="flex gap-3">
+            {!isEditMode && (
+              <button
+                onClick={handleEditClick}
+                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+              >
+                <FontAwesomeIcon icon={faEdit} /> Edit Profile
+              </button>
+            )}
+            {isEditMode && (
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="px-6 py-2 bg-[#021f54] text-white rounded-lg hover:bg-[#032a6e] transition disabled:opacity-50"
+              >
+                <FontAwesomeIcon icon={faPlus} /> Update Profile
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* LEFT */}
+
           <div className="lg:col-span-2 bg-white p-6 rounded-lg">
             <div className="grid md:grid-cols-2 gap-4">
-              <input disabled value={name} className="input bg-gray-100" />
-              <input disabled value={email} className="input bg-gray-100" />
+              <div>
+                <label className="label">Name</label>
+                <input
+                  disabled
+                  value={name}
+                  placeholder="Name"
+                  className="input bg-gray-100"
+                />
+              </div>
 
-              <input
-                name="phone"
-                placeholder="Phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="input"
-              />
-              <ErrorText msg={errors.phone} />
+              <div>
+                <label className="label">Email</label>
+                <input
+                  disabled
+                  value={email}
+                  placeholder="Email"
+                  className="input bg-gray-100"
+                />
+              </div>
 
-              <input
-                name="department"
-                placeholder="Department"
-                value={formData.department}
-                onChange={handleInputChange}
-                className="input"
-              />
-              <ErrorText msg={errors.department} />
+              <div>
+                <label className="label">Phone</label>
+                <input
+                  name="phone"
+                  placeholder="Phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  disabled={!isEditMode}
+                  className={`input ${!isEditMode ? 'bg-gray-100' : ''}`}
+                />
+                <ErrorText msg={errors.phone} />
+              </div>
 
-              <input
-                name="designation"
-                placeholder="Designation"
-                value={formData.designation}
-                onChange={handleInputChange}
-                className="input"
-              />
-              <ErrorText msg={errors.designation} />
+              <div>
+                <label className="label">Department</label>
+                <input
+                  name="department"
+                  placeholder="Department"
+                  value={formData.department}
+                  onChange={handleInputChange}
+                  disabled={!isEditMode}
+                  className={`input ${!isEditMode ? 'bg-gray-100' : ''}`}
+                />
+                <ErrorText msg={errors.department} />
+              </div>
 
-              <input
-                type="date"
-                name="dateOfJoining"
-                value={formData.dateOfJoining}
-                onChange={handleInputChange}
-                className="input"
-              />
-              <ErrorText msg={errors.dateOfJoining} />
+              <div>
+                <label className="label">Designation</label>
+                <input
+                  name="designation"
+                  placeholder="Designation"
+                  value={formData.designation}
+                  onChange={handleInputChange}
+                  disabled={!isEditMode}
+                  className={`input ${!isEditMode ? 'bg-gray-100' : ''}`}
+                />
+                <ErrorText msg={errors.designation} />
+              </div>
+
+              <div>
+                <label className="label">Date of Joining</label>
+                <input
+                  type="date"
+                  name="dateOfJoining"
+                  value={formData.dateOfJoining}
+                  onChange={handleInputChange}
+                  disabled={!isEditMode}
+                  className={`input ${!isEditMode ? 'bg-gray-100' : ''}`}
+                />
+                <ErrorText msg={errors.dateOfJoining} />
+              </div>
             </div>
           </div>
 
-          {/* RIGHT */}
+
           <div className="bg-white p-6 rounded-lg text-center">
             {previewImage ? (
               <img
                 src={previewImage}
                 alt="profile"
-                className="h-32 w-32 rounded-full mx-auto"
+                className="h-32 w-32 rounded-full mx-auto object-cover"
               />
             ) : (
               <FontAwesomeIcon icon={faUser} size="4x" />
             )}
 
             <button
+              type="button"
               onClick={() => document.getElementById("imageInput").click()}
-              className="mt-4 w-full border py-2 rounded"
+              disabled={!isEditMode}
+              className={`mt-4 w-full border py-2 rounded transition ${!isEditMode
+                  ? 'bg-gray-100 cursor-not-allowed opacity-50'
+                  : 'hover:bg-gray-50'
+                }`}
             >
               <FontAwesomeIcon icon={faCamera} /> Upload Photo
             </button>
@@ -243,6 +307,7 @@ export default function EmployeeForm() {
               hidden
               accept="image/*"
               onChange={handleImageUpload}
+              disabled={!isEditMode}
             />
             <ErrorText msg={errors.profileImage} />
           </div>
@@ -250,11 +315,27 @@ export default function EmployeeForm() {
       </div>
 
       <style>{`
+        .label {
+          display: block;
+          font-size: 14px;
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 6px;
+        }
         .input {
           width: 100%;
           padding: 10px;
           border: 1px solid #d1d5db;
           border-radius: 8px;
+          transition: all 0.2s;
+        }
+        .input:disabled {
+          cursor: not-allowed;
+        }
+        .input:not(:disabled):focus {
+          outline: none;
+          border-color: #021f54;
+          box-shadow: 0 0 0 3px rgba(2, 31, 84, 0.1);
         }
       `}</style>
     </div>
