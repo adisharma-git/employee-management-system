@@ -20,6 +20,10 @@ export default function EmployeeForm() {
   const [previewImage, setPreviewImage] = useState(null);
   const [errors, setErrors] = useState({});
 
+  const handlePhoto = () => {
+    alert("This Feature Is Coming Soon! Stay Connected")
+  }
+
   const fetchEmployee = async () => {
     setLoading(true);
     try {
@@ -291,7 +295,7 @@ export default function EmployeeForm() {
 
             <button
               type="button"
-              onClick={() => document.getElementById("imageInput").click()}
+              onClick={() => handlePhoto()}
               disabled={!isEditMode}
               className={`mt-4 w-full border py-2 rounded transition ${!isEditMode
                   ? 'bg-gray-100 cursor-not-allowed opacity-50'
