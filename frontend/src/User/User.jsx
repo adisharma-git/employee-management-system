@@ -181,12 +181,13 @@ export default function EmployeeForm() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Personal Details</h1>
+          <h1 className="text-3xl font-bold">Employee Details</h1>
           <div className="flex gap-3">
             {!isEditMode && (
               <button
                 onClick={handleEditClick}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+                className="px-6 py-2  bg-[#021f54] text-white hover:bg-orange-400
+                hover:text-black text-sm font-medium rounded-md transition"
               >
                 <FontAwesomeIcon icon={faEdit} /> Edit Profile
               </button>
@@ -195,7 +196,8 @@ export default function EmployeeForm() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="px-6 py-2 bg-[#021f54] text-white rounded-lg hover:bg-[#032a6e] transition disabled:opacity-50"
+                className="px-6 py-2  bg-[#021f54] text-white hover:bg-orange-400
+                hover:text-black text-sm font-medium rounded-md transition disabled:opacity-50"
               >
                 <FontAwesomeIcon icon={faPlus} /> Update Profile
               </button>
