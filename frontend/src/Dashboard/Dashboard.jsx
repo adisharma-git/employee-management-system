@@ -54,8 +54,8 @@ export default function Dashboard() {
             <button
               onClick={handleEmployee}
               className="
-                bg-[#021f54] hover:bg-blue-500
-                text-white text-sm font-medium
+                bg-[#021f54] text-white hover:bg-orange-400
+                hover:text-black text-sm font-medium
                 px-4 py-1.5
                 rounded-md
                 transition-colors duration-200
