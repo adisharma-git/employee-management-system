@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faPlus, faCamera, faEdit } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/axios";
+import Loader from "../Loader/Loader";
 
 export default function EmployeeForm() {
   const [name, setName] = useState("");
@@ -171,7 +172,7 @@ export default function EmployeeForm() {
   if (loading && !name) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading...
+        <Loader/>
       </div>
     );
   }
