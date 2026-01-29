@@ -13,26 +13,17 @@ export default function Dashboard() {
   const [userName, setUserName] = useState("User");
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await api.get("/employee/me");
-        const data = response.data;
-        if (data?.name) {
-          setUserName(data.name);
-        } else if (data?.user?.name) {
-          setUserName(data.user.name);
-        } else if (data?.data?.name) {
-          setUserName(data.data.name);
-        } else if (data?.data?.user?.name) {
-          setUserName(data.data.user.name);
-        } else {
-          console.warn("⚠️ Name not found in any expected path. Check 'API Data Object' above.");
-        }
-        
-      } catch (error) {
-        console.error("❌ Error fetching user:", error);
-      }
-    };
+   const fetchUser = async () => {
+  try {
+    const response = await api.get("/employee/me");
+    const userData = response.data.data; 
+    if (userData?.name) {
+      setUserName(userData.name);
+    }
+  } catch (error) {
+    console.error("Error fetching user:", error);
+  }
+};
 
     fetchUser();
   }, []);
@@ -44,17 +35,17 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (selectedTab) {
       case "employees":
-        return <Employees />;
+        return <Employees/>;
       case "reports":
-        return <Reports />;
+        return <Reports/>;
       case "EmployeeForm":
-        return <EmployeeForm />;
+        return <EmployeeForm/>;
       case "Attendance":
-        return <Attendance />;
+        return <Attendance/>;
       case "performance":
       case "expenses":
       default:
-        return <DashboardHome />;
+        return <DashboardHome/>;
     }
   };
 
