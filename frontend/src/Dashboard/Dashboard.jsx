@@ -31,6 +31,14 @@ export default function Dashboard() {
   const handleEmployee = () => {
     alert("Coming Soon Stay Updated");
   };
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
 
   const renderContent = () => {
     switch (selectedTab) {
@@ -59,7 +67,7 @@ export default function Dashboard() {
         <main className="flex-1 overflow-auto bg-gray-50 p-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-800">
-              Good afternoon, {userName}!
+              {getGreeting()}, {userName}!
             </h2>
 
             <button
