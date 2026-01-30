@@ -78,7 +78,7 @@ const AttendenceHeader = () => {
 
 
   return (
-    <div className="sticky top-0 z-10 bg-gray-50 pb-4">
+    <div className="sticky top-0 z-10 bg-gray-50 pb-4 z-20">
       {showSuccessPopup && (
         <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-50 border border-green-200 shadow-xl rounded-lg px-6 py-4 flex items-center gap-3 z-50 transition-all duration-500 ease-in-out">
           <div className="bg-green-100 p-2 rounded-full">

@@ -134,7 +134,7 @@ const Tabs = ({ currentFilter = 'All', onFilterChange }) => {
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto relative z-20">
+        <div className="flex items-center gap-3 w-full md:w-auto relative z-10">
 
 
           <div className="relative">
