@@ -2,6 +2,7 @@ const express = require('express');
 const { 
   markAttendance, 
   updateCheckout,
+  getPunchStatus,
   getMyAttendance,
   getTodayAttendance,
   getAllAttendance,
@@ -23,6 +24,7 @@ const { validateMarkAttendance, validateUpdateCheckout } = require('../middlewar
 
 router.post('/mark', authenticate, validateMarkAttendance, markAttendance);
 router.patch('/checkout', authenticate, validateUpdateCheckout, updateCheckout);
+router.get('/punch-status', authenticate, getPunchStatus);
 
 
 module.exports = router;
