@@ -15,3 +15,9 @@ export const userName = () => {
 export const userData=(data)=>{
   return api.put("/employee/update",data);
 }
+export const punchIn=(data)=>{
+  return api.post("/attendance/mark",data);
+}
+export const punchOut=(data)=>{
+  return api.post("/attendance/checkout",data);
+}
