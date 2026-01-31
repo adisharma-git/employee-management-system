@@ -1,8 +1,11 @@
 
+import { useEffect, useState } from "react"
 import AnnouncementsCard from "./AnnouncementsCard"
 import TaskCompletionCard from "./TaskCard"
+import api from "../api/axios";
 
-const DashboardHome = () => {
+  const DashboardHome = () => {
+  const [punchedIn,setPunchedIn]=useState(false);
   const announcementsData = [
     {
       title: "Aaah Support Process Update – Important Announcement",
@@ -30,6 +33,21 @@ const DashboardHome = () => {
       avatar: "https://i.pravatar.cc/40?img=22",
     },
   ]
+useEffect(() => {
+  const fetchStatus = async () => {
+    try {
+      const response = await api.get("/attendance/punch-status");
+      setPunchedIn(response.data.data.isPunchedIn);
+      console.log("Punched in data",punchedIn)
+    } catch (error) {
+      console.log("Punch status error:", error);
+    }
+  };
+
+  fetchStatus();
+}, []);
+
+
   return (
     <div>
       <div className="flex flex-col md:flex-row gap-4">
@@ -56,11 +74,18 @@ const DashboardHome = () => {
         />
         <TaskCompletionCard
           title="Leaves Report"
-          // percentage={1}
+          percentage={1}
           label="Coming Soon"
           icon="fa-clipboard-check"
           accentColor="teal"
         />
+        <TaskCompletionCard
+          title="Status"
+          label={punchedIn ? "Punched In" : "Punched Out"}
+          icon="fa-clipboard-check"
+          isPunchedIn={punchedIn}
+        />
+ 
       </div>
  <div className="flex w-full mt-6 gap-6">
   <div className="w-1/2">
