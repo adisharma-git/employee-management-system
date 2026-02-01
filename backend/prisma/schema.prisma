@@ -46,6 +46,8 @@ model Employee {
   
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  dailyLogs     DailyLog[]
 
   // Relationships
   user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -130,4 +132,34 @@ model Task {
   @@index([assignedTo])
   @@index([status])
   @@index([priority])
+}
+
+// --------------------------------------
+// 6. DailyLog
+// --------------------------------------
+model DailyLog {
+  id          String   @id @default(uuid())
+  
+  // 1. The "Anchor" (Date)
+  // We store the date so we know "Which day is this row for?"
+  date        DateTime @default(now()) 
+  
+  // 2. The Link (Foreign Key)
+  // This is how we connect this row to a specific Employee.
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+
+  // 3. The "Magic Container" (JSON)
+  // This holds the list: [{ item: "UI Fix", time: 2 }, { item: "Meeting", time: 1 }]
+  workItems   Json     @default("[]") 
+
+  // 4. Metadata
+  totalHours  Float    @default(0.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 5. The Rule (Constraint)
+  // This effectively says: "An Employee cannot have TWO rows for the SAME date."
+  // If they try to add a new task for today, we force an UPDATE, not a CREATE.
+  @@unique([date, employeeId])
 }
