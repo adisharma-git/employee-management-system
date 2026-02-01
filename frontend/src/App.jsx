@@ -30,7 +30,12 @@ function App() {
 
           } />
           <Route path="/attendance" element={<Attendence/>}/>
-        <Route path="/employeeForm" element={<EmployeeForm/>} />
+          
+        <Route
+          path="/employeeForm"
+          element={
+            <ProtectedRoute><EmployeeForm /></ProtectedRoute>}
+        />
         <Route path='/dashboardNew/help' element={<HelpPage/>}/>
       </Routes>
     </BrowserRouter>

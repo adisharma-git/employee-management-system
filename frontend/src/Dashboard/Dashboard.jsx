@@ -11,7 +11,7 @@ import TimeLogDashboard from "../DailyLogs/TimeLog";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
-  const [userName, setUserName] = useState("User");
+  const [userName, setUserName] = useState("Login");
 
   useEffect(() => {
    const fetchUser = async () => {
