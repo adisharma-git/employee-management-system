@@ -7,6 +7,7 @@ import Reports from "./Reports";
 import EmployeeForm from "../User/User";
 import Attendance from "../Attendence/attendence";
 import api from "../api/axios";
+import TimeLogDashboard from "../DailyLogs/TimeLog";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
@@ -51,6 +52,7 @@ export default function Dashboard() {
       case "Attendance":
         return <Attendance/>;
       case "performance":
+        return <TimeLogDashboard/>;
       case "expenses":
       default:
         return <DashboardHome/>;
