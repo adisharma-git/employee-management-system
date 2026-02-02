@@ -21,3 +21,6 @@ export const punchIn=(data)=>{
 export const punchOut=(data)=>{
   return api.post("/attendance/checkout",data);
 }
+export const punchInData=()=>{
+  return api.get("/attendance/punch-status");
+}

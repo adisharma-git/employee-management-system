@@ -36,7 +36,14 @@ function App() {
           element={
             <ProtectedRoute><EmployeeForm /></ProtectedRoute>}
         />
-        <Route path='/dashboardNew/help' element={<HelpPage/>}/>
+        <Route
+          path='/dashboardNew/help'
+
+          element={
+            <ProtectedRoute>
+              <HelpPage />
+            </ProtectedRoute>
+          } />
       </Routes>
     </BrowserRouter>
   )
