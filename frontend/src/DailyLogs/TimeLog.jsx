@@ -81,64 +81,81 @@ export default function TimeLogDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-3xl font-bold mb-6">My Time Log</h1>
-      <div className="bg-white p-4 rounded shadow mb-6 grid md:grid-cols-4 gap-4">
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="border rounded px-3 py-2"
-        >
-          <option>All</option>
-          <option>Pending</option>
-          <option>Approved</option>
-          <option>Rejected</option>
-        </select>
 
-        <div className="md:col-span-2 relative">
-          <FontAwesomeIcon
-            icon={faMagnifyingGlass}
-            className="absolute left-3 top-3 text-gray-400"
-          />
-          <input
-            placeholder="Search by work or date"
-            className="w-full pl-10 border rounded px-3 py-2"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+
+      <div className="bg-white p-4 rounded shadow mb-6">
+        <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
+
+
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="
+    w-full md:w-44
+    appearance-none
+    border border-gray-300
+    rounded-md
+    bg-white
+    px-3 py-2
+    text-sm text-gray-700
+    focus:outline-none
+    focus:ring-2 focus:ring-[#021f54]
+    focus:border-[#021f54]
+    hover:border-gray-400
+    cursor-pointer
+  "
+          >
+            <option value="All">All</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+
+
+
+          <div className="relative flex-1 min-w-[220px]">
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              className="absolute left-3 top-3 text-gray-400"
+            />
+            <input
+              placeholder="Search by work or date"
+              className="w-full pl-10 border rounded px-3 py-2"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button
+            onClick={() => {
+              setEditingLog(null)
+              setShowForm(true)
+            }}
+            className="bg-[#021f54] text-white hover:bg-orange-400
+              hover:text-black text-sm font-medium
+              px-4 py-2 rounded-md transition-colors duration-200
+              whitespace-nowrap"
+          >
+            <FontAwesomeIcon icon={faPlus} className="mr-2" />
+            Add Time Log
+          </button>
+
+
+          <button
+            onClick={handleExportToCSV}
+            className="bg-[#021f54] text-white hover:bg-orange-400
+              hover:text-black text-sm font-medium
+              px-4 py-2 rounded-md transition-colors duration-200
+              whitespace-nowrap"
+          >
+            <FontAwesomeIcon icon={faDownload} className="mr-2" />
+            Export CSV
+          </button>
+
+
         </div>
-
-        <button
-          onClick={handleExportToCSV}
-          className="
-                bg-[#021f54] text-white hover:bg-orange-400
-                hover:text-black text-sm font-medium
-                px-4 py-1.5
-                rounded-md
-                transition-colors duration-200
-              "
-        >
-          <FontAwesomeIcon icon={faDownload} />
-          Export CSV
-        </button>
       </div>
 
-      <button
-        onClick={() => {
-          setEditingLog(null)
-          setShowForm(true)
-        }}
-        className="
-                bg-[#021f54] text-white hover:bg-orange-400
-                hover:text-black text-sm font-medium
-                px-4 py-1.5
-                rounded-md
-                transition-colors duration-200
-              "
-      >
-        <FontAwesomeIcon icon={faPlus} />
-        Add Time Log
-      </button>
 
-      {/* Table */}
       <div className="bg-white rounded shadow">
         {filteredLogs.length === 0 ? (
           <p className="p-4 text-gray-500">No records found</p>
