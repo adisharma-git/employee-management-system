@@ -42,8 +42,6 @@ export default function Login() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  /* ── input change (unchanged) ── */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -53,7 +51,6 @@ export default function Login() {
   /* ── submit ── */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
     setLoading(true);
     try {
@@ -140,10 +137,12 @@ export default function Login() {
                 >
                   <i className={`fas fa-${showPassword ? "eye-slash" : "eye"}`}></i>
                 </button>
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1 ">{errors.password}</p>
+                )}
               </div>
               <div className="flex justify-between items-center text-sm">
-                <label className="flex items-center">
-                </label>
+                <label className="flex items-center"></label>
                 <Link to="/forgetPassword" className="text-orange-500">
                   Forgot password?
                 </Link>
