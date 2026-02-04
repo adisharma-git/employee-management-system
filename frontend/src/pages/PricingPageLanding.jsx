@@ -1,4 +1,7 @@
 const PricingPageLanding = () => {
+    const handleComingSoon=()=>{
+        window.location.href = '/ComingSoon';
+    }
     return (
         <div className="bg-white px-6 py-14 font-sans">
             <div className="max-w-6xl mx-auto">
@@ -48,7 +51,7 @@ const PricingPageLanding = () => {
                             </ul>
                         </div>
 
-                        <button className="w-full py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition mt-8">
+                        <button className="w-full py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition mt-8"onClick={handleComingSoon}>
                             Get started
                         </button>
                     </div>
@@ -71,7 +74,7 @@ const PricingPageLanding = () => {
                         </div>
 
 
-                        <button className="w-full py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-[#032a75] transition mt-8">
+                        <button className="w-full py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-[#032a75] transition mt-8" onClick={handleComingSoon}>
                             Get started
                         </button>
                     </div>
@@ -101,7 +104,7 @@ const PricingPageLanding = () => {
                             </ul>
                         </div>
 
-                        <button className="w-full py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition mt-8">
+                        <button className="w-full py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition mt-8" onClick={handleComingSoon}>
                             Get started
                         </button>
                     </div>

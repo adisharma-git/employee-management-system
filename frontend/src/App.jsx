@@ -8,6 +8,7 @@ import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
 import EmployeeForm from './User/User'
 import HelpPage from './Dashboard/HelpPage'
 import Attendence from './Attendence/attendence'
+import ComingSoon from './ComingSoon/ComingSoon'
 
 function App() {
   return (
@@ -44,6 +45,12 @@ function App() {
               <HelpPage />
             </ProtectedRoute>
           } />
+         
+        <Route path="/ComingSoon" 
+
+        element={
+        <ProtectedRoute><ComingSoon />
+        </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   )
