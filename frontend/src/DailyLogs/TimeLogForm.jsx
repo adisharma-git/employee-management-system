@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import api from '../api/axios'
 
 export default function TimeLogForm({ onClose, onSubmit, editingLog }) {
   const [formData, setFormData] = useState({
-    date: '',
+    // date: '',
     workName: '',
     description: '',
     status: 'Pending',
@@ -19,10 +20,24 @@ export default function TimeLogForm({ onClose, onSubmit, editingLog }) {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit(formData)
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  const payload = {
+    title: formData.workName,
+    description: formData.description,
+    status: formData.status,
+    timeTaken: Number(formData.timeTaken),
   }
+
+  try {
+    const res = await api.post('/logs/add', payload)
+    onClose()
+  } catch (error) {
+    console.error('Error saving log:', error)
+    console.error('Server response:', error.response?.data)
+    console.error('Status code:', error.response?.status)
+  }
+}
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -37,14 +52,15 @@ export default function TimeLogForm({ onClose, onSubmit, editingLog }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
+          {/* Don't remove this code we will work later on date when working with admin */}
+          {/* <input
             type="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
             required
             className="w-full border rounded px-3 py-2"
-          />
+          /> */}
 
           <input
             type="text"
@@ -72,7 +88,7 @@ export default function TimeLogForm({ onClose, onSubmit, editingLog }) {
               className="border rounded px-3 py-2"
             >
               <option>Pending</option>
-              <option>Approved</option>
+              <option>Completed</option>
               <option>Rejected</option>
             </select>
 
