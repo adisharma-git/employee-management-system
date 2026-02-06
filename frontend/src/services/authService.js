@@ -24,3 +24,6 @@ export const punchOut=(data)=>{
 export const punchInData=()=>{
   return api.get("/attendance/punch-status");
 }
+export const timeLog=(data)=>{
+  return api.post("/logs/add",data);
+}
