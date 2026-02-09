@@ -27,3 +27,6 @@ export const punchInData=()=>{
 export const timeLog=(data)=>{
   return api.post("/logs/add",data);
 }
+export const deleteTimeLog=(data)=>{
+  return api.delete("/logs/delete",{data:data});
+}

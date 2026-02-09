@@ -55,11 +55,20 @@ export default function TimeLogDashboard() {
     setShowForm(false)
   }
 
-  const handleDeleteLog = (id) => {
-    if (confirm('Delete this time log?')) {
-      setTimeLogs(timeLogs.filter((log) => log.id !== id))
+const handleDeleteLog = async (id) => {
+  if (confirm('Delete this time log?')) {
+    try {
+      await api.delete('/logs/delete', {
+        data: { id: id }
+      })
+     
+      fetchLogs()
+    } catch (error) {
+      console.error('Error deleting log:', error)
+      alert('Failed to delete the time log. Please try again.')
     }
   }
+}
 
   const filteredLogs = timeLogs.filter((log) => {
     const matchesSearch =
