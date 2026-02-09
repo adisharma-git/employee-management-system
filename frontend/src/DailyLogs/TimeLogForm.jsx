@@ -3,7 +3,6 @@ import api from '../api/axios'
 
 export default function TimeLogForm({ onClose, onSubmit, editingLog }) {
   const [formData, setFormData] = useState({
-    // date: '',
     workName: '',
     description: '',
     status: 'Pending',
@@ -20,24 +19,24 @@ export default function TimeLogForm({ onClose, onSubmit, editingLog }) {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-const handleSubmit = async (e) => {
-  e.preventDefault()
-  const payload = {
-    title: formData.workName,
-    description: formData.description,
-    status: formData.status,
-    timeTaken: Number(formData.timeTaken),
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
 
-  try {
-    const res = await api.post('/logs/add', payload)
-    onClose()
-  } catch (error) {
-    console.error('Error saving log:', error)
-    console.error('Server response:', error.response?.data)
-    console.error('Status code:', error.response?.status)
+    const payload = {
+      title: formData.workName,
+      description: formData.description,
+      status: formData.status,
+      timeTaken: Number(formData.timeTaken),
+    }
+
+    try {
+      await api.post('/logs/add', payload)
+      onSubmit()
+      onClose()
+    } catch (error) {
+      console.error('Error saving log:', error)
+    }
   }
-}
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

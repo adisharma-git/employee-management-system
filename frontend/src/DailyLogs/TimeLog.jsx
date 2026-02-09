@@ -8,6 +8,7 @@ import {
   faTrash,
 } from '@fortawesome/free-solid-svg-icons'
 import TimeLogForm from './TimeLogForm'
+import api from '../api/axios'
 
 export default function TimeLogDashboard() {
   const [timeLogs, setTimeLogs] = useState([])
@@ -16,26 +17,40 @@ export default function TimeLogDashboard() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('All')
 
+
+  const fetchLogs = async () => {
+    try {
+      const res = await api.get('/logs')
+      const apiData = res.data.data 
+
+      const formattedLogs = apiData.flatMap((dayLog) =>
+        dayLog.workItems.map((item) => ({
+          id: item.id,
+          date: new Date(dayLog.date).toISOString().split('T')[0],
+          workName: item.title,
+          description: item.description,
+          status: item.status,
+          timeTaken: item.timeTaken,
+        }))
+      )
+
+      setTimeLogs(formattedLogs)
+    } catch (error) {
+      console.error('Error fetching logs:', error)
+    }
+  }
+
   useEffect(() => {
-    const saved = localStorage.getItem('timeLogs')
-    if (saved) setTimeLogs(JSON.parse(saved))
+    fetchLogs()
   }, [])
 
-  useEffect(() => {
-    localStorage.setItem('timeLogs', JSON.stringify(timeLogs))
-  }, [timeLogs])
-
-  const handleAddLog = (log) => {
-    setTimeLogs([...timeLogs, { ...log, id: Date.now() }])
+  const handleAddLog = () => {
+    fetchLogs()
     setShowForm(false)
   }
 
-  const handleUpdateLog = (updatedLog) => {
-    setTimeLogs(
-      timeLogs.map((log) =>
-        log.id === updatedLog.id ? updatedLog : log
-      )
-    )
+  const handleUpdateLog = () => {
+    fetchLogs()
     setEditingLog(null)
     setShowForm(false)
   }
@@ -48,8 +63,8 @@ export default function TimeLogDashboard() {
 
   const filteredLogs = timeLogs.filter((log) => {
     const matchesSearch =
-      log.workName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.date?.includes(searchTerm)
+      log.workName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.date.includes(searchTerm)
 
     const matchesStatus =
       filterStatus === 'All' || log.status === filterStatus
@@ -82,36 +97,19 @@ export default function TimeLogDashboard() {
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-3xl font-bold mb-6">My Time Log</h1>
 
-
       <div className="bg-white p-4 rounded shadow mb-6">
         <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
-
 
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="
-    w-full md:w-44
-    appearance-none
-    border border-gray-300
-    rounded-md
-    bg-white
-    px-3 py-2
-    text-sm text-gray-700
-    focus:outline-none
-    focus:ring-2 focus:ring-[#021f54]
-    focus:border-[#021f54]
-    hover:border-gray-400
-    cursor-pointer
-  "
+            className="w-full md:w-44 border rounded px-3 py-2"
           >
             <option value="All">All</option>
             <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
+            <option value="Completed">Completed</option>
             <option value="Rejected">Rejected</option>
           </select>
-
-
 
           <div className="relative flex-1 min-w-[220px]">
             <FontAwesomeIcon
@@ -130,22 +128,15 @@ export default function TimeLogDashboard() {
               setEditingLog(null)
               setShowForm(true)
             }}
-            className="bg-[#021f54] text-white hover:bg-orange-400
-              hover:text-black text-sm font-medium
-              px-4 py-2 rounded-md transition-colors duration-200
-              whitespace-nowrap"
+            className="bg-[#021f54] text-white px-4 py-2 rounded-md"
           >
             <FontAwesomeIcon icon={faPlus} className="mr-2" />
             Add Time Log
           </button>
 
-
           <button
             onClick={handleExportToCSV}
-            className="bg-[#021f54] text-white hover:bg-orange-400
-              hover:text-black text-sm font-medium
-              px-4 py-2 rounded-md transition-colors duration-200
-              whitespace-nowrap"
+            className="bg-[#021f54] text-white px-4 py-2 rounded-md"
           >
             <FontAwesomeIcon icon={faDownload} className="mr-2" />
             Export CSV
@@ -183,7 +174,7 @@ export default function TimeLogDashboard() {
                         setEditingLog(log)
                         setShowForm(true)
                       }}
-                      className="text-blue-600 hover:underline"
+                      className="text-blue-600"
                     >
                       <FontAwesomeIcon icon={faPen} />
                     </button>
