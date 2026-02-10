@@ -13,13 +13,15 @@ const AttendanceTable = ({ employees }) => {
             <th className="px-6 py-4 w-12">
               <input type="checkbox" className="rounded text-[#f97316] focus:ring-[#f97316] cursor-pointer" />
             </th>
-            <th className="px-6 py-4">Employee Attendance</th>
+            <th className="px-6 py-4">Employee Name</th>
             <th className="px-6 py-4">Date</th>
             <th className="px-6 py-4">Job Title</th>
             <th className="px-6 py-4">Status</th>
-            <th className="px-6 py-4">Check-In/Out</th>
-            <th className="px-6 py-4">Employment Type</th>
-            <th className="px-6 py-4 text-center">Action</th>
+            <th className="px-6 py-4">Check-In-Time</th>
+             <th className="px-6 py-4">Check-Out-Time</th>
+
+            <th className="px-6 py-4">Department</th>
+            {/* <th className="px-6 py-4 text-center">Action</th> */}
           </tr>
         </thead>
 
