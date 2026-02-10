@@ -21,11 +21,13 @@ export default function TimeLogDashboard() {
   const fetchLogs = async () => {
     try {
       const res = await api.get('/logs')
-      const apiData = res.data.data 
+      const apiData = res.data.data
 
       const formattedLogs = apiData.flatMap((dayLog) =>
         dayLog.workItems.map((item) => ({
-          id: item.id,
+          logId: dayLog.id,      // parent log id
+          taskId: item.id,      // work item id
+
           date: new Date(dayLog.date).toISOString().split('T')[0],
           workName: item.title,
           description: item.description,
@@ -44,6 +46,7 @@ export default function TimeLogDashboard() {
     fetchLogs()
   }, [])
 
+  // ================= ADD / UPDATE =================
   const handleAddLog = () => {
     fetchLogs()
     setShowForm(false)
@@ -55,12 +58,31 @@ export default function TimeLogDashboard() {
     setShowForm(false)
   }
 
-  const handleDeleteLog = (id) => {
-    if (confirm('Delete this time log?')) {
-      setTimeLogs(timeLogs.filter((log) => log.id !== id))
+  // ================= DELETE =================
+  const handleDeleteLog = async (log) => {
+    if (!confirm('Delete this time log?')) return
+
+    try {
+      await api.delete('/logs/delete', {
+        data: {
+          logId: log.logId,
+          taskId: log.taskId,
+        },
+      })
+
+      setTimeLogs((prev) =>
+        prev.filter(
+          (l) =>
+            !(l.logId === log.logId && l.taskId === log.taskId)
+        )
+      )
+    } catch (error) {
+      console.error('Delete failed:', error)
+      alert('Failed to delete log')
     }
   }
 
+  // ================= FILTER =================
   const filteredLogs = timeLogs.filter((log) => {
     const matchesSearch =
       log.workName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -72,6 +94,7 @@ export default function TimeLogDashboard() {
     return matchesSearch && matchesStatus
   })
 
+  // ================= EXPORT =================
   const handleExportToCSV = () => {
     const headers = ['Date', 'Work', 'Time', 'Status']
     const rows = filteredLogs.map((log) => [
@@ -93,13 +116,13 @@ export default function TimeLogDashboard() {
     link.click()
   }
 
+  // ================= UI =================
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-3xl font-bold mb-6">My Time Log</h1>
 
       <div className="bg-white p-4 rounded shadow mb-6">
         <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
-
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -123,6 +146,7 @@ export default function TimeLogDashboard() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
           <button
             onClick={() => {
               setEditingLog(null)
@@ -141,11 +165,8 @@ export default function TimeLogDashboard() {
             <FontAwesomeIcon icon={faDownload} className="mr-2" />
             Export CSV
           </button>
-
-
         </div>
       </div>
-
 
       <div className="bg-white rounded shadow">
         {filteredLogs.length === 0 ? (
@@ -163,7 +184,7 @@ export default function TimeLogDashboard() {
             </thead>
             <tbody>
               {filteredLogs.map((log) => (
-                <tr key={log.id} className="border-t">
+                <tr key={log.taskId} className="border-t">
                   <td className="p-3">{log.date}</td>
                   <td className="p-3">{log.workName}</td>
                   <td className="p-3">{log.timeTaken} hrs</td>
@@ -178,8 +199,9 @@ export default function TimeLogDashboard() {
                     >
                       <FontAwesomeIcon icon={faPen} />
                     </button>
+
                     <button
-                      onClick={() => handleDeleteLog(log.id)}
+                      onClick={() => handleDeleteLog(log)}
                       className="text-red-600 hover:underline"
                     >
                       <FontAwesomeIcon icon={faTrash} />
