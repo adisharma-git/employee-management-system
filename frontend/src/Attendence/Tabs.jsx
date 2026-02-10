@@ -137,7 +137,7 @@ const Tabs = ({ currentFilter = 'All', onFilterChange }) => {
         <div className="flex items-center gap-3 w-full md:w-auto relative z-10">
 
 
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={() => setIsFilterOpen(!isFilterOpen)}
               className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors whitespace-nowrap
@@ -186,10 +186,10 @@ const Tabs = ({ currentFilter = 'All', onFilterChange }) => {
                 )}
               </div>
             )}
-          </div>
+          </div> */}
 
 
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={() => setIsCalendarOpen(!isCalendarOpen)}
               className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
@@ -226,7 +226,7 @@ const Tabs = ({ currentFilter = 'All', onFilterChange }) => {
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
