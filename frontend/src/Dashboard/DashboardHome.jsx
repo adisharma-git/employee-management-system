@@ -38,7 +38,7 @@ useEffect(() => {
     try {
       const response = await api.get("/attendance/punch-status");
       setPunchedIn(response.data.data.isPunchedIn);
-      console.log("Punched in data",punchedIn)
+     
     } catch (error) {
       console.log("Punch status error:", error);
     }

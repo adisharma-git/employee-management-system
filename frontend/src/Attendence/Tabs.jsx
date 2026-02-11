@@ -1,21 +1,14 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faSearch,
-  faFilter,
-  faCalendarAlt,
-  faChevronDown,
-  faTimes,
-  faCheck,
-  faChevronLeft,
-  faChevronRight
+  faSearch
 } from '@fortawesome/free-solid-svg-icons';
 
 const Tabs = ({ currentFilter = 'All', onFilterChange }) => {
   const [activeTab, setActiveTab] = useState('Active');
 
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  // const [isFilterOpen, setIsFilterOpen] = useState(false);
 
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -24,16 +17,16 @@ const Tabs = ({ currentFilter = 'All', onFilterChange }) => {
 
   const tabs = ['Active', 'Onboarding', 'Off-boarding', 'Dismissed'];
 
-  const filterOptions = [
-    { label: 'Present', value: 'Present', color: 'bg-green-500' },
-    { label: 'Absent', value: 'Absent', color: 'bg-red-500' },
-    { label: 'Leave', value: 'On Leave', color: 'bg-blue-500' },
-    { label: 'Late', value: 'Late', color: 'bg-orange-500' },
-  ];
+  // const filterOptions = [
+  //   { label: 'Present', value: 'Present', color: 'bg-green-500' },
+  //   { label: 'Absent', value: 'Absent', color: 'bg-red-500' },
+  //   { label: 'Leave', value: 'On Leave', color: 'bg-blue-500' },
+  //   { label: 'Late', value: 'Late', color: 'bg-orange-500' },
+  // ];
 
 
-  const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  // const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  // const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 
   const getDaysInMonth = (date) => {
@@ -45,13 +38,13 @@ const Tabs = ({ currentFilter = 'All', onFilterChange }) => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
-  const handlePrevMonth = () => {
-    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
-  };
+  // const handlePrevMonth = () => {
+  //   setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
+  // };
 
-  const handleNextMonth = () => {
-    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
-  };
+  // const handleNextMonth = () => {
+  //   setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
+  // };
 
   const handleDateClick = (day) => {
     const newDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
@@ -60,44 +53,44 @@ const Tabs = ({ currentFilter = 'All', onFilterChange }) => {
   };
 
 
-  const formatDateButton = (date) => {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+  // const formatDateButton = (date) => {
+  //   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  // };
 
 
-  const renderCalendarDays = () => {
-    const daysInMonth = getDaysInMonth(viewDate);
-    const firstDay = getFirstDayOfMonth(viewDate);
-    const days = [];
+  // const renderCalendarDays = () => {
+  //   const daysInMonth = getDaysInMonth(viewDate);
+  //   const firstDay = getFirstDayOfMonth(viewDate);
+  //   const days = [];
 
 
-    for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="h-8 w-8"></div>);
-    }
+  //   for (let i = 0; i < firstDay; i++) {
+  //     days.push(<div key={`empty-${i}`} className="h-8 w-8"></div>);
+  //   }
 
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      const isSelected =
-        selectedDate.getDate() === day &&
-        selectedDate.getMonth() === viewDate.getMonth() &&
-        selectedDate.getFullYear() === viewDate.getFullYear();
+  //   for (let day = 1; day <= daysInMonth; day++) {
+  //     const isSelected =
+  //       selectedDate.getDate() === day &&
+  //       selectedDate.getMonth() === viewDate.getMonth() &&
+  //       selectedDate.getFullYear() === viewDate.getFullYear();
 
-      days.push(
-        <button
-          key={day}
-          onClick={() => handleDateClick(day)}
-          className={`h-8 w-8 text-sm rounded-lg flex items-center justify-center transition-all
-            ${isSelected
-              ? 'bg-[#021f54] text-white font-bold shadow-md'
-              : 'text-gray-700 hover:bg-gray-100'
-            }`}
-        >
-          {day}
-        </button>
-      );
-    }
-    return days;
-  };
+  //     days.push(
+  //       <button
+  //         key={day}
+  //         onClick={() => handleDateClick(day)}
+  //         className={`h-8 w-8 text-sm rounded-lg flex items-center justify-center transition-all
+  //           ${isSelected
+  //             ? 'bg-[#021f54] text-white font-bold shadow-md'
+  //             : 'text-gray-700 hover:bg-gray-100'
+  //           }`}
+  //       >
+  //         {day}
+  //       </button>
+  //     );
+  //   }
+  //   return days;
+  // };
 
   return (
     <div className="bg-white px-8 pb-4 pt-4 shadow-sm border-b border-gray-100">
