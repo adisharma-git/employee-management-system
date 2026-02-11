@@ -2,21 +2,19 @@ import React, { useState, useEffect } from 'react';
 import AttendanceTable from './AttendenceTable';
 import Tabs from './Tabs'; 
 import AttendenceHeader from './attendenceheader';
-import api from "../api/axios";  // API import
+import api from "../api/axios";  
 
 const Attendance = () => {
   const [employees, setEmployees] = useState([]);
   const [filterStatus, setFilterStatus] = useState('All');
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch attendance data from API
+
   const fetchAttendance = async () => {
     setLoading(true);
     try {
       const response = await api.get("/attendance/punch-status");
       const data = response.data.data;
-
-      // Format API data for table
       const formattedEmployee = {
         id: data.employee.id,
         name: data.employee.name,
@@ -48,7 +46,6 @@ const Attendance = () => {
     fetchAttendance();
   }, []);
 
-  // ✅ Filter employees based on tab selection
   const filteredEmployees = employees.filter((employee) => {
     if (filterStatus === 'All') return true;
     return employee.status === filterStatus;
