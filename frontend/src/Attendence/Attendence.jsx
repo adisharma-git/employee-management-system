@@ -3,6 +3,7 @@ import AttendanceTable from './AttendenceTable';
 import Tabs from './Tabs'; 
 import AttendenceHeader from './attendenceheader';
 import api from "../api/axios";  
+import Loader from '../Loader/Loader';
 
 const Attendance = () => {
   const [employees, setEmployees] = useState([]);
@@ -59,7 +60,7 @@ const Attendance = () => {
 
       <main className="p-8">
         {loading ? (
-          <p>Loading...</p>
+           <Loader/>
         ) : (
           <AttendanceTable employees={filteredEmployees} />
         )}
