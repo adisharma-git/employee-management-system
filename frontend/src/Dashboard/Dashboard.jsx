@@ -8,6 +8,7 @@ import EmployeeForm from "../User/User";
 import Attendance from "../Attendence/attendence";
 import api from "../api/axios";
 import TimeLogDashboard from "../DailyLogs/TimeLog";
+import ComingSoon from "../ComingSoon/ComingSoon";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
@@ -30,7 +31,7 @@ export default function Dashboard() {
   }, []);
 
   const handleEmployee = () => {
-    alert("Coming Soon Stay Updated");
+    alert("This Feature is Only Available for Admins");
   };
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -54,6 +55,7 @@ export default function Dashboard() {
       case "performance":
         return <TimeLogDashboard/>;
       case "expenses":
+        return <ComingSoon/>
       default:
         return <DashboardHome/>;
     }
