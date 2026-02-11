@@ -1,33 +1,31 @@
 import React from 'react';
-import TableRow from './TableRow'; 
+import TableRow from './TableRow';
 
-// FIX: Accept 'employees' as a prop.
 const AttendanceTable = ({ employees }) => {
+  console.log("Rendering AttendanceTable with employees:", employees);
+
   return (
     <div className="overflow-x-auto shadow-sm rounded-lg border border-gray-200 bg-white">
       <table className="min-w-full text-sm text-left">
-        
-        
         <thead className="bg-[#021f54] text-white uppercase text-xs font-semibold tracking-wider">
           <tr>
             <th className="px-6 py-4 w-12">
-              <input type="checkbox" className="rounded text-[#f97316] focus:ring-[#f97316] cursor-pointer" />
+              <input
+                type="checkbox"
+                className="rounded text-[#f97316] focus:ring-[#f97316] cursor-pointer"
+              />
             </th>
             <th className="px-6 py-4">Employee Name</th>
             <th className="px-6 py-4">Date</th>
             <th className="px-6 py-4">Job Title</th>
             <th className="px-6 py-4">Status</th>
             <th className="px-6 py-4">Check-In-Time</th>
-             <th className="px-6 py-4">Check-Out-Time</th>
-
+            <th className="px-6 py-4">Check-Out-Time</th>
             <th className="px-6 py-4">Department</th>
-            {/* <th className="px-6 py-4 text-center">Action</th> */}
           </tr>
         </thead>
 
-        
         <tbody>
-          
           {employees && employees.length > 0 ? (
             employees.map((employee) => (
               <TableRow key={employee.id} employee={employee} />
@@ -40,20 +38,21 @@ const AttendanceTable = ({ employees }) => {
             </tr>
           )}
         </tbody>
-        
       </table>
 
-  
       <div className="bg-white px-6 py-4 border-t border-gray-100 flex justify-between items-center">
-        <span className="text-sm text-gray-500">Showing {employees ? employees.length : 0} entries</span>
+        <span className="text-sm text-gray-500">
+          Showing {employees ? employees.length : 0} entries
+        </span>
         <div className="flex gap-2">
-           <button className="px-3 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
-           <button className="px-3 py-1 text-sm bg-[#021f54] text-white rounded">1</button>
-           <button className="px-3 py-1 text-sm border rounded hover:bg-gray-50">2</button>
-           <button className="px-3 py-1 text-sm border rounded hover:bg-gray-50">Next</button>
+          <button className="px-3 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+            Previous
+          </button>
+          <button className="px-3 py-1 text-sm bg-[#021f54] text-white rounded">1</button>
+          <button className="px-3 py-1 text-sm border rounded hover:bg-gray-50">2</button>
+          <button className="px-3 py-1 text-sm border rounded hover:bg-gray-50">Next</button>
         </div>
       </div>
-
     </div>
   );
 };
