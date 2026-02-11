@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from "../api/axios";
 import AttendenceHeader from '../Attendence/AttendenceHeader';
 import AttendanceTable from '../Attendence/AttendenceTable';
+import Loader from '../Loader/Loader';
 
 const Attendance = () => {
   const [employees, setEmployees] = useState([]);
@@ -57,7 +58,7 @@ const Attendance = () => {
 
       <main className="p-8">
         {loading ? (
-          <p>Loading...</p>
+          <Loader/>
         ) : (
           <AttendanceTable employees={employees} />
         )}
