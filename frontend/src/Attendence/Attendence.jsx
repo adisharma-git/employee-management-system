@@ -1,31 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AttendanceTable from './AttendenceTable';
 import Tabs from './Tabs'; 
 import AttendenceHeader from './attendenceheader';
-
-
-const EMPLOYEES_DATA = [
-  // { id: 1, name: "Jamie Croquetas11111", email: "jamie@example.com", initials: "JC", date: "Jan 21, 2026", role: "Chief Editor", status: "Present", checkIn: "9:00 AM", checkOut: "6:00 PM", type: "Employment" },
-  // { id: 2, name: "Encarna Homie", email: "encarna@example.com", initials: "EH", date: "Jan 21, 2026", role: "Account Manager", status: "Present", checkIn: "8:45 AM", checkOut: "5:45 PM", type: "Employment" },
-  // { id: 3, name: "Cibeles Veterinario", email: "cibeles@example.com", initials: "CV", date: "Jan 21, 2026", role: "Brand Designer", status: "Late", checkIn: "10:15 AM", checkOut: "6:15 PM", type: "Contractor" },
-  // { id: 4, name: "Esteban BBVA", email: "esteban@example.com", initials: "EB", date: "Jan 21, 2026", role: "Client Support", status: "Present", checkIn: "9:05 AM", checkOut: "6:10 PM", type: "Employment" },
-  // { id: 5, name: "Iver Make Up", email: "iver@example.com", initials: "IM", date: "Jan 21, 2026", role: "Account Director", status: "Absent", checkIn: "--", checkOut: "--", type: "Contractor" },
-];
+import api from "../api/axios";  // API import
 
 const Attendance = () => {
+  const [employees, setEmployees] = useState([]);
   const [filterStatus, setFilterStatus] = useState('All');
+  const [loading, setLoading] = useState(false);
 
-  const filteredEmployees = EMPLOYEES_DATA.filter((employee) => {
-    if (filterStatus === 'All') return true; 
-    return employee.status === filterStatus; 
+  // ✅ Fetch attendance data from API
+  const fetchAttendance = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/attendance/punch-status");
+      const data = response.data.data;
+
+      // Format API data for table
+      const formattedEmployee = {
+        id: data.employee.id,
+        name: data.employee.name,
+        date: data.todayAttendance?.date
+          ? new Date(data.todayAttendance.date).toLocaleDateString()
+          : "-",
+        role: data.employee.designation,
+        status: data.todayAttendance?.status || "Absent",
+        checkIn: data.todayAttendance?.checkInTime
+          ? new Date(data.todayAttendance.checkInTime).toLocaleTimeString()
+          : "--",
+        checkOut: data.todayAttendance?.checkOutTime
+          ? new Date(data.todayAttendance.checkOutTime).toLocaleTimeString()
+          : "--",
+        department: data.employee.department || "Not Assigned",
+      };
+
+      setEmployees([formattedEmployee]);
+      console.log("Employees set:", [formattedEmployee]);
+    } catch (error) {
+      console.error("Failed to fetch attendance:", error);
+      setEmployees([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAttendance();
+  }, []);
+
+  // ✅ Filter employees based on tab selection
+  const filteredEmployees = employees.filter((employee) => {
+    if (filterStatus === 'All') return true;
+    return employee.status === filterStatus;
   });
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AttendenceHeader/>
+      <AttendenceHeader refreshData={fetchAttendance} />
+
       <Tabs currentFilter={filterStatus} onFilterChange={setFilterStatus} />
+
       <main className="p-8">
-        <AttendanceTable employees={filteredEmployees} />
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <AttendanceTable employees={filteredEmployees} />
+        )}
       </main>
     </div>
   );

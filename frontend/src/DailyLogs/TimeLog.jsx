@@ -202,7 +202,7 @@ export default function TimeLogDashboard() {
                   <td className="p-3">{log.timeTaken} hrs</td>
                   <td className="p-3">{log.status}</td>
                   <td className="p-3 flex gap-3">
-                    <button
+                    {/* <button
                       onClick={() => {
                         setEditingLog(log)
                         setShowForm(true)
@@ -210,7 +210,7 @@ export default function TimeLogDashboard() {
                       className="text-blue-600"
                     >
                       <FontAwesomeIcon icon={faPen} />
-                    </button>
+                    </button> */}
 
                     <button
                       onClick={() => handleDeleteLog(log)}

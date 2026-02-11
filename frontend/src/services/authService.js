@@ -32,3 +32,7 @@ export const deleteTimeLog=(data)=>{
     data:data
   });
 } 
+
+export const getPunchStatus = () => {
+  return api.get("/attendance/punch-status");
+}

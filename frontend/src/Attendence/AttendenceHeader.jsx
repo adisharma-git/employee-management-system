@@ -1,52 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt, faSignOutAlt, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import api from "../api/axios";
 
-const AttendenceHeader = () => {
-  const [isCheckedIn, setIsCheckedIn] = useState(false);
-  const [isCheckedOut, setIsCheckOut] = useState(false);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+const AttendenceHeader = ({ refreshData }) => {
+  const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
+  useEffect(() => {
+    checkPunchStatus();
+  }, []);
 
-  const handleCheckIn = async (e) => {
-    e.preventDefault();
+  const checkPunchStatus = async () => {
+    try {
+      const response = await api.get("/attendance/punch-status");
+      if (response.data?.data) {
+        setIsPunchedIn(response.data.data.isPunchedIn);
+      }
+    } catch (error) {
+      console.log("Status check error:", error);
+    }
+  };
+
+  const handleCheckIn = async () => {
     if (loading) return;
-
     setLoading(true);
 
     try {
-      const response = await api.post("/attendance/mark",{});
-
-
-      setIsCheckedIn(response.data.isCheckedIn);
-
-
-      setSuccessMessage(
-        response.data.isCheckedIn
-          ? "You have successfully checked in!"
-          : "You have successfully checked out!"
-      );
+      await api.post("/attendance/mark", {});
+      setSuccessMessage("Checked In Successfully!");
       setShowSuccessPopup(true);
 
-      setTimeout(() => {
-        setShowSuccessPopup(false);
-      }, 3000);
+      await checkPunchStatus();
+      if (refreshData) refreshData();
 
     } catch (error) {
-      console.log("Error:", error);
-      const errorMessage = error.response?.data?.message || "An error occurred. Please try again.";
-      alert(errorMessage);
+      alert(error.response?.data?.message || "Check-in failed");
     } finally {
       setLoading(false);
+      setTimeout(() => setShowSuccessPopup(false), 3000);
     }
   };
-  const handleCheckOut = async (e) => {
-    e.preventDefault();
-    if (loading) return;
 
+  const handleCheckOut = async () => {
+    if (loading) return;
     setLoading(true);
 
     const now = new Date();
@@ -58,29 +57,26 @@ const AttendenceHeader = () => {
     });
 
     try {
-      const response = await api.patch("/attendance/checkout", {
-        checkOutTime,
-      });
+      await api.patch("/attendance/checkout", { checkOutTime });
+      setSuccessMessage("Checked Out Successfully!");
+      setShowSuccessPopup(true);
 
-      alert("Successfully Checked Out ✅");
-      setIsCheckOut(response.data.isCheckedOut);
+      await checkPunchStatus();
+      if (refreshData) refreshData();
 
     } catch (error) {
-      console.log("Error:", error.response?.data || error.message);
-      alert(
-        error.response?.data?.message ||
-        "An error occurred. Please try again."
-      );
+      alert(error.response?.data?.message || "Check-out failed");
     } finally {
       setLoading(false);
+      setTimeout(() => setShowSuccessPopup(false), 3000);
     }
   };
 
-
   return (
-    <div className="sticky top-0 z-10 bg-gray-50 pb-4 z-20">
+    <div className="sticky top-0 bg-gray-50 pb-4 z-20">
+
       {showSuccessPopup && (
-        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-50 border border-green-200 shadow-xl rounded-lg px-6 py-4 flex items-center gap-3 z-50 transition-all duration-500 ease-in-out">
+        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-50 border border-green-200 shadow-xl rounded-lg px-6 py-4 flex items-center gap-3 z-50">
           <div className="bg-green-100 p-2 rounded-full">
             <FontAwesomeIcon icon={faCheckCircle} className="text-green-600 text-xl" />
           </div>
@@ -91,7 +87,7 @@ const AttendenceHeader = () => {
         </div>
       )}
 
-      <header className="bg-white border-b border-gray-100 shadow-sm px-8 py-6 flex justify-between items-center">
+      <header className="bg-white border-b shadow-sm px-8 py-6 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">People</h1>
           <p className="text-gray-500 mt-2 text-sm">
@@ -99,35 +95,24 @@ const AttendenceHeader = () => {
           </p>
         </div>
 
-        <div className='flex gap-4'>
+        <div className="flex gap-4">
+
           <button
             onClick={handleCheckIn}
-            disabled={loading}
-            className={`flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium transition-all duration-300 shadow-md hover:shadow-lg
-              ${loading ? 'opacity-50 cursor-not-allowed' : ''}
-              ${isCheckedIn
-                ? 'bg-[#d63725] hover:bg-red-600'
-                : 'bg-[#4dc95c] hover:bg-green-600'
-              }`}
+            disabled={loading || isPunchedIn}
+            className="flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium bg-green-600 hover:bg-green-700 disabled:opacity-50"
           >
-            <FontAwesomeIcon icon={isCheckedIn ? faSignOutAlt : faSignInAlt} />
-            <span>
-              {loading ? "Processing..." : (isCheckedIn ? "Check-Out" : "Check-In")}
-            </span>
+            <FontAwesomeIcon icon={faSignInAlt} />
+            {loading ? "Processing..." : "Check-In"}
           </button>
+
           <button
             onClick={handleCheckOut}
-            disabled={loading}
-            className={`flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium transition-all duration-300 shadow-md hover:shadow-lg
-              // ${loading ? 'opacity-50 cursor-not-allowed' : ''}
-              ${'bg-[#d63725] hover:bg-red-600'
-
-              }`}
+            disabled={loading || !isPunchedIn}
+            className="flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium bg-red-600 hover:bg-red-700 disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faSignOutAlt} />
-            <span>
-              {("Check-Out")}
-            </span>
+            {loading ? "Processing..." : "Check-Out"}
           </button>
 
         </div>
