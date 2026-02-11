@@ -21,24 +21,28 @@ export default function TimeLogDashboard() {
   const fetchLogs = async () => {
     try {
       const res = await api.get('/logs')
-      const apiData = res.data.data
+      const apiData = res?.data?.data || []
 
       const formattedLogs = apiData.flatMap((dayLog) =>
-        dayLog.workItems.map((item) => ({
-          logId: dayLog.id,      // parent log id
-          taskId: item.id,      // work item id
+        (dayLog?.workItems || []).map((item) => ({
+          logId: dayLog?.id || '',
+          taskId: item?.id || '',
 
-          date: new Date(dayLog.date).toISOString().split('T')[0],
-          workName: item.title,
-          description: item.description,
-          status: item.status,
-          timeTaken: item.timeTaken,
+          date: dayLog?.date
+            ? new Date(dayLog.date).toISOString().split('T')[0]
+            : '',
+
+          workName: item?.title || '',
+          description: item?.description || '',
+          status: item?.status || '',
+          timeTaken: item?.timeTaken || 0,
         }))
       )
 
       setTimeLogs(formattedLogs)
     } catch (error) {
       console.error('Error fetching logs:', error)
+      setTimeLogs([])
     }
   }
 
@@ -60,7 +64,7 @@ export default function TimeLogDashboard() {
 
   // ================= DELETE =================
   const handleDeleteLog = async (log) => {
-    if (!confirm('Delete this time log?')) return
+    if (!window.confirm('Delete this time log?')) return
 
     try {
       await api.delete('/logs/delete', {
@@ -72,8 +76,7 @@ export default function TimeLogDashboard() {
 
       setTimeLogs((prev) =>
         prev.filter(
-          (l) =>
-            !(l.logId === log.logId && l.taskId === log.taskId)
+          (l) => !(l.logId === log.logId && l.taskId === log.taskId)
         )
       )
     } catch (error) {
@@ -84,12 +87,16 @@ export default function TimeLogDashboard() {
 
   // ================= FILTER =================
   const filteredLogs = timeLogs.filter((log) => {
+    const workName = log?.workName || ''
+    const date = log?.date || ''
+    const status = log?.status || ''
+
     const matchesSearch =
-      log.workName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.date.includes(searchTerm)
+      workName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      date.includes(searchTerm)
 
     const matchesStatus =
-      filterStatus === 'All' || log.status === filterStatus
+      filterStatus === 'All' || status === filterStatus
 
     return matchesSearch && matchesStatus
   })
@@ -106,14 +113,16 @@ export default function TimeLogDashboard() {
 
     let csv = 'data:text/csv;charset=utf-8,'
     csv += headers.join(',') + '\n'
-    rows.forEach((r) => {
-      csv += r.map((c) => `"${c}"`).join(',') + '\n'
+    rows.forEach((row) => {
+      csv += row.map((col) => `"${col}"`).join(',') + '\n'
     })
 
     const link = document.createElement('a')
     link.href = encodeURI(csv)
     link.download = 'time-logs.csv'
+    document.body.appendChild(link)
     link.click()
+    document.body.removeChild(link)
   }
 
   // ================= UI =================
@@ -183,8 +192,11 @@ export default function TimeLogDashboard() {
               </tr>
             </thead>
             <tbody>
-              {filteredLogs.map((log) => (
-                <tr key={log.taskId} className="border-t">
+              {filteredLogs.map((log, index) => (
+                <tr
+                  key={`${log.logId}-${log.taskId}-${index}`}
+                  className="border-t"
+                >
                   <td className="p-3">{log.date}</td>
                   <td className="p-3">{log.workName}</td>
                   <td className="p-3">{log.timeTaken} hrs</td>
@@ -202,7 +214,7 @@ export default function TimeLogDashboard() {
 
                     <button
                       onClick={() => handleDeleteLog(log)}
-                      className="text-red-600 hover:underline"
+                      className="text-red-600"
                     >
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
@@ -214,6 +226,7 @@ export default function TimeLogDashboard() {
         )}
       </div>
 
+      {/* FORM MODAL */}
       {showForm && (
         <TimeLogForm
           onClose={() => {
