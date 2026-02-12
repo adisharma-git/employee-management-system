@@ -54,7 +54,7 @@ const Attendance = () => {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      <AttendenceHeader refreshData={fetchPunchStatus} />
+      {/* <AttendenceHeader refreshData={fetchPunchStatus} /> */}
 
       <main className="p-8">
         {loading ? (

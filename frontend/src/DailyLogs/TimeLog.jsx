@@ -182,7 +182,7 @@ export default function TimeLogDashboard() {
           <p className="p-4 text-gray-500">No records found</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-100">
+            <thead className="bg-[#021f54] text-white uppercase text-xs font-semibold tracking-wider">
               <tr>
                 <th className="p-3 text-left">Date</th>
                 <th className="p-3 text-left">Work</th>
