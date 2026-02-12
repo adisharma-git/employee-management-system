@@ -2,7 +2,6 @@ import React from 'react';
 import TableRow from './TableRow';
 
 const AttendanceTable = ({ employees }) => {
-  console.log("Rendering AttendanceTable with employees:", employees);
 
   return (
     <div className="overflow-x-auto shadow-sm rounded-lg border border-gray-200 bg-white">
