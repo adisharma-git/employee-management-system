@@ -17,8 +17,8 @@ const corsOptions = {
   origin: [
     'http://localhost:5173',
     'http://localhost:5000',
-    'https://employee-management-system-xi-nine.vercel.app/landingPage',
-    'https://employee-management-system-mkwu.onrender.com', 
+    'https://employee-management-system-xi-nine.vercel.app',
+    'https://employee-management-system-9qg1.onrender.com', 
     process.env.FRONTEND_URL // We'll add this env variable
   ].filter(Boolean), // Remove undefined values
   credentials: true,
