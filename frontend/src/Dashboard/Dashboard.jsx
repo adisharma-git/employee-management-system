@@ -5,7 +5,7 @@ import HorizontalNavbar from "../pages/HorizontalNavbar";
 import Employees from "./Employees";
 import Reports from "./Reports";
 import EmployeeForm from "../User/User";
-import Attendance from "../Attendence/attendence";
+import Attendance from "../Attendence/Attendence";
 import api from "../api/axios";
 import TimeLogDashboard from "../DailyLogs/TimeLog";
 import ComingSoon from "../ComingSoon/ComingSoon";
