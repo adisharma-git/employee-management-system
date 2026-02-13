@@ -5,6 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "build": "prisma generate",
+    "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -23,7 +25,6 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@prisma/config": "^7.2.0",
     "nodemon": "^3.1.11"
   }
 }
