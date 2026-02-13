@@ -10,16 +10,30 @@ const prisma = require('./src/utils/prisma');
 const logRoutes = require('./src/routes/logRoutes');
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
-app.use(express.json()); 
-app.use(cors());
+// CORS Configuration - UPDATE THIS
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://your-vercel-app.vercel.app', // Replace with your actual Vercel URL
+    process.env.FRONTEND_URL // We'll add this env variable
+  ].filter(Boolean), // Remove undefined values
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(helmet());
-app.use('/api/employee', employeeRoutes);
-app.use('/api/logs', logRoutes);
+app.use(express.json()); 
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/employee', employeeRoutes);
+app.use('/api/logs', logRoutes);
 app.use('/api/attendance', attendanceRoutes);
 
 app.get('/api/health', async (req, res) => {
@@ -40,5 +54,5 @@ app.get('/api/health', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
