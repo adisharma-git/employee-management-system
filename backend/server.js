@@ -16,8 +16,9 @@ const PORT = process.env.PORT || 5000;
 const corsOptions = {
   origin: [
     'http://localhost:5173',
-    'http://localhost:3000',
-    'https://your-vercel-app.vercel.app', // Replace with your actual Vercel URL
+    'http://localhost:5000',
+    'https://employee-management-system-xi-nine.vercel.app/landingPage',
+    'https://employee-management-system-mkwu.onrender.com', 
     process.env.FRONTEND_URL // We'll add this env variable
   ].filter(Boolean), // Remove undefined values
   credentials: true,
