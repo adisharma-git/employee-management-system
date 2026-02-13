@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AttendanceTable from './AttendenceTable';
 import Tabs from './Tabs'; 
-import AttendenceHeader from './Attendenceheader';
+import AttendenceHeader from './AttendenceHeader';
 import api from "../api/axios";  
 import Loader from '../Loader/Loader';
 
