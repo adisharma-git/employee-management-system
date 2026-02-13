@@ -9,7 +9,7 @@ const FooterPageLanding = () => {
 
                     <div>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Aaah
+                            Workalignr
                         </h2>
                         <p className="text-sm leading-relaxed text-gray-400">
                             A modern employee & payment management platform built to help
@@ -64,7 +64,7 @@ const FooterPageLanding = () => {
 
 
                     <p className="text-xs text-gray-400">
-                        © {new Date().getFullYear()} Aaah. All rights reserved.
+                        © {new Date().getFullYear()} Workalignr. All rights reserved.
                     </p>
 
 

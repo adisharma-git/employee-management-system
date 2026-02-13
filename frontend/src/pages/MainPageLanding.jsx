@@ -43,8 +43,7 @@ export default function MainPageLanding() {
             />
 
             <button className="w-full bg-[#021f54] text-white py-3 rounded-lg font-semibold hover:opacity-90">
-              Start Free Trial
-              <span className="text-lg leading-none">→</span>
+              Get a Quote!
             </button>
           </div>
         </div>
