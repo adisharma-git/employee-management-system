@@ -7,7 +7,7 @@ import Dashboard from './Dashboard/Dashboard'
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
 import EmployeeForm from './User/User'
 import HelpPage from './Dashboard/HelpPage'
-import Attendence from './Attendence/attendence'
+import Attendence from './Attendence/Attendence'
 import ComingSoon from './ComingSoon/ComingSoon'
 
 function App() {
