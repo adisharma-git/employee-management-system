@@ -9,6 +9,7 @@ import EmployeeForm from './User/User'
 import HelpPage from './Dashboard/HelpPage'
 import Attendence from './Attendence/Attendence'
 import ComingSoon from './ComingSoon/ComingSoon'
+import ThankYou from './Email/ThankYouPage'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgetPassword" element={<ForgetPassword />} />
+        <Route path="/thank-you" element={<ThankYou />} />
         <Route
           path='/dashboardNew'
           element={
