@@ -1,76 +1,59 @@
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRightToBracket, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar() {
   const [hoveredMenu, setHoveredMenu] = useState(null);
 
-  const handleLogin = () => {
-    window.location.href = "/login";
-  };
-
-  const handleSignup = () => {
-    window.location.href = "/register";
-  };
-
   return (
     <>
       <div
-        className={`fixed inset-0 bg-[#021f54] bg-opacity-40 backdrop-blur-md z-40 pointer-events-none transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-[#021f54]/40 backdrop-blur-md z-40 pointer-events-none transition-opacity duration-300 ${
           hoveredMenu ? "opacity-100" : "opacity-0"
         }`}
       />
 
       <nav className="bg-[#021f54] text-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center h-16 relative">
-            
-            <div 
-              className="flex items-center gap-3 absolute left-0 z-50 cursor-pointer"
-              onClick={() => window.location.href = "/"}
-            >
-              <img 
-                src="/imageee.png" 
-                alt="Worlaligner Logo" 
-                className="w-10 h-10 object-contain rounded-lg" 
-              />              
+        <div className="max-w-7xl mx-auto px-10">
+          <div className="grid grid-cols-3 items-center h-20">
+
+            {/* LEFT */}
+            <div className="flex items-center">
+              <div
+                className="flex items-center gap-3 cursor-pointer"
+                onClick={() => (window.location.href = "/")}
+              >
+                <img
+                  src="/imageee.png"
+                  alt="WorkAlignr Logo"
+                  className="w-10 h-10 object-contain rounded-lg"
+                />
+                <span className="text-xl font-extrabold tracking-wide">
+                  <span className="text-white">Work</span>
+                  <span className="text-orange-400">Alignr</span>
+                </span>
+              </div>
             </div>
-            <div className="hidden md:flex gap-12 absolute left-1/2 -translate-x-1/2 z-50">
+
+            {/* CENTER */}
+            <div className="hidden md:flex items-center justify-center gap-16 relative">
+
               <div
                 className="relative"
                 onMouseEnter={() => setHoveredMenu("product")}
                 onMouseLeave={() => setHoveredMenu(null)}
               >
-                <button className="hover:text-orange-400 transition-colors duration-200">
+                <button className="hover:text-orange-400 transition">
                   Product
                 </button>
-                {hoveredMenu === "product" && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 w-full h-12" />
-                )}
-                <div
-                  className={`absolute left-1/2 top-10 -translate-x-1/2 transition-all duration-300 ${
-                    hoveredMenu === "product"
-                      ? "opacity-100 translate-y-0 pointer-events-auto"
-                      : "opacity-0 -translate-y-2 pointer-events-none"
-                  }`}
-                >
+                <Dropdown active={hoveredMenu === "product"}>
                   <MegaDropdown>
-                    <DropdownItem
-                      title="Payments"
-                      desc="Accept payments globally with ease"
-                    />
-                    <DropdownItem
-                      title="Subscriptions"
-                      desc="Recurring billing made simple"
-                    />
-                    <DropdownItem
-                      title="Invoices"
-                      desc="Automated invoicing system"
-                    />
-                    <DropdownItem
-                      title="Analytics"
-                      desc="Track revenue & performance"
-                    />
+                    <DropdownItem title="Payments" desc="Accept payments globally with ease" />
+                    <DropdownItem title="Subscriptions" desc="Recurring billing made simple" />
+                    <DropdownItem title="Invoices" desc="Automated invoicing system" />
+                    <DropdownItem title="Analytics" desc="Track revenue & performance" />
                   </MegaDropdown>
-                </div>
+                </Dropdown>
               </div>
 
               <div
@@ -78,32 +61,17 @@ export default function Navbar() {
                 onMouseEnter={() => setHoveredMenu("company")}
                 onMouseLeave={() => setHoveredMenu(null)}
               >
-                <button className="hover:text-orange-400 transition-colors duration-200">
+                <button className="hover:text-orange-400 transition">
                   Company
                 </button>
-                {hoveredMenu === "company" && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 w-full h-12" />
-                )}
-                <div
-                  className={`absolute left-1/2 top-10 -translate-x-1/2 transition-all duration-300 ${
-                    hoveredMenu === "company"
-                      ? "opacity-100 translate-y-0 pointer-events-auto"
-                      : "opacity-0 -translate-y-2 pointer-events-none"
-                  }`}
-                >
+                <Dropdown active={hoveredMenu === "company"}>
                   <MegaDropdown width="420px">
-                    <DropdownItem
-                      title="About Us"
-                      desc="Who we are & what we do"
-                    />
-                    <DropdownItem
-                      title="Careers"
-                      desc="Join our growing team"
-                    />
+                    <DropdownItem title="About Us" desc="Who we are & what we do" />
+                    <DropdownItem title="Careers" desc="Join our growing team" />
                     <DropdownItem title="Blog" desc="Latest news & updates" />
                     <DropdownItem title="Press" desc="Media & announcements" />
                   </MegaDropdown>
-                </div>
+                </Dropdown>
               </div>
 
               <div
@@ -111,55 +79,52 @@ export default function Navbar() {
                 onMouseEnter={() => setHoveredMenu("support")}
                 onMouseLeave={() => setHoveredMenu(null)}
               >
-                <button className="hover:text-orange-400 transition-colors duration-200">
+                <button className="hover:text-orange-400 transition">
                   Support
                 </button>
-                {hoveredMenu === "support" && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 w-full h-12" />
-                )}
-                <div
-                  className={`absolute left-1/2 top-10 -translate-x-1/2 transition-all duration-300 ${
-                    hoveredMenu === "support"
-                      ? "opacity-100 translate-y-0 pointer-events-auto"
-                      : "opacity-0 -translate-y-2 pointer-events-none"
-                  }`}
-                >
+                <Dropdown active={hoveredMenu === "support"}>
                   <MegaDropdown width="420px">
-                    <DropdownItem
-                      title="Help Center"
-                      desc="Find quick answers"
-                    />
-                    <DropdownItem
-                      title="Contact"
-                      desc="Talk to our support team"
-                    />
-                    <DropdownItem
-                      title="System Status"
-                      desc="Live service status"
-                    />
-                    <DropdownItem
-                      title="Community"
-                      desc="Join the discussion"
-                    />
+                    <DropdownItem title="Help Center" desc="Find quick answers" />
+                    <DropdownItem title="Contact" desc="Talk to our support team" />
+                    <DropdownItem title="System Status" desc="Live service status" />
+                    <DropdownItem title="Community" desc="Join the discussion" />
                   </MegaDropdown>
-                </div>
+                </Dropdown>
               </div>
+
             </div>
 
-            <div className="flex gap-4 absolute right-0 z-50">
-              <button
-                className="border border-white/70 px-6 py-2 rounded-lg font-semibold hover:bg-white hover:text-[#021f54] transition-all duration-200"
-                onClick={handleLogin}
+            {/* RIGHT */}
+            <div className="flex items-center justify-end gap-6">
+
+              <div
+                className="relative group cursor-pointer"
+                onClick={() => (window.location.href = "/login")}
               >
-                Log In
-              </button>
-              <button
-                className="bg-orange-500 px-6 py-2 rounded-lg font-semibold hover:bg-orange-400 transition-all duration-200"
-                onClick={handleSignup}
+                <FontAwesomeIcon
+                  icon={faRightToBracket}
+                  className="text-lg hover:text-orange-400 transition"
+                />
+                <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition text-xs bg-white text-[#021f54] px-2 py-1 rounded-md shadow">
+                  Log In
+                </span>
+              </div>
+
+              <div
+                className="relative group cursor-pointer"
+                onClick={() => (window.location.href = "/register")}
               >
-                Sign Up
-              </button>
+                <FontAwesomeIcon
+                  icon={faUserPlus}
+                  className="text-lg hover:text-orange-400 transition"
+                />
+                <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition text-xs bg-white text-[#021f54] px-2 py-1 rounded-md shadow">
+                  Sign Up
+                </span>
+              </div>
+
             </div>
+
           </div>
         </div>
       </nav>
@@ -167,10 +132,24 @@ export default function Navbar() {
   );
 }
 
+function Dropdown({ children, active }) {
+  return (
+    <div
+      className={`absolute left-1/2 top-10 -translate-x-1/2 transition-all duration-300 ${
+        active
+          ? "opacity-100 translate-y-0 pointer-events-auto"
+          : "opacity-0 -translate-y-2 pointer-events-none"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
 function MegaDropdown({ children, width = "520px" }) {
   return (
     <div
-      className="bg-white/70 backdrop-blur-lg border border-white/30 text-black rounded-2xl shadow-2xl p-6 grid grid-cols-2 gap-6"
+      className="bg-white/95 border border-gray-200 text-black rounded-2xl shadow-2xl p-6 grid grid-cols-2 gap-6"
       style={{ width }}
     >
       {children}
@@ -180,9 +159,9 @@ function MegaDropdown({ children, width = "520px" }) {
 
 function DropdownItem({ title, desc }) {
   return (
-    <div className="p-4 rounded-xl hover:bg-black/5 cursor-pointer transition-colors duration-200">
-      <h4 className="font-semibold text-black">{title}</h4>
-      <p className="text-sm text-gray-700 mt-1">{desc}</p>
+    <div className="p-4 rounded-xl hover:bg-black/5 cursor-pointer transition">
+      <h4 className="font-semibold">{title}</h4>
+      <p className="text-sm text-gray-600 mt-1">{desc}</p>
     </div>
   );
 }
