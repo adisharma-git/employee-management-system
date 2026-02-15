@@ -13,6 +13,7 @@ import ThankYou from './Email/ThankYouPage'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import SecurityPolicy from './pages/SecurityPolicy'
+import Updates from './pages/Updates'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgetPassword" element={<ForgetPassword />} />
         <Route path="/thank-you" element={<ThankYou />} />
+        <Route path='/updates' element={<Updates />} />
         <Route
           path='/dashboardNew'
           element={

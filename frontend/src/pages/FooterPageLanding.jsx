@@ -8,6 +8,15 @@ const FooterPageLanding = () => {
     const handleSecurity = () => {
         window.open('/SecurityPolicy');
     }
+    const handleUpdate = () => {
+        window.open('/updates');
+    }
+    const handleAboutUs = () => {
+        window.open('/landingPage');
+    }
+    const handleContact = () => {
+        window.open('/dashboardNew/help');
+    }
     return (
         <footer className="bg-[#021f54] text-gray-300 pt-16 pb-8 px-6">
             <div className="max-w-6xl mx-auto">
@@ -32,8 +41,8 @@ const FooterPageLanding = () => {
                         <ul className="space-y-3 text-sm">
                             <li className="hover:text-orange-400 cursor-pointer">Features</li>
                             <li className="hover:text-orange-400 cursor-pointer">Pricing</li>
-                            <li className="hover:text-orange-400 cursor-pointer">Integrations</li>
-                            <li className="hover:text-orange-400 cursor-pointer">Updates</li>
+                            <li className="hover:text-orange-400 cursor-pointer"onClick={handleUpdate}>Updates</li>
+                            <li className="hover:text-orange-400 cursor-pointer" onClick={handleNavigate}>Privacy Policy</li>
                         </ul>
                     </div>
 
@@ -41,10 +50,8 @@ const FooterPageLanding = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-4">Company</h3>
                         <ul className="space-y-3 text-sm">
-                            <li className="hover:text-orange-400 cursor-pointer">About Us</li>
-                            <li className="hover:text-orange-400 cursor-pointer">Careers</li>
-                            <li className="hover:text-orange-400 cursor-pointer">Blog</li>
-                            <li className="hover:text-orange-400 cursor-pointer">Contact</li>
+                            <li className="hover:text-orange-400 cursor-pointer"onClick={handleAboutUs}>About Us</li>
+                            <li className="hover:text-orange-400 cursor-pointer"onClick={handleContact}>Contact</li>
                         </ul>
                     </div>
 
