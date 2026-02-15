@@ -7,6 +7,7 @@
     "doc": "docs"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "autoprefixer": "^10.4.23",
     "baseline-browser-mapping": "^2.9.14",
     "bcryptjs": "^3.0.3",

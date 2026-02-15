@@ -28,7 +28,7 @@ export default function Navbar() {
               onClick={() => window.location.href = "/"}
             >
               <img 
-                src="/imageee.png" 
+                src="/logo.png" 
                 alt="Worlaligner Logo" 
                 className="w-10 h-10 object-contain rounded-lg" 
               />              
