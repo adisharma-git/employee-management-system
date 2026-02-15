@@ -1,4 +1,7 @@
 const FooterPageLanding = () => {
+    const handleNavigate = () => {
+        window.open('landingPage/privacy');
+    }
     return (
         <footer className="bg-[#021f54] text-gray-300 pt-16 pb-8 px-6">
             <div className="max-w-6xl mx-auto">
@@ -69,7 +72,7 @@ const FooterPageLanding = () => {
 
 
                     <div className="flex gap-6 text-xs">
-                        <span className="hover:text-orange-400 cursor-pointer">Privacy Policy</span>
+                        <span className="hover:text-orange-400 cursor-pointer"onClick={handleNavigate}>Privacy Policy</span>
                         <span className="hover:text-orange-400 cursor-pointer">Terms of Service</span>
                         <span className="hover:text-orange-400 cursor-pointer">Security</span>
                     </div>
