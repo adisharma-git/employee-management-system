@@ -11,6 +11,8 @@ import Attendence from './Attendence/Attendence'
 import ComingSoon from './ComingSoon/ComingSoon'
 import ThankYou from './Email/ThankYouPage'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
+import SecurityPolicy from './pages/SecurityPolicy'
 
 function App() {
   return (
@@ -21,7 +23,9 @@ function App() {
         <Route path="/" element={<Navigate to="/landingPage" replace />} />
 
         <Route path="/landingPage" element={<LandingPage />} />
-         <Route path="landingPage/privacy" element={<PrivacyPolicy/>} />
+        <Route path="landingPage/privacy" element={<PrivacyPolicy/>} />
+        <Route path="/termsofservice" element={<TermsOfService/>} />
+        <Route path="/SecurityPolicy" element={<SecurityPolicy/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgetPassword" element={<ForgetPassword />} />
