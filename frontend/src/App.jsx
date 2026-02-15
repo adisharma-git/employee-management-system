@@ -10,6 +10,7 @@ import HelpPage from './Dashboard/HelpPage'
 import Attendence from './Attendence/Attendence'
 import ComingSoon from './ComingSoon/ComingSoon'
 import ThankYou from './Email/ThankYouPage'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<Navigate to="/landingPage" replace />} />
 
         <Route path="/landingPage" element={<LandingPage />} />
+         <Route path="landingPage/privacy" element={<PrivacyPolicy/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgetPassword" element={<ForgetPassword />} />
