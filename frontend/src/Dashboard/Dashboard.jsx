@@ -9,10 +9,12 @@ import Attendance from "../Attendence/Attendence";
 import api from "../api/axios";
 import TimeLogDashboard from "../DailyLogs/TimeLog";
 import ComingSoon from "../ComingSoon/ComingSoon";
+import Settings from "./Settings";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [userName, setUserName] = useState("Login");
+  const [permission,setPermission]=useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -21,6 +23,9 @@ export default function Dashboard() {
         const userData = response.data.data;
         if (userData?.name) {
           setUserName(userData.name);
+        }
+        if(userData?.role == "admin"){
+          setPermission(false);
         }
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -44,9 +49,9 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (selectedTab) {
       case "employees":
-        return <Employees/>;
+        return <Employees permission={permission}/>;
       case "reports":
-        return <Reports/>;
+        return <Reports permission={permission}/>;
       case "EmployeeForm":
         return <EmployeeForm/>;
       case "Attendance":
@@ -55,6 +60,8 @@ export default function Dashboard() {
         return <TimeLogDashboard/>;
       case "expenses":
         return <ComingSoon/>;
+      case "settings":
+        return <Settings/>;
       default:
         return <DashboardHome/>;
     }
@@ -74,7 +81,7 @@ export default function Dashboard() {
               <h2 className="text-xl font-semibold text-gray-800">
                 {getGreeting()}, {userName}!
               </h2>
-
+{!permission &&
               <button
                 onClick={handleEmployee}
                 className="
@@ -87,6 +94,7 @@ export default function Dashboard() {
               >
                 + Add Employee
               </button>
+}
             </div>
 
             {renderContent()}

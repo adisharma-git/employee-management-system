@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from "../api/axios";
-import AttendenceHeader from '../Attendence/AttendenceHeader';
 import AttendanceTable from '../Attendence/AttendenceTable';
 import Loader from '../Loader/Loader';
+import AccessRestricted from '../Components/AccessRestricted';
 
-const Attendance = () => {
+const Attendance = ({permission}) => {
+  console.log(permission)
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -53,9 +54,12 @@ const Attendance = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+       {permission &&
+    <AccessRestricted/>
+}
 
       {/* <AttendenceHeader refreshData={fetchPunchStatus} /> */}
-
+{!permission &&
       <main className="p-8">
         {loading ? (
           <Loader/>
@@ -63,6 +67,7 @@ const Attendance = () => {
           <AttendanceTable employees={employees} />
         )}
       </main>
+}
     </div>
   );
 };
