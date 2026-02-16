@@ -8,13 +8,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import EmployeePerformance from "./EmployeePerformance";
+import AccessRestricted from "../Components/AccessRestricted";
 
-const DashboardHeader = () => {
+const DashboardHeader = ({permission}) => {
   const [view, setView] = useState("Daily");
 
   return (
+   
     <div className="w-full bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+      {permission &&
+      <AccessRestricted/>
+      }
+      {!permission &&
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
         <div className="relative flex-grow lg:max-w-md">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
             <FontAwesomeIcon icon={faSearch} />
@@ -73,8 +79,11 @@ const DashboardHeader = () => {
           </div>
         </div>
       </div>
-      <EmployeePerformance />
+      }
+      {!permission &&<EmployeePerformance />}
+      
     </div>
+        
   );
 };
 
