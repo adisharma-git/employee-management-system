@@ -1,5 +1,5 @@
 const express = require('express');
-const verifyToken = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authMiddleware'); 
 const { updateProfile, getProfile } = require('../controllers/employeeController');
 
 const router = express.Router();
