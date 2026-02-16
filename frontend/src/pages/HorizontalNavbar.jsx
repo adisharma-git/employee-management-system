@@ -2,12 +2,12 @@ import React from 'react';
 
 export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
 
-  // const handleLogout = () => {
-  //   window.location.href = "/login";
-  // };
+  const handleLogout = () => {
+    window.location.href = "/login";
+  };
 
   const handleNavigateHelpPage = () => {
-    // window.location.href = '/dashboardNew/help';
+    window.location.href = '/dashboardNew/help';
     window.open("/dashboardNew/help", "_blank");
   };
 
@@ -59,12 +59,12 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
               Help
             </button>
 
-            {/* <button
+            <button
               className="hover:text-orange-400 transition-colors"
               onClick={handleLogout}
             >
               Logout
-            </button> */}
+            </button>
           </div>
 
         </div>
