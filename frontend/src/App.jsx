@@ -14,6 +14,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import SecurityPolicy from './pages/SecurityPolicy'
 import Updates from './pages/Updates'
+import EmployeeInfoPage from './pages/EmployeeInfoPage'
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/forgetPassword" element={<ForgetPassword />} />
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path='/updates' element={<Updates />} />
+        <Route Path="/employeeInfoPage" element={<EmployeeInfoPage/>} />
         <Route
           path='/dashboardNew'
           element={
