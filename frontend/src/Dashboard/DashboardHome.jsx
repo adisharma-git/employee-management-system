@@ -80,6 +80,13 @@ useEffect(() => {
           accentColor="teal"
         />
         <TaskCompletionCard
+          title="Total Hours"
+          percentage={10}
+          label="Coming Soon"
+          icon="fa-clipboard-check"
+          accentColor="teal"
+        />
+        <TaskCompletionCard
           title="Status"
           label={punchedIn ? "Punched In" : "Punched Out"}
           icon="fa-clipboard-check"
