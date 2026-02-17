@@ -3,6 +3,7 @@ import FooterPageLanding from './FooterPageLanding'
 import MainPageLanding from './MainPageLanding'
 import Navbar from './NavBarLanding'
 import PricingPageLanding from './PricingPageLanding'
+import Requirement from './Requirement'
 
 const LandingPage = () => {
   return (
@@ -11,6 +12,7 @@ const LandingPage = () => {
       <MainPageLanding/>
       <FeaturePageLanding/>
       <PricingPageLanding/>
+      <Requirement/>
       <FooterPageLanding/>
     </div>
   )
