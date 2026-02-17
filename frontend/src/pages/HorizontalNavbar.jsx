@@ -23,16 +23,22 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
       <div className="flex h-14 items-center">
         <div className="w-16 flex-shrink-0" />
 
-        <div className="flex-1 flex items-center justify-between px-6 relative h-full">
+        <div className="flex-1 flex items-center justify-between px-0 relative h-full">
 
           
-          <div className="flex items-center">
+          <div className="flex items-center ">
             <img 
                 src="/logo.png" 
                 alt="Worlaligner Logo" 
-                className="w-10 h-10 object-contain rounded-lg" 
+                className="w-11 h-11 object-contain rounded-lg" 
+                
               /> 
+              <span className="text-base font-semibold tracking-wide px-2">
+                <span className="text-white">Work</span>
+                <span className="text-orange-500">Alignr</span>
+              </span>
           </div>
+          
 
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-10 text-sm font-medium text-white">
             {navTabs.map((tab) => (
