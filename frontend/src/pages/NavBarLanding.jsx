@@ -53,6 +53,7 @@ export default function Navbar() {
                     <DropdownItem
                       title="Employee"
                       desc="Manage employee profiles & roles"
+                       onClick={() => window.open('/pages/EmployeeInfoPage', '_blank')}
                     />
                     <DropdownItem
                       title="Attendance & Leave"
@@ -122,6 +123,7 @@ export default function Navbar() {
                     <DropdownItem
                       title="Contact"
                       desc="Reach out for support"
+                       onClick={() => window.open('/dashboardNew/help', '_blank')}
                     />
                     <DropdownItem
                       title="System Status"
