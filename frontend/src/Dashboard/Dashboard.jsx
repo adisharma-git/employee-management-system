@@ -17,29 +17,30 @@ export default function Dashboard() {
   const [userName, setUserName] = useState("Login");
   const [permission,setPermission]=useState(false);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await api.get("/employee/me");
-        const userData = response.data.data;
-        if (userData?.name) {
-          setUserName(userData.name);
-        }
-        else if(userData?.role == "admin"){
-          setPermission(true);
-        }
-        else if(userData?.role == "employee"){
-          setPermission(false);
-        }
-        
-        
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    };
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const response = await api.get("/employee/me");
+      const userData = response.data.data;
 
-    fetchUser();
-  }, []);
+      if (userData?.name) {
+        setUserName(userData.name);
+      }
+
+      if (userData?.user?.role === "admin") {
+        setPermission(true);  
+      } else {
+        setPermission(false);  
+      }
+
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
+
+  fetchUser();
+}, []);
+
 
   const handleEmployee = () => {
     alert("This Feature is Only Available for Admins");
@@ -55,7 +56,7 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (selectedTab) {
       case "employees":
-        return <Employees permission={!permission}/>;
+        return <Employees permission={permission}/>;
       case "reports":
         return <Reports permission={permission}/>;
       case "EmployeeForm":
@@ -65,7 +66,7 @@ export default function Dashboard() {
       case "performance":
         return <TimeLogDashboard/>;
       case "adminRegistration":
-        return <EmployeeRegistration/>;
+        return <EmployeeRegistration permission={permission}/>;
       case "settings":
         return <Settings/>;
       default:
@@ -87,20 +88,17 @@ export default function Dashboard() {
               <h2 className="text-xl font-semibold text-gray-800">
                 {getGreeting()}, {userName}!
               </h2>
-{!permission &&
-              <button
-                onClick={handleEmployee}
-                className="
-                bg-[#021f54] text-white hover:bg-orange-400
-                hover:text-black text-sm font-medium
-                px-4 py-1.5
-                rounded-md
-                transition-colors duration-200
-              "
-              >
-                + Add Employee
-              </button>
-}
+{permission && (
+  <button
+    onClick={() => setSelectedTab("adminRegistration")}
+    className="bg-[#021f54] text-white hover:bg-orange-400
+    hover:text-black text-sm font-medium px-4 py-1.5
+    rounded-md transition-colors duration-200"
+  >
+    + Add Employee
+  </button>
+)}
+
             </div>
 
             {renderContent()}

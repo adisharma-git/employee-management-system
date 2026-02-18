@@ -16,10 +16,10 @@ const DashboardHeader = ({permission}) => {
   return (
    
     <div className="w-full bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
-      {permission &&
+      {!permission &&
       <AccessRestricted/>
       }
-      {!permission &&
+      {permission &&
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
         <div className="relative flex-grow lg:max-w-md">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
@@ -80,7 +80,7 @@ const DashboardHeader = ({permission}) => {
         </div>
       </div>
       }
-      {!permission &&<EmployeePerformance />}
+      {permission &&<EmployeePerformance />}
       
     </div>
         

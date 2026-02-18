@@ -70,7 +70,7 @@ const TableRow = ({ employee }) => {
         {employee.department}
       </td>
       <td className="px-6 py-4 text-gray-600 font-medium">
-        {totalTime}
+        {/* {totalTime} */}
       </td>
 
 

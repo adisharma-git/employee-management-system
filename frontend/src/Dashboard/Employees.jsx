@@ -4,8 +4,8 @@ import AttendanceTable from '../Attendence/AttendenceTable';
 import Loader from '../Loader/Loader';
 import AccessRestricted from '../Components/AccessRestricted';
 
-const Attendance = ({permission}) => {
-  console.log(permission)
+const Attendance = ({ permission }) => {
+  console.log(permission);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -39,11 +39,10 @@ const Attendance = ({permission}) => {
         checkOut: data.todayAttendance?.checkOutTime
           ? new Date(data.todayAttendance.checkOutTime).toLocaleTimeString()
           : "--",
-        department: data.employee.department
+        department: data.employee.department,
       };
 
       setEmployees([formattedEmployee]);
-
     } catch (error) {
       console.log("Punch status error:", error);
       setEmployees([]);
@@ -54,20 +53,13 @@ const Attendance = ({permission}) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-       {permission &&
-    <AccessRestricted/>
-}
-
-      {/* <AttendenceHeader refreshData={fetchPunchStatus} /> */}
-{!permission &&
-      <main className="p-8">
-        {loading ? (
-          <Loader/>
-        ) : (
-          <AttendanceTable employees={employees} />
-        )}
-      </main>
-}
+      {permission ? (
+        <main className="p-8">
+          {loading ? <Loader /> : <AttendanceTable employees={employees} />}
+        </main>
+      ) : (
+        <AccessRestricted />
+      )}
     </div>
   );
 };
