@@ -19,6 +19,7 @@ const TableRow = ({ employee }) => {
 
 
   return (
+    
     <tr className="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
 
 
@@ -35,7 +36,6 @@ const TableRow = ({ employee }) => {
           </div>
         </div>
       </td>
-
 
       <td className="px-6 py-4 text-gray-600 font-medium">
         {employee.date}
@@ -68,6 +68,9 @@ const TableRow = ({ employee }) => {
 
       <td className="px-6 py-4 text-gray-600">
         {employee.department}
+      </td>
+      <td className="px-6 py-4 text-gray-600 font-medium">
+        {totalTime}
       </td>
 
 

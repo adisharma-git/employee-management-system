@@ -21,6 +21,7 @@ const AttendanceTable = ({ employees }) => {
             <th className="px-6 py-4">Check-In-Time</th>
             <th className="px-6 py-4">Check-Out-Time</th>
             <th className="px-6 py-4">Department</th>
+            <th className="px-6 py-4">Total Time</th>
           </tr>
         </thead>
 

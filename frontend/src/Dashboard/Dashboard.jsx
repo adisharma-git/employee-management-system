@@ -14,7 +14,7 @@ import Settings from "./Settings";
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [userName, setUserName] = useState("Login");
-  const [permission,setPermission]=useState(true);
+  const [permission,setPermission]=useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -24,9 +24,14 @@ export default function Dashboard() {
         if (userData?.name) {
           setUserName(userData.name);
         }
-        if(userData?.role == "admin"){
+        else if(userData?.role == "admin"){
+          setPermission(true);
+        }
+        else if(userData?.role == "employee"){
           setPermission(false);
         }
+        
+        
       } catch (error) {
         console.error("Error fetching user:", error);
       }
@@ -49,7 +54,7 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (selectedTab) {
       case "employees":
-        return <Employees permission={permission}/>;
+        return <Employees permission={!permission}/>;
       case "reports":
         return <Reports permission={permission}/>;
       case "EmployeeForm":
