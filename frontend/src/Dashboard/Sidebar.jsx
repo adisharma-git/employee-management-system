@@ -50,10 +50,10 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         </button>
 
         <button
-          onClick={() => setSelectedTab("expenses")}
-          title="Expenses"
+          onClick={() => setSelectedTab("adminRegistration")}
+          title="adminRegistration"
           className={
-            selectedTab === "expenses"
+            selectedTab === "adminRegistration"
               ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
               : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
           }

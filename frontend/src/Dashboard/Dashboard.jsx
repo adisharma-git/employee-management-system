@@ -10,6 +10,7 @@ import api from "../api/axios";
 import TimeLogDashboard from "../DailyLogs/TimeLog";
 import ComingSoon from "../ComingSoon/ComingSoon";
 import Settings from "./Settings";
+import EmployeeRegistration from "../Admin/EmployeeRegistration";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
@@ -63,8 +64,8 @@ export default function Dashboard() {
         return <Attendance/>;
       case "performance":
         return <TimeLogDashboard/>;
-      case "expenses":
-        return <ComingSoon/>;
+      case "adminRegistration":
+        return <EmployeeRegistration/>;
       case "settings":
         return <Settings/>;
       default:

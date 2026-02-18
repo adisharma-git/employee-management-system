@@ -15,6 +15,7 @@ import TermsOfService from './pages/TermsOfService'
 import SecurityPolicy from './pages/SecurityPolicy'
 import Updates from './pages/Updates'
 import EmployeeInfoPage from './pages/EmployeeInfoPage'
+import EmployeeRegistration from './Admin/EmployeeRegistration'
 
 
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path='/updates' element={<Updates />} />
         <Route path='/employeeInfoPage' element={<EmployeeInfoPage />} />
+        <Route path='/EmployeeRegistration' element={<EmployeeRegistration />} />
         
      
         <Route
