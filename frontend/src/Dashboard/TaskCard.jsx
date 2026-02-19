@@ -1,43 +1,48 @@
-export default function TaskCompletionCard({
-  title = "Task completion",
+const TaskCompletionCard = ({
+  title,
   percentage,
-  label = "Good score",
-  icon = "fa-clipboard-check",
+  value,
+  label,
+  icon,
+  accentColor = "teal",
   isPunchedIn,
-}) {
+  isCount,
+}) => {
   return (
-    <div className="w-full min-h-[120px] bg-white rounded-md border p-3">
-
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs text-gray-500 font-medium">{title}</h3>
-        <div className="bg-blue-50 rounded-md p-2">
-          <i className={`fas ${icon} text-blue-400`}></i>
-        </div>
+    <div className="bg-white rounded-2xl shadow-md p-5 w-full transition hover:shadow-lg">
+      <div className="flex items-center justify-between">
+        <h3 className="text-gray-500 text-sm font-medium">{title}</h3>
+        <i className={`fas ${icon} text-${accentColor}-500 text-lg`} />
       </div>
 
-      {percentage !== undefined && (
-        <p className="text-2xl font-bold text-gray-900 mb-1">
-          {percentage}%
-        </p>
-      )}
+      <div className="mt-3">
+        {isCount ? (
+          <h2 className="text-3xl font-bold text-gray-800">{value}</h2>
+        ) : isPunchedIn !== undefined ? (
+          <h2
+            className={`text-xl font-semibold ${
+              isPunchedIn ? "text-green-600" : "text-red-500"
+            }`}
+          >
+            {label}
+          </h2>
+        ) : (
+          <>
+            <h2 className="text-3xl font-bold text-gray-800">{percentage}%</h2>
 
+            <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+              <div
+                className={`bg-${accentColor}-500 h-2 rounded-full transition-all duration-500`}
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+          </>
+        )}
+      </div>
 
-      {isPunchedIn !== undefined && (
-        <div
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold
-      shadow-sm transition-all duration-300 select-none
-      ${isPunchedIn
-              ? "bg-green-500 text-white"
-              : "bg-red-400 text-white"
-            }
-    `}
-        >
-
-          <span>{label}</span>
-        </div>
-      )}
-
-
+      {!isPunchedIn && <p className="text-gray-400 text-sm mt-2">{label}</p>}
     </div>
   );
-}
+};
+
+export default TaskCompletionCard;
