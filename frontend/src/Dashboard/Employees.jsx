@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from "../api/axios";
-import AttendanceTable from '../Attendence/AttendenceTable';
 import Loader from '../Loader/Loader';
 import AccessRestricted from '../Components/AccessRestricted';
+import EmployeeTable from './EmployeeTable';
 
-const Attendance = ({permission}) => {
-  console.log(permission)
-  const [employees, setEmployees] = useState([]);
+const Attendance = ({ permission }) => {
+  console.log(permission);
+  const [Employee, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -14,60 +14,48 @@ const Attendance = ({permission}) => {
   }, []);
 
   const fetchPunchStatus = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/attendance/punch-status");
-      const data = response.data?.data;
-      console.log("Fetched punch status data:", data);
+  setLoading(true);
+  try {
+    const response = await api.get("/admin/employees");
+    const data = response.data?.data;
 
-      if (!data || !data.employee) {
-        setEmployees([]);
-        return;
-      }
+    console.log("Fetched employee data:", data);
 
-      const formattedEmployee = {
-        id: data.employee.id,
-        name: data.employee.name,
-        date: data.todayAttendance?.date
-          ? new Date(data.todayAttendance.date).toLocaleDateString()
-          : "-",
-        role: data.employee.designation,
-        status: data.todayAttendance?.status || "Absent",
-        checkIn: data.todayAttendance?.checkInTime
-          ? new Date(data.todayAttendance.checkInTime).toLocaleTimeString()
-          : "--",
-        checkOut: data.todayAttendance?.checkOutTime
-          ? new Date(data.todayAttendance.checkOutTime).toLocaleTimeString()
-          : "--",
-        department: data.employee.department
-      };
-
-      setEmployees([formattedEmployee]);
-
-    } catch (error) {
-      console.log("Punch status error:", error);
+    if (!data || data.length === 0) {
       setEmployees([]);
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
+
+    const formattedEmployees = data.map((emp) => ({
+      id: emp.id,
+      email: emp.email,
+      role: emp.employee?.designation || "-",
+      department: emp.employee?.department || "-",
+      date: emp.employee?.dateOfJoining
+        ? new Date(emp.employee.dateOfJoining).toLocaleDateString()
+        : "-",
+      name:emp.employee?.name ||"-",
+    }));
+
+    setEmployees(formattedEmployees);
+  } catch (error) {
+    console.log("Punch status error:", error);
+    setEmployees([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50">
-       {permission &&
-    <AccessRestricted/>
-}
-
-      {/* <AttendenceHeader refreshData={fetchPunchStatus} /> */}
-{!permission &&
-      <main className="p-8">
-        {loading ? (
-          <Loader/>
-        ) : (
-          <AttendanceTable employees={employees} />
-        )}
-      </main>
-}
+      {permission ? (
+        <main className="p-8">
+          {loading ? <Loader /> : <EmployeeTable Employee={Employee} />}
+        </main>
+      ) : (
+        <AccessRestricted />
+      )}
     </div>
   );
 };
