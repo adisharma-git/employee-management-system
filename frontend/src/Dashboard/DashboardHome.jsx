@@ -1,11 +1,13 @@
-
-import { useEffect, useState } from "react"
-import AnnouncementsCard from "./AnnouncementsCard"
-import TaskCompletionCard from "./TaskCard"
+import { useEffect, useState } from "react";
+import AnnouncementsCard from "./AnnouncementsCard";
+import TaskCompletionCard from "./TaskCard";
 import api from "../api/axios";
 
-  const DashboardHome = () => {
-  const [punchedIn,setPunchedIn]=useState(false);
+const DashboardHome = () => {
+  const [punchedIn, setPunchedIn] = useState(false);
+  const [newEmployeesData, setNewEmployeesData] = useState([]);
+  const [totalEmployees, setTotalEmployees] = useState(0);
+
   const announcementsData = [
     {
       title: "Aaah Support Process Update – Important Announcement",
@@ -22,31 +24,61 @@ import api from "../api/axios";
       time: "12 January 4:34 PM",
       avatar: "https://i.pravatar.cc/40?img=22",
     },
-    {
-      title: "Update on Leave Policy",
-      time: "12 January 4:34 PM",
-      avatar: "https://i.pravatar.cc/40?img=22",
-    },
-    {
-      title: "Update on Leave Policy",
-      time: "12 January 4:34 PM",
-      avatar: "https://i.pravatar.cc/40?img=22",
-    },
-  ]
-useEffect(() => {
-  const fetchStatus = async () => {
-    try {
-      const response = await api.get("/attendance/punch-status");
-      setPunchedIn(response.data.data.isPunchedIn);
-     
-    } catch (error) {
-      console.log("Punch status error:", error);
-    }
-  };
+  ];
 
-  fetchStatus();
-}, []);
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const response = await api.get("/attendance/punch-status");
+        setPunchedIn(response.data.data.isPunchedIn);
+      } catch (error) {
+        console.log("Punch status error:", error);
+      }
+    };
 
+    fetchStatus();
+  }, []);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await api.get("/admin/employees");
+        const employees = response.data?.data || [];
+        const count = response.data?.count || 0;
+
+        setTotalEmployees(count);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const filteredEmployees = employees
+          .filter((emp) => {
+            if (!emp.employee?.dateOfJoining) return false;
+
+            const joiningDate = new Date(emp.employee.dateOfJoining);
+            joiningDate.setHours(0, 0, 0, 0);
+
+            const diffTime = today.getTime() - joiningDate.getTime();
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+            return diffDays >= 0 && diffDays <= 15;
+          })
+          .map((emp) => ({
+            title: emp.employee.name,
+            time: `Joined on ${new Date(
+              emp.employee.dateOfJoining,
+            ).toLocaleDateString()}`,
+            avatar: "https://i.pravatar.cc/40",
+          }));
+
+        setNewEmployeesData(filteredEmployees);
+      } catch (error) {
+        console.log("Employees fetch error:", error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
 
   return (
     <div>
@@ -79,52 +111,55 @@ useEffect(() => {
           icon="fa-clipboard-check"
           accentColor="teal"
         />
+
         <TaskCompletionCard
-          title="Total Hours"
-          percentage={10}
-          label="Coming Soon"
-          icon="fa-clipboard-check"
+          title="Total Employees"
+          value={totalEmployees}
+          label="Employees"
+          icon="fa-users"
           accentColor="teal"
+          isCount
         />
+
         <TaskCompletionCard
           title="Status"
           label={punchedIn ? "Punched In" : "Punched Out"}
           icon="fa-clipboard-check"
           isPunchedIn={punchedIn}
         />
- 
       </div>
- <div className="flex w-full mt-6 gap-6">
-  <div className="w-1/2">
-    <AnnouncementsCard
-      title="Announcements"
-      announcements={announcementsData}
-      height="h-[320px]"
-    />
-     <AnnouncementsCard
-      title="New Employees"
-      announcements={announcementsData}
-      height="h-[320px]"
-    />
-  </div>
 
-  <div className="w-1/2">
-    <AnnouncementsCard
-      title="Upcoming Holidays"
-      announcements={announcementsData}
-      height="h-[320px]"
-    />
-    <AnnouncementsCard
-      title="Scheduled Meetings"
-      announcements={announcementsData}
-      height="h-[320px]"
-    />
-  </div>
-</div>
+      <div className="flex w-full mt-6 gap-6">
+        <div className="w-1/2">
+          <AnnouncementsCard
+            title="Announcements"
+            announcements={announcementsData}
+            height="h-[320px]"
+          />
 
+          <AnnouncementsCard
+            title="New Employees (Last 15 Days)"
+            announcements={newEmployeesData}
+            height="h-[320px]"
+          />
+        </div>
 
+        <div className="w-1/2">
+          <AnnouncementsCard
+            title="Upcoming Holidays"
+            announcements={announcementsData}
+            height="h-[320px]"
+          />
+
+          <AnnouncementsCard
+            title="Scheduled Meetings"
+            announcements={announcementsData}
+            height="h-[320px]"
+          />
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardHome
+export default DashboardHome;
