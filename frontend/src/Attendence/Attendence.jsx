@@ -34,7 +34,6 @@ const Attendance = () => {
       };
 
       setEmployees([formattedEmployee]);
-      console.log("Employees set:", [formattedEmployee]);
     } catch (error) {
       console.error("Failed to fetch attendance:", error);
       setEmployees([]);

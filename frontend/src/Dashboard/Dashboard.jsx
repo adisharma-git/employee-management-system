@@ -88,17 +88,16 @@ useEffect(() => {
               <h2 className="text-xl font-semibold text-gray-800">
                 {getGreeting()}, {userName}!
               </h2>
-{permission && (
-  <button
-    onClick={() => setSelectedTab("adminRegistration")}
-    className="bg-[#021f54] text-white hover:bg-orange-400
+              {permission && (
+                <button
+                  onClick={() => setSelectedTab("adminRegistration")}
+                  className="bg-[#021f54] text-white hover:bg-orange-400
     hover:text-black text-sm font-medium px-4 py-1.5
     rounded-md transition-colors duration-200"
-  >
-    + Add Employee
-  </button>
-)}
-
+                >
+                  + Add Employee
+                </button>
+              )}
             </div>
 
             {renderContent()}
