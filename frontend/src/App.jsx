@@ -16,6 +16,7 @@ import SecurityPolicy from './pages/SecurityPolicy'
 import Updates from './pages/Updates'
 import EmployeeInfoPage from './pages/EmployeeInfoPage'
 import EmployeeRegistration from './Admin/EmployeeRegistration'
+import AttendanceModule from './pages/AttendanceModule'
 
 
 
@@ -38,6 +39,7 @@ function App() {
         <Route path='/updates' element={<Updates />} />
         <Route path='/employeeInfoPage' element={<EmployeeInfoPage />} />
         <Route path='/EmployeeRegistration' element={<EmployeeRegistration />} />
+        <Route path='/AttendanceModule' element={<AttendanceModule />} />
         
      
         <Route
@@ -49,6 +51,9 @@ function App() {
 
           } />
           <Route path="/attendance" element={<Attendence/>}/>
+          
+          <Route path="/EmployeeInfoPage" element={<EmployeeInfoPage/>}/>
+          <Route path="/AttendanceModule" element={<AttendanceModule/>}/>
           
         <Route
           path="/employeeForm"

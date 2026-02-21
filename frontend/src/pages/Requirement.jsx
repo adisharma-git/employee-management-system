@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Requirement = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-white py-16 px-6">
       {/* Header */}
@@ -21,6 +24,7 @@ const Requirement = () => {
 
       {/* Cards */}
       <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        
         {/* Card 1 */}
         <div className="bg-blue-50 border border-blue-100 rounded-2xl shadow-md p-8 hover:shadow-xl transition">
           <div className="bg-[#021f54] w-14 h-14 flex items-center justify-center rounded-xl text-white text-xl">
@@ -52,7 +56,10 @@ const Requirement = () => {
               First month • Then 50₹/employee
             </p>
 
-            <button className="bg-[#021f54] hover:bg-[#021f54] w-full mt-4 text-white py-3 rounded-lg font-semibold transition">
+            <button
+              onClick={() => navigate("/AttendanceModule")}
+              className="bg-[#021f54] hover:bg-[#021f54] w-full mt-4 text-white py-3 rounded-lg font-semibold transition"
+            >
               Explore Attendance Module
             </button>
           </div>
@@ -78,15 +85,9 @@ const Requirement = () => {
           </h4>
 
           <ul className="mt-3 space-y-2 text-gray-700">
-            <li className="text-orange-600">
-              ✔ Automated Approval Workflows
-            </li>
-            <li className="text-orange-600">
-              ✔ Leave Balance Tracking
-            </li>
-            <li className="text-orange-600">
-              ✔ Calendar Integration
-            </li>
+            <li className="text-orange-600">✔ Automated Approval Workflows</li>
+            <li className="text-orange-600">✔ Leave Balance Tracking</li>
+            <li className="text-orange-600">✔ Calendar Integration</li>
           </ul>
 
           <div className="mt-6">
@@ -121,15 +122,9 @@ const Requirement = () => {
           </h4>
 
           <ul className="mt-3 space-y-2 text-gray-700">
-            <li className="text-blue-600">
-              ✔ Automated Payroll Processing
-            </li>
-            <li className="text-blue-600">
-              ✔ Tax Compliance
-            </li>
-            <li className="text-blue-600">
-              ✔ Salary Slip Generation
-            </li>
+            <li className="text-blue-600">✔ Automated Payroll Processing</li>
+            <li className="text-blue-600">✔ Tax Compliance</li>
+            <li className="text-blue-600">✔ Salary Slip Generation</li>
           </ul>
 
           <div className="mt-6">
@@ -143,6 +138,7 @@ const Requirement = () => {
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
