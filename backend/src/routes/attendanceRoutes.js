@@ -5,26 +5,31 @@ const {
   getPunchStatus,
   getMyAttendance,
   getTodayAttendance,
+  toggleBreak,
   getAllAttendance,
   getAttendanceReport,
   getAttendanceStatistics,
   deleteAttendance
 } = require('../controllers/attendanceController');
 
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware'); // Check your path!
+
 const router = express.Router();
 
-// Middleware
-const { authenticate, authorize } = require('../middleware/auth');
-const { validateMarkAttendance, validateUpdateCheckout } = require('../middleware/attendanceValidation');
+// --- EMPLOYEE ROUTES ---
+router.post('/mark', verifyToken, markAttendance);
+router.patch('/checkout', verifyToken, updateCheckout);
+router.get('/punch-status', verifyToken, getPunchStatus);
+
+// New: Break Handling
+router.post('/break', verifyToken, toggleBreak); 
+
+// New: Employee History
+router.get('/my-attendance-history', verifyToken, getMyAttendance);
 
 
-// ==========================================
-// EMPLOYEE ROUTES (Authenticated users)
-// ==========================================
-
-router.post('/mark', authenticate, validateMarkAttendance, markAttendance);
-router.patch('/checkout', authenticate, validateUpdateCheckout, updateCheckout);
-router.get('/punch-status', authenticate, getPunchStatus);
-
+// --- ADMIN ROUTES ---
+// New: View All Attendance (Protected by verifyAdmin)
+router.get('/all-employees-attendance', verifyToken, verifyAdmin, getAllAttendance);
 
 module.exports = router;

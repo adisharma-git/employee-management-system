@@ -64,21 +64,25 @@ model Employee {
 // --------------------------------------
 // 3. Attendance Table
 // --------------------------------------
+
 model Attendance {
   id           String    @id @default(uuid())
   employeeId   String    @map("employee_id")
-  date         DateTime  @db.Date
-  status       String    // 'present', 'absent', 'half-day', 'leave'
-  checkInTime  DateTime? @map("check_in_time") @db.Time
-  checkOutTime DateTime? @map("check_out_time") @db.Time
+  date         DateTime  @db.Date               // Keep this! This is the "Shift Date"
+  status       String    
+  
+  checkInTime  DateTime? @map("check_in_time")  
+  checkOutTime DateTime? @map("check_out_time") 
+  
+  breakHistory      Json      @default("[]")   @map("break_history") 
+  totalBreakMinutes Int       @default(0)      @map("total_break_minutes") 
   
   createdAt    DateTime  @default(now()) @map("created_at")
 
-  // Relationships
   employee     Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@map("attendance")
-  @@unique([employeeId, date]) // Prevent duplicate attendance for same day
+  @@unique([employeeId, date])
   @@index([employeeId])
   @@index([date])
   @@index([status])
