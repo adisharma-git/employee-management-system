@@ -17,7 +17,7 @@ import Updates from './pages/Updates'
 import EmployeeInfoPage from './pages/EmployeeInfoPage'
 import EmployeeRegistration from './Admin/EmployeeRegistration'
 import AttendanceModule from './pages/AttendanceModule'
-
+import LeaveModule from './pages/LeaveModule'
 
 
 function App() {
@@ -40,8 +40,8 @@ function App() {
         <Route path='/employeeInfoPage' element={<EmployeeInfoPage />} />
         <Route path='/EmployeeRegistration' element={<EmployeeRegistration />} />
         <Route path='/AttendanceModule' element={<AttendanceModule />} />
-        
-     
+        <Route path="/LeaveModule" element={<LeaveModule />} />
+             
         <Route
           path='/dashboardNew'
           element={
@@ -52,8 +52,6 @@ function App() {
           } />
           <Route path="/attendance" element={<Attendence/>}/>
           
-          <Route path="/EmployeeInfoPage" element={<EmployeeInfoPage/>}/>
-          <Route path="/AttendanceModule" element={<AttendanceModule/>}/>
           
         <Route
           path="/employeeForm"

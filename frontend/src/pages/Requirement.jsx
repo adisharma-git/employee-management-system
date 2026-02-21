@@ -6,7 +6,6 @@ const Requirement = () => {
 
   return (
     <div className="min-h-screen bg-white py-16 px-6">
-      {/* Header */}
       <div className="text-center mb-12">
         <span className="bg-orange-100 text-orange-600 px-4 py-1 rounded-full text-sm font-semibold">
           CORE MODULES
@@ -22,10 +21,8 @@ const Requirement = () => {
         </p>
       </div>
 
-      {/* Cards */}
       <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        
-        {/* Card 1 */}
+ 
         <div className="bg-blue-50 border border-blue-100 rounded-2xl shadow-md p-8 hover:shadow-xl transition">
           <div className="bg-[#021f54] w-14 h-14 flex items-center justify-center rounded-xl text-white text-xl">
             📅
@@ -65,7 +62,6 @@ const Requirement = () => {
           </div>
         </div>
 
-        {/* Card 2 */}
         <div className="bg-white border border-orange-200 rounded-2xl shadow-md p-8 hover:shadow-xl transition">
           <div className="bg-orange-500 w-14 h-14 flex items-center justify-center rounded-xl text-white text-xl">
             ⚖️
@@ -96,13 +92,14 @@ const Requirement = () => {
               First month • Then 50₹/employee
             </p>
 
-            <button className="bg-orange-500 hover:bg-orange-600 w-full mt-4 text-white py-3 rounded-lg font-semibold transition">
+            <button
+            onClick={() => navigate("/LeaveModule")} 
+            className="bg-orange-500 hover:bg-orange-600 w-full mt-4 text-white py-3 rounded-lg font-semibold transition">
               Explore Leave Module
             </button>
           </div>
         </div>
 
-        {/* Card 3 */}
         <div className="bg-blue-50 border border-blue-100 rounded-2xl shadow-md p-8 hover:shadow-xl transition">
           <div className="bg-[#021f54] w-14 h-14 flex items-center justify-center rounded-xl text-white text-xl">
             💰
