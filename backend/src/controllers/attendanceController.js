@@ -217,3 +217,140 @@ exports.getPunchStatus = async (req, res) => {
     });
   }
 };
+
+// ==========================================
+// 3. TOGGLE BREAK (Start / End)
+// ==========================================
+exports.toggleBreak = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { isStarting } = req.body; // Expecting boolean: true (start) or false (end)
+
+    // Validate boolean input
+    if (typeof isStarting !== 'boolean') {
+      return res.status(400).json({ message: "Invalid payload. Please send { 'isStarting': true } or false." });
+    }
+
+    // 1. Get Employee
+    const employee = await prisma.employee.findUnique({ where: { userId } });
+    if (!employee) return res.status(404).json({ message: "Employee not found" });
+
+    // 2. Get Today's Attendance
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const attendance = await prisma.attendance.findFirst({
+      where: { employeeId: employee.id, date: today }
+    });
+
+    if (!attendance) return res.status(400).json({ message: "You must Check-In first!" });
+    if (attendance.checkOutTime) return res.status(400).json({ message: "You have already Checked Out." });
+
+    // 3. Handle START BREAK (isStarting === true)
+    if (isStarting === true) {
+      if (attendance.status === 'break') return res.status(400).json({ message: "You are already on break!" });
+      
+      // Check Limit (40 mins)
+      if (attendance.totalBreakMinutes >= 40) {
+        return res.status(400).json({ message: "Break limit (40 mins) exhausted for today." });
+      }
+
+      // Add new break entry
+      const currentHistory = attendance.breakHistory || [];
+      const newBreak = { start: new Date(), end: null }; 
+      
+      await prisma.attendance.update({
+        where: { id: attendance.id },
+        data: {
+          status: 'break',
+          breakHistory: [...currentHistory, newBreak]
+        }
+      });
+
+      return res.json({ success: true, message: "Break Started", status: "break" });
+    }
+
+    // 4. Handle END BREAK (isStarting === false)
+    if (isStarting === false) {
+      if (attendance.status !== 'break') return res.status(400).json({ message: "You are not on break." });
+
+      const currentHistory = attendance.breakHistory || [];
+      const lastBreak = currentHistory[currentHistory.length - 1];
+
+      // Calculate Duration
+      const startTime = new Date(lastBreak.start);
+      const endTime = new Date();
+      const durationMinutes = Math.floor((endTime - startTime) / 60000); 
+
+      // Update the last entry with end time
+      lastBreak.end = endTime;
+      currentHistory[currentHistory.length - 1] = lastBreak;
+
+      await prisma.attendance.update({
+        where: { id: attendance.id },
+        data: {
+          status: 'present', 
+          breakHistory: currentHistory,
+          totalBreakMinutes: { increment: durationMinutes }
+        }
+      });
+
+      return res.json({ 
+        success: true, 
+        message: `Break Ended. Used: ${durationMinutes} mins. Total: ${attendance.totalBreakMinutes + durationMinutes}/40 mins.` 
+      });
+    }
+
+  } catch (error) {
+    console.error("Break Error:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+// ==========================================
+// 4. GET MY ATTENDANCE (Employee View)
+// ==========================================
+exports.getMyAttendance = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const employee = await prisma.employee.findUnique({ where: { userId } });
+
+    const history = await prisma.attendance.findMany({
+      where: { employeeId: employee.id },
+      orderBy: { date: 'desc' },
+      take: 30 // Last 30 days only
+    });
+
+    res.json({ success: true, count: history.length, data: history });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// ==========================================
+// 5. GET ALL ATTENDANCE (Admin View)
+// ==========================================
+exports.getAllAttendance = async (req, res) => {
+  try {
+    const { date } = req.query; // Allow filtering by date ?date=2024-02-20
+
+    const whereClause = {};
+    if (date) {
+      whereClause.date = new Date(date);
+    }
+
+    const allRecords = await prisma.attendance.findMany({
+      where: whereClause,
+      include: {
+        employee: {
+          select: { name: true, department: true, designation: true }
+        }
+      },
+      orderBy: { date: 'desc' }
+    });
+
+    res.json({ success: true, count: allRecords.length, data: allRecords });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
