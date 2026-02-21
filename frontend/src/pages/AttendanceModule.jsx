@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const AttendanceModule = () => {
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-[#021f54]">
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#021f54] to-[#0a368c] pb-20 pt-24 text-white">
+      <section id="attendance-top" className="relative overflow-hidden bg-gradient-to-br from-[#021f54] to-[#0a368c] pb-20 pt-24 text-white">
         <div className="absolute -left-10 -top-10 h-64 w-64 rounded-full bg-white/5" />
         <div className="absolute -right-10 top-20 h-96 w-96 rounded-full bg-[#f97316]/10" />
 
@@ -29,6 +34,7 @@ const AttendanceModule = () => {
           </div>
         </div>
       </section>
+
       <section className="container mx-auto px-6 py-20">
         <div className="mb-12 text-center">
           <span className="rounded-full bg-[#f97316]/10 px-4 py-1 text-sm font-semibold text-[#f97316]">
@@ -39,7 +45,7 @@ const AttendanceModule = () => {
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
-          
+         
           <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
             <div className="mb-6 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#021f54] text-white">
@@ -56,6 +62,7 @@ const AttendanceModule = () => {
               </span>
             </div>
           </div>
+
           <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
             <div className="mb-6 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#f97316] text-white">
@@ -94,7 +101,6 @@ const AttendanceModule = () => {
           </div>
         </div>
       </section>
-
       <section className="bg-white py-20">
         <div className="container mx-auto px-6">
           <div className="mb-16 text-center">
