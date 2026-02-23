@@ -18,6 +18,7 @@ import EmployeeInfoPage from './pages/EmployeeInfoPage'
 import EmployeeRegistration from './Admin/EmployeeRegistration'
 import AttendanceModule from './pages/AttendanceModule'
 import LeaveModule from './pages/LeaveModule'
+import ReviewSection from './pages/ReviewHome'
 
 
 function App() {
@@ -41,7 +42,7 @@ function App() {
         <Route path='/EmployeeRegistration' element={<EmployeeRegistration />} />
         <Route path='/AttendanceModule' element={<AttendanceModule />} />
         <Route path="/LeaveModule" element={<LeaveModule />} />
-             
+        <Route path='/Reviews'element={<ReviewSection/>}/>
         <Route
           path='/dashboardNew'
           element={
