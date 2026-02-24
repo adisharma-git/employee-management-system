@@ -1,5 +1,5 @@
 const prisma = require('../utils/prisma');
-
+const DEV_MODE = true;
 // ==========================================
 // 1. MARK ATTENDANCE (Check-In)
 // ==========================================
@@ -33,6 +33,25 @@ exports.markAttendance = async (req, res) => {
     });
 
     if (existingAttendance) {
+      if (DEV_MODE) {
+        // DEV MODE: Reset today's record so they can test again
+        const resetAttendance = await prisma.attendance.update({
+          where: { id: existingAttendance.id },
+          data: {
+            status: status || 'present',
+            checkInTime: new Date(), 
+            checkOutTime: null,       // Clear previous checkout
+            breakHistory: [],         // Clear previous breaks
+            totalBreakMinutes: 0      // Reset break counter
+          }
+        });
+        return res.status(201).json({ 
+          success: true, 
+          message: '[DEV MODE] Attendance reset for a new test run today!',
+          data: resetAttendance
+        });
+      }
+
       return res.status(400).json({ 
         success: false,
         message: 'Attendance already marked for today',
