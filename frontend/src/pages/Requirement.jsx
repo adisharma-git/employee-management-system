@@ -130,7 +130,9 @@ const Requirement = () => {
               First month • Then 50₹/employee
             </p>
 
-            <button className="bg-[#021f54] hover:bg-[#021f54] w-full mt-4 text-white py-3 rounded-lg font-semibold transition">
+            <button
+            onClick={() => navigate("/SaleryModule")}
+            className="bg-[#021f54] hover:bg-[#021f54] w-full mt-4 text-white py-3 rounded-lg font-semibold transition">
               Explore Salary Module
             </button>
           </div>
