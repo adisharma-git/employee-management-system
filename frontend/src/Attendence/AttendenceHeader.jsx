@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt, faSignOutAlt, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSignInAlt,
+  faSignOutAlt,
+  faCheckCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import api from "../api/axios";
 
 const AttendenceHeader = ({ refreshData }) => {
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isOnBreak, setIsOnBreak] = useState(false);
+  const[isOfBreak,setIsOfBreak]=useState(false);
 
   useEffect(() => {
     checkPunchStatus();
@@ -35,7 +41,6 @@ const AttendenceHeader = ({ refreshData }) => {
 
       await checkPunchStatus();
       if (refreshData) refreshData();
-
     } catch (error) {
       alert(error.response?.data?.message || "Check-in failed");
     } finally {
@@ -43,6 +48,9 @@ const AttendenceHeader = ({ refreshData }) => {
       setTimeout(() => setShowSuccessPopup(false), 3000);
     }
   };
+    useEffect(() => {
+    checkPunchStatus();
+  }, [isOnBreak,isOfBreak]);
 
   const handleCheckOut = async () => {
     if (loading) return;
@@ -63,7 +71,6 @@ const AttendenceHeader = ({ refreshData }) => {
 
       await checkPunchStatus();
       if (refreshData) refreshData();
-
     } catch (error) {
       alert(error.response?.data?.message || "Check-out failed");
     } finally {
@@ -71,14 +78,44 @@ const AttendenceHeader = ({ refreshData }) => {
       setTimeout(() => setShowSuccessPopup(false), 3000);
     }
   };
+const handleBreakStart = async () => {
+    try {
+      const payload = {
+        isStarting: true,
+      };
+      await api.post("/attendance/break", payload);
+      setIsOnBreak(true);
+    } catch (error) {
+      alert(error.message);
+      alert(error.response?.data?.message || "Check-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+   
+  const handleBreakEnd = async () => {
+    try {
+      const payload = {
+        isStarting: false,
+      };
+      setIsOfBreak(true);
+      await api.post("/attendance/break", payload);
+    } catch (error) {
+      alert(error.response?.data?.message || "Check-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="sticky top-0 bg-gray-50 pb-4 z-20">
-
       {showSuccessPopup && (
         <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-50 border border-green-200 shadow-xl rounded-lg px-6 py-4 flex items-center gap-3 z-50">
           <div className="bg-green-100 p-2 rounded-full">
-            <FontAwesomeIcon icon={faCheckCircle} className="text-green-600 text-xl" />
+            <FontAwesomeIcon
+              icon={faCheckCircle}
+              className="text-green-600 text-xl"
+            />
           </div>
           <div>
             <h4 className="text-green-800 font-bold text-sm">Success</h4>
@@ -96,7 +133,6 @@ const AttendenceHeader = ({ refreshData }) => {
         </div>
 
         <div className="flex gap-4">
-
           <button
             onClick={handleCheckIn}
             disabled={loading || isPunchedIn}
@@ -114,7 +150,23 @@ const AttendenceHeader = ({ refreshData }) => {
             <FontAwesomeIcon icon={faSignOutAlt} />
             {loading ? "Processing..." : "Check-Out"}
           </button>
+          <button
+            onClick={handleBreakStart}
+     
+            className="flex items-center gap-2 px-6 py-3 text-white rounded-lg font-medium bg-green-600 hover:bg-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+          >
+            <FontAwesomeIcon icon={faCheckCircle} />
+            Break Start
+          </button>
 
+          <button
+            onClick={handleBreakEnd}
+          
+            className="flex items-center gap-2 px-6 py-3 text-white rounded-lg font-medium bg-red-600 hover:bg-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+          >
+            <FontAwesomeIcon icon={faCheckCircle} />
+            Break End
+          </button>
         </div>
       </header>
     </div>
