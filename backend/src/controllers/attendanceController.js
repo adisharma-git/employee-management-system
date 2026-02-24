@@ -280,7 +280,11 @@ exports.toggleBreak = async (req, res) => {
       // Calculate Duration
       const startTime = new Date(lastBreak.start);
       const endTime = new Date();
-      const durationMinutes = Math.floor((endTime - startTime) / 60000); 
+      const durationMinutes = Math.floor((endTime - startTime) / 60000); // Convert ms to mins
+
+      // Calculate the new totals for the frontend
+      const newTotalBreakTime = attendance.totalBreakMinutes + durationMinutes;
+      const leftBreakTime = 40 - newTotalBreakTime;
 
       // Update the last entry with end time
       lastBreak.end = endTime;
@@ -289,15 +293,19 @@ exports.toggleBreak = async (req, res) => {
       await prisma.attendance.update({
         where: { id: attendance.id },
         data: {
-          status: 'present', 
+          status: 'present',
           breakHistory: currentHistory,
-          totalBreakMinutes: { increment: durationMinutes }
+          totalBreakMinutes: newTotalBreakTime
         }
       });
 
       return res.json({ 
         success: true, 
-        message: `Break Ended. Used: ${durationMinutes} mins. Total: ${attendance.totalBreakMinutes + durationMinutes}/40 mins.` 
+        message: `Break Ended. Used: ${durationMinutes} mins. Total: ${newTotalBreakTime}/40 mins.`,
+        data: {
+          totalBreakTime: newTotalBreakTime,
+          leftBreakTime: leftBreakTime < 0 ? 0 : leftBreakTime // Ensures it doesn't show negative minutes if they overstayed
+        }
       });
     }
 
