@@ -167,7 +167,6 @@ exports.updateCheckout = async (req, res) => {
 // ==========================================
 // GET PUNCH STATUS (for Dashboard Profile)
 // ==========================================
-
 exports.getPunchStatus = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -175,19 +174,11 @@ exports.getPunchStatus = async (req, res) => {
     // Get employee
     const employee = await prisma.employee.findUnique({
       where: { userId: userId },
-      select: {
-        id: true,
-        name: true,
-        department: true,
-        designation: true
-      }
+      select: { id: true, name: true, department: true, designation: true }
     });
 
     if (!employee) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Employee record not found' 
-      });
+      return res.status(404).json({ success: false, message: 'Employee record not found' });
     }
 
     // Get today's date
@@ -196,43 +187,41 @@ exports.getPunchStatus = async (req, res) => {
 
     // Find today's attendance
     const attendance = await prisma.attendance.findFirst({
-      where: {
-        employeeId: employee.id,
-        date: today
-      },
+      where: { employeeId: employee.id, date: today },
       select: {
         id: true,
         status: true,
         checkInTime: true,
         checkOutTime: true,
-        date: true
+        date: true,
+        totalBreakMinutes: true, // ✅ NEW: Fetch total break minutes
+        breakHistory: true       // ✅ NEW: Fetch break history just in case they need it
       }
     });
 
-    // Determine punch status
+    // Determine status and math
     const isPunchedIn = attendance && attendance.checkInTime && !attendance.checkOutTime;
+    
+    // ✅ NEW: Calculate break times to send on initial load
+    const totalBreakTime = attendance ? attendance.totalBreakMinutes : 0;
+    const leftBreakTime = Math.max(0, 40 - totalBreakTime); // Math.max prevents negative numbers
 
     res.json({
       success: true,
       data: {
         isPunchedIn: isPunchedIn,
-        employee: {
-          id: employee.id,
-          name: employee.name,
-          department: employee.department,
-          designation: employee.designation
-        },
-        todayAttendance: attendance || null
+        employee: employee,
+        todayAttendance: attendance || null,
+        breakStats: {
+          totalBreakTime: totalBreakTime,
+          leftBreakTime: leftBreakTime
+        }
       }
     });
 
   } catch (error) {
     console.error('Get Punch Status Error:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Server error while fetching punch status',
-      error: error.message 
-    });
+    res.status(500).json({ success: false, message: 'Server error while fetching punch status', error: error.message });
   }
 };
 
