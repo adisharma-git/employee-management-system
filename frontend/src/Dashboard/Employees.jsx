@@ -10,10 +10,10 @@ const Attendance = ({ permission }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchPunchStatus();
+    fetchAllEmployees();
   }, []);
 
-  const fetchPunchStatus = async () => {
+  const fetchAllEmployees = async () => {
   setLoading(true);
   try {
     const response = await api.get("/admin/employees");
