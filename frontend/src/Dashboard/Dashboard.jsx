@@ -42,9 +42,6 @@ useEffect(() => {
 }, []);
 
 
-  const handleEmployee = () => {
-    alert("This Feature is Only Available for Admins");
-  };
   const getGreeting = () => {
     const hour = new Date().getHours();
 

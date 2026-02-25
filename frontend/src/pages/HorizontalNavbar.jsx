@@ -57,7 +57,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
           </div>
 
           
-          <div className="flex items-center gap-6 text-sm font-medium text-white">
+          <div className="flex items-center gap-4 text-sm font-medium text-white">
             <button
               className="hover:text-orange-400 transition-colors"
               onClick={handleNavigateHelpPage}

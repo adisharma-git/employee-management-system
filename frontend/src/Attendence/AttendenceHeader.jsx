@@ -4,6 +4,7 @@ import {
   faSignInAlt,
   faSignOutAlt,
   faCheckCircle,
+   faSync ,
 } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/axios";
 
@@ -16,32 +17,31 @@ const AttendenceHeader = ({ refreshData }) => {
   const [totalBreakTime, setTotalBreakTime] = useState(0);
   const [leftBreakTime, setLeftBreakTime] = useState(0);
 
+
   useEffect(() => {
     checkPunchStatus();
   }, []);
 
-  const checkPunchStatus = async () => {
-    try {
-      const response = await api.get("/attendance/punch-status");
+const checkPunchStatus = async () => {
+  try {
+    const response = await api.get("/attendance/punch-status");
 
-      if (response.data?.data) {
-        const data = response.data.data;
+    if (response.data?.data) {
+      const data = response.data.data;
 
-        setIsPunchedIn(data.isPunchedIn);
+      setIsPunchedIn(data.isPunchedIn);
 
-        setTotalBreakTime(data.totalBreakTime || 0);
-        setLeftBreakTime(data.leftBreakTime || 0);
-        console.log("leftBreakTime", data.leftBreakTime);
+      setTotalBreakTime(data.breakStats?.totalBreakTime || 0);
+      setLeftBreakTime(data.breakStats?.leftBreakTime || 0);
+      const isBreakActive =
+        data.todayAttendance?.status === "break";
 
-        const isBreakActive =
-          data.todayAttendance?.status === "break";
-
-        setIsEnabled(isBreakActive);
-      }
-    } catch (error) {
-      console.log("Status check error:", error);
+      setIsEnabled(isBreakActive);
     }
-  };
+  } catch (error) {
+    console.log("Status check error:", error);
+  }
+};
 
   const progressPercent =
     totalBreakTime + leftBreakTime > 0
@@ -113,8 +113,7 @@ const handleToggle = async () => {
 
     const breakData = response.data.data;
 
-    setTotalBreakTime(breakData.totalBreakTime ?? 0);
-    setLeftBreakTime(breakData.leftBreakTime ?? 0);
+
 
     setIsEnabled(!isCurrentlyOnBreak);
 
@@ -125,6 +124,12 @@ const handleToggle = async () => {
     setLoading(false);
   }
 };
+const handleRefreshBreakTime=()=>{
+  setLoading(true);
+  checkPunchStatus();
+  setLoading(false);
+}
+ 
 
   return (
     <div className="sticky top-0 bg-gray-50 pb-4 z-20">
@@ -152,7 +157,6 @@ const handleToggle = async () => {
         </div>
 
         <div className="flex items-center gap-6">
-          {/* Check In */}
           <button
             onClick={handleCheckIn}
             disabled={loading || isPunchedIn}
@@ -162,7 +166,6 @@ const handleToggle = async () => {
             {loading ? "Processing..." : "Check-In"}
           </button>
 
-          {/* Check Out */}
           <button
             onClick={handleCheckOut}
             disabled={loading || !isPunchedIn}
@@ -174,7 +177,6 @@ const handleToggle = async () => {
 
           {/* Break Section */}
           <div className="flex flex-col items-end gap-2">
-
             {/* Toggle */}
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-gray-600">
@@ -194,20 +196,35 @@ const handleToggle = async () => {
                   }`}
                 />
               </button>
+              <button
+                onClick={handleRefreshBreakTime}
+                className="flex items-center gap-2"
+              >
+                {loading ? (
+                  <FontAwesomeIcon icon={faSync} spin />
+                ) : (
+                  <FontAwesomeIcon icon={faSync} />
+                )}
+                Refresh
+              </button>
             </div>
 
             <div className="w-52">
-              <div className="flex justify-between text-xs text-gray-500 mb-1">
-                <span>Break Used</span>
-                <span>{Math.round(progressPercent)}%</span>
-              </div>
+              {loading ? (
+                <div className="flex items-center justify-center h-6">
+                  <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>Break Used</span>
+                  <span>{Math.round(progressPercent)}%</span>
+                </div>
+              )}
 
               <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div
                   className={`h-2 rounded-full transition-all duration-500 ${
-                    progressPercent > 100
-                      ? "bg-red-500"
-                      : "bg-blue-500"
+                    progressPercent > 100 ? "bg-red-500" : "bg-blue-500"
                   }`}
                   style={{ width: `${Math.min(progressPercent, 100)}%` }}
                 />
@@ -217,7 +234,6 @@ const handleToggle = async () => {
                 {totalBreakTime}m used • {leftBreakTime}m left
               </div>
             </div>
-
           </div>
         </div>
       </header>
