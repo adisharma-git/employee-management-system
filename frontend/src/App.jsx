@@ -45,6 +45,7 @@ function App() {
         <Route path='/AttendanceModule' element={<AttendanceModule />} />
         <Route path="/LeaveModule" element={<LeaveModule />} />
         <Route path='/Reviews'element={<ReviewSection/>}/>
+
         <Route path='/SaleryModule' element={<SaleryModule />} />
         
         <Route
@@ -55,7 +56,12 @@ function App() {
             </ProtectedRoute>
 
           } />
-          <Route path="/attendance" element={<Attendence/>}/>
+
+          <Route path="/attendance" 
+          
+          element={ <ProtectedRoute><Attendence/></ProtectedRoute>}
+
+          />
           
           
         <Route
