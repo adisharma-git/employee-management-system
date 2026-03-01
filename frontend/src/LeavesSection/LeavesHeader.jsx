@@ -1,64 +1,52 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCheckCircle,
-} from "@fortawesome/free-solid-svg-icons";
-
+import { faBars, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import MenuComponent from "./MenuComponent";
+import CalendarComponent from "./CalendarComponent";
 
 const LeavesHeader = () => {
-  const [isEnabled] = useState(false);
-
-  const [showSuccessPopup] = useState(false);
-  const [successMessage] = useState("");
+  const [activeSection, setActiveSection] = useState("menu");
 
   return (
     <div className="sticky top-0 bg-gray-50 pb-4 z-20">
-      {showSuccessPopup && (
-        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-50 border border-green-200 shadow-xl rounded-lg px-6 py-4 flex items-center gap-3 z-50">
-          <div className="bg-green-100 p-2 rounded-full">
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              className="text-green-600 text-xl"
-            />
-          </div>
-          <div>
-            <h4 className="text-green-800 font-bold text-sm">Success</h4>
-            <p className="text-green-600 text-xs">{successMessage}</p>
-          </div>
-        </div>
-      )}
 
       <header className="bg-white border-b shadow-sm px-8 py-6 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">People</h1>
           <p className="text-gray-500 mt-2 text-sm">
-            Manage and track employee attendance within your organization
+            Manage and track employee attendance
           </p>
         </div>
 
-        <div className="flex items-center gap-6">
-          
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setActiveSection("menu")}
+            className="p-2 rounded-md border hover:bg-gray-100 transition"
+          >
+            <FontAwesomeIcon icon={faBars} />
+          </button>
+          <button
+            onClick={() => setActiveSection("calendar")}
+            className="p-2 rounded-md border hover:bg-gray-100 transition"
+          >
+            <FontAwesomeIcon icon={faCalendarAlt} />
+          </button>
+          <button
+            className="bg-[#021f54] text-white hover:bg-orange-400
+            hover:text-black text-sm font-medium px-4 py-1.5
+            rounded-md transition-colors duration-200"
+          >
+            Apply Leave
+          </button>
 
-          {/* Break Section */}
-          <div className="flex flex-col items-end gap-2">
-            {/* Toggle */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-gray-600">
-                <button
-                  onClick={() => setSelectedTab("adminRegistration")}
-                  className="bg-[#021f54] text-white hover:bg-orange-400
-    hover:text-black text-sm font-medium px-4 py-1.5
-    rounded-md transition-colors duration-200"
-                >
-                  Apply Leave
-                </button>
-              </span>
-            </div>
-
-            
-          </div>
         </div>
       </header>
+
+      <div className="bg-white shadow px-8 py-4">
+        {activeSection === "menu" && <MenuComponent />}
+        {activeSection === "calendar" && <CalendarComponent />}
+      </div>
+
     </div>
   );
 };
