@@ -20,6 +20,7 @@ import AttendanceModule from './pages/AttendanceModule'
 import LeaveModule from './pages/LeaveModule'
 import ReviewSection from './pages/ReviewHome'
 import SaleryModule from './pages/SaleryModule'
+import LeavesPage from './LeavesSection/LeavesPage'
 
 
 
@@ -42,7 +43,9 @@ function App() {
         <Route path='/updates' element={<Updates />} />
         <Route path='/employeeInfoPage' element={<EmployeeInfoPage />} />
         <Route path='/EmployeeRegistration' element={<EmployeeRegistration />} />
-        <Route path='/AttendanceModule' element={<AttendanceModule />} />
+        <Route path='/AttendanceModule'
+          element={
+            <ProtectedRoute><AttendanceModule /></ProtectedRoute>} />
         <Route path="/LeaveModule" element={<LeaveModule />} />
         <Route path='/Reviews'element={<ReviewSection/>}/>
 
@@ -83,6 +86,10 @@ function App() {
         element={
         <ProtectedRoute><ComingSoon />
         </ProtectedRoute>} />
+        <Route path='/LeavesPage'
+        element={<ProtectedRoute>
+          <LeavesPage/>
+        </ProtectedRoute>}/>
       </Routes>
     </BrowserRouter>
   )
