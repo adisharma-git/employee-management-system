@@ -44,7 +44,14 @@ const LeavesHeader = () => {
             {/* Toggle */}
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-gray-600">
-                {isEnabled ? "On Break" : "Working"}
+                <button
+                  onClick={() => setSelectedTab("adminRegistration")}
+                  className="bg-[#021f54] text-white hover:bg-orange-400
+    hover:text-black text-sm font-medium px-4 py-1.5
+    rounded-md transition-colors duration-200"
+                >
+                  Apply Leave
+                </button>
               </span>
             </div>
 

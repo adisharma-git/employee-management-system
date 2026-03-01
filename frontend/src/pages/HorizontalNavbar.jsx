@@ -15,7 +15,9 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
   const navTabs = [
     { id: "employees", label: "Employees" },
     { id: "Attendance", label: "Attendance" },
-    { id: "reports", label: "Reports" }
+    { id: "LeavesPage", label: "Leaves" },
+    { id: "reports", label: "Reports" },
+    
   ];
 
   return (

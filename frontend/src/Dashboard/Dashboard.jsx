@@ -11,6 +11,7 @@ import TimeLogDashboard from "../DailyLogs/TimeLog";
 import ComingSoon from "../ComingSoon/ComingSoon";
 import Settings from "./Settings";
 import EmployeeRegistration from "../Admin/EmployeeRegistration";
+import LeavesPage from "../LeavesSection/LeavesPage";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
@@ -66,6 +67,8 @@ useEffect(() => {
         return <EmployeeRegistration permission={permission}/>;
       case "settings":
         return <Settings/>;
+      case "LeavesPage":
+        return <LeavesPage/>;
       default:
         return <DashboardHome/>;
     }
