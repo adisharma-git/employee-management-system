@@ -3,9 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import MenuComponent from "./MenuComponent";
 import CalendarComponent from "./CalendarComponent";
+import ApplyLeaveForm from "./LeaveForm";
 
 const LeavesHeader = () => {
   const [activeSection, setActiveSection] = useState("menu");
+  const handleApplyLeave = () => {
+    setActiveSection("applyLeave");
+  }
 
   return (
     <div className="sticky top-0 bg-gray-50 pb-4 z-20">
@@ -35,7 +39,7 @@ const LeavesHeader = () => {
             className="bg-[#021f54] text-white hover:bg-orange-400
             hover:text-black text-sm font-medium px-4 py-1.5
             rounded-md transition-colors duration-200"
-          >
+            onClick={handleApplyLeave}>
             Apply Leave
           </button>
 
@@ -45,6 +49,7 @@ const LeavesHeader = () => {
       <div className="bg-white shadow px-8 py-4">
         {activeSection === "menu" && <MenuComponent />}
         {activeSection === "calendar" && <CalendarComponent />}
+        {activeSection === "applyLeave" && <ApplyLeaveForm/>}
       </div>
 
     </div>

@@ -21,6 +21,7 @@ import LeaveModule from './pages/LeaveModule'
 import ReviewSection from './pages/ReviewHome'
 import SaleryModule from './pages/SaleryModule'
 import LeavesPage from './LeavesSection/LeavesPage'
+import ApplyLeaveForm from './LeavesSection/LeaveForm'
 
 
 
@@ -86,10 +87,8 @@ function App() {
         element={
         <ProtectedRoute><ComingSoon />
         </ProtectedRoute>} />
-        <Route path='/LeavesPage'
-        element={<ProtectedRoute>
-          <LeavesPage/>
-        </ProtectedRoute>}/>
+        <Route path='/LeavesPage'element={<ProtectedRoute><LeavesPage/></ProtectedRoute>}/>
+        <Route path='/ApplyLeaveForm' element={<ProtectedRoute><ApplyLeaveForm/></ProtectedRoute>}/>
       </Routes>
     </BrowserRouter>
   )
