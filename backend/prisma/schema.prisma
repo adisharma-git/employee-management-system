@@ -53,6 +53,7 @@ model Employee {
   user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   attendance Attendance[]
   leaves     Leave[]
+  leaveBalances LeaveBalance[]
   tasks      Task[]
 
   @@map("employees")
@@ -89,23 +90,26 @@ model Attendance {
 }
 
 // --------------------------------------
-// 4. Leaves Table
+// 4. Leaves Table 
 // --------------------------------------
 model Leave {
-  id         String   @id @default(uuid())
-  employeeId String   @map("employee_id")
-  fromDate   DateTime @map("from_date") @db.Date
-  toDate     DateTime @map("to_date") @db.Date
-  reason     String?
-  status     String   @default("pending") // 'pending', 'approved', 'rejected'
-  approvedBy String?  @map("approved_by")
+  id          String   @id @default(uuid())
+  employeeId  String   @map("employee_id")
+  leaveType   String   @map("leave_type") // NEW: e.g., "Casual", "Sick"
+  fromDate    DateTime @map("from_date") @db.Date
+  toDate      DateTime @map("to_date") @db.Date
+  reason      String?  @db.Text
+  isHalfDay   Boolean  @default(false) @map("is_half_day") // NEW
+  appliedDays Float    @map("applied_days") // NEW: The calculated total (e.g., 3.5)
+  status      String   @default("pending") // 'pending', 'approved', 'rejected'
+  approvedBy  String?  @map("approved_by")
   
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relationships
-  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  approver   User?    @relation("ApprovedBy", fields: [approvedBy], references: [id])
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  approver    User?    @relation("ApprovedBy", fields: [approvedBy], references: [id])
 
   @@map("leaves")
   @@index([employeeId])
@@ -166,4 +170,35 @@ model DailyLog {
   // This effectively says: "An Employee cannot have TWO rows for the SAME date."
   // If they try to add a new task for today, we force an UPDATE, not a CREATE.
   @@unique([date, employeeId])
+}
+
+// --------------------------------------
+// 7. Leave Balances Table (The Bank)
+// --------------------------------------
+model LeaveBalance {
+  id          String   @id @default(uuid())
+  employeeId  String   @map("employee_id")
+  leaveType   String   @map("leave_type") // Matches the string in Leave
+  allocated   Float    // Total days given by admin (e.g., 10)
+  used        Float    @default(0) // Days already taken
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  // Ensures an employee only has one balance record per leave type
+  @@unique([employeeId, leaveType]) 
+  @@map("leave_balances")
+}
+
+// --------------------------------------
+// 8. Holidays Table (The Calendar)
+// --------------------------------------
+model Holiday {
+  id          String   @id @default(uuid())
+  name        String   // e.g., "Independence Day"
+  date        DateTime @unique @db.Date
+
+  @@map("holidays")
 }
