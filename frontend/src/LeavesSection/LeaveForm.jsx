@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 
-const ApplyLeaveForm = ({ onSubmit }) => {
+const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
   const [formData, setFormData] = useState({
     leaveType: "",
     startDate: null,
