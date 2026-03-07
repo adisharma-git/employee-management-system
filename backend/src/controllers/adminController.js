@@ -42,19 +42,19 @@ exports.createEmployee = async (req, res) => {
     // B. Hash the temporary password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // C. Transaction: Create User AND Employee Profile together
-    const result = await prisma.$transaction(async (prisma) => {
+    // C. Transaction: Create User, Profile AND Leaves all at once!
+    const result = await prisma.$transaction(async (tx) => {
       // 1. Create Login Account
-      const newUser = await prisma.user.create({
+      const newUser = await tx.user.create({
         data: {
           email,
           passwordHash: hashedPassword,
-          role: 'employee', // Default role
+          role: 'employee', 
         }
       });
 
       // 2. Create Profile
-      const newProfile = await prisma.employee.create({
+      const newProfile = await tx.employee.create({
         data: {
           userId: newUser.id,
           name,
@@ -63,6 +63,24 @@ exports.createEmployee = async (req, res) => {
           dateOfJoining: new Date()
         }
       });
+
+      // 3. THE AUTOMATION TRIGGER: Assign Default Leaves
+      const activeLeavePolicies = await tx.leaveType.findMany({
+        where: { isActive: true }
+      });
+
+      if (activeLeavePolicies.length > 0) {
+        const defaultBalances = activeLeavePolicies.map(policy => ({
+          employeeId: newProfile.id, // Fixed the variable reference!
+          leaveTypeId: policy.id,
+          allocated: policy.defaultDays,
+          used: 0
+        }));
+
+        await tx.leaveBalance.createMany({
+          data: defaultBalances
+        });
+      }
 
       return { user: newUser, employee: newProfile };
     });

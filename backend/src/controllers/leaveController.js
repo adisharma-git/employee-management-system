@@ -1,93 +1,78 @@
 const prisma = require('../utils/prisma');
 const { calculateAppliedDays } = require('../utils/leaveCalculator');
 
+// 1. APPLY FOR LEAVE (Employee)
 exports.applyForLeave = async (req, res) => {
   try {
-    const userId = req.user.id; // From auth middleware
-    const { leaveType, description, startDate, endDate, isHalfDay } = req.body;
+    const userId = req.user.id;
+    // ✅ CHANGED: Frontend now sends leaveTypeId instead of leaveType string
+    const { leaveTypeId, description, startDate, endDate, isHalfDay } = req.body;
 
-    // 1. Get Employee Record
     const employee = await prisma.employee.findUnique({ where: { userId } });
-    if (!employee) {
-      return res.status(404).json({ success: false, message: "Employee not found." });
-    }
+    if (!employee) return res.status(404).json({ success: false, message: "Employee not found." });
 
-    // 2. Fetch Holidays within the date range
     const start = new Date(startDate);
     const end = new Date(endDate);
     
     const holidays = await prisma.holiday.findMany({
-      where: {
-        date: {
-          gte: start, // Greater than or equal to startDate
-          lte: end    // Less than or equal to endDate
-        }
-      }
+      where: { date: { gte: start, lte: end } }
     });
 
-    // 3. Run the Math Engine (Skip weekends & holidays)
     const appliedDays = calculateAppliedDays(start, end, holidays, isHalfDay || false);
 
-    // If they applied on a weekend/holiday and the result is 0
     if (appliedDays <= 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid date range. Leaves cannot be applied exclusively on weekends or holidays." 
-      });
+      return res.status(400).json({ success: false, message: "Invalid date range. Cannot apply exclusively on holidays/weekends." });
     }
 
-    // 4. Check the Employee's Leave Balance
+    // ✅ CHANGED: Look up balance using the new relational ID, and include the Master Table data
     const balance = await prisma.leaveBalance.findUnique({
       where: {
-        employeeId_leaveType: {
+        employeeId_leaveTypeId: {
           employeeId: employee.id,
-          leaveType: leaveType
+          leaveTypeId: leaveTypeId
         }
-      }
+      },
+      include: { leaveType: true } // Fetches the actual name (e.g., "Casual")
     });
 
     if (!balance) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `You do not have a balance allocated for '${leaveType}' leaves.` 
-      });
+      return res.status(400).json({ success: false, message: "You do not have a balance allocated for this leave type." });
     }
 
     const remainingLeaves = balance.allocated - balance.used;
 
-    // 5. Block if they don't have enough days left
     if (appliedDays > remainingLeaves) {
       return res.status(400).json({ 
         success: false, 
-        message: `Insufficient balance. You requested ${appliedDays} days, but only have ${remainingLeaves} days left.` 
+        message: `Insufficient balance. You requested ${appliedDays} days, but only have ${remainingLeaves} days left for ${balance.leaveType.name}.` 
       });
     }
 
-    // 6. Save the Request to the Database (Status defaults to 'pending')
+    // ✅ CHANGED: Save the request with the relational ID
     const leaveRequest = await prisma.leave.create({
       data: {
         employeeId: employee.id,
-        leaveType: leaveType,
+        leaveTypeId: leaveTypeId,
         fromDate: start,
         toDate: end,
         reason: description,
         isHalfDay: isHalfDay || false,
         appliedDays: appliedDays
-      }
+      },
+      include: { leaveType: true } // Fetch the master record to send the text name back to frontend
     });
 
-    // 7. Send the exact response requested by the Frontend
     res.status(201).json({
       success: true,
       message: "Leave application submitted successfully.",
       data: {
-        leaveType: leaveRequest.leaveType,
+        leaveType: leaveRequest.leaveType.name, // Gives frontend the text string they want!
         description: leaveRequest.reason,
         startDate: leaveRequest.fromDate,
         endDate: leaveRequest.toDate,
         status: leaveRequest.status,
         numberOfLeavesTaken: leaveRequest.appliedDays,
-        leavesRemaining: remainingLeaves - leaveRequest.appliedDays
+        leavesRemaining: remainingLeaves - leaveRequest.appliedDays 
       }
     });
 
@@ -98,28 +83,27 @@ exports.applyForLeave = async (req, res) => {
 };
 
 // 2. GET MY LEAVE BALANCES (Employee)
-
 exports.getMyBalances = async (req, res) => {
   try {
     const userId = req.user.id;
     
-    // 1. Get Employee
     const employee = await prisma.employee.findUnique({ where: { userId } });
     if (!employee) return res.status(404).json({ success: false, message: "Employee not found." });
 
-    // 2. Fetch all balances for this employee
+    // ✅ CHANGED: Fetch balances and include the Master Menu name
     const balances = await prisma.leaveBalance.findMany({
       where: { employeeId: employee.id },
-      select: {
-        leaveType: true,
-        allocated: true,
-        used: true
+      include: {
+        leaveType: {
+          select: { name: true } // We only need the text name
+        }
       }
     });
 
-    // 3. Format the data to easily show "remaining" for the frontend
+    // Format the data perfectly for the frontend UI cards
     const formattedBalances = balances.map(b => ({
-      leaveType: b.leaveType,
+      leaveType: b.leaveType.name, // Extracts "Casual" from the nested object
+      leaveTypeId: b.leaveTypeId,  // Frontend needs this ID to send in the POST /apply request!
       allocated: b.allocated,
       used: b.used,
       remaining: b.allocated - b.used
