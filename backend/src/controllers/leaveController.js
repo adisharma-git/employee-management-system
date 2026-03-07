@@ -1,93 +1,78 @@
 const prisma = require('../utils/prisma');
 const { calculateAppliedDays } = require('../utils/leaveCalculator');
 
+// 1. APPLY FOR LEAVE (Employee)
 exports.applyForLeave = async (req, res) => {
   try {
-    const userId = req.user.id; // From auth middleware
-    const { leaveType, description, startDate, endDate, isHalfDay } = req.body;
+    const userId = req.user.id;
+    // Frontend now sends leaveTypeId instead of leaveType string
+    const { leaveTypeId, description, startDate, endDate, isHalfDay } = req.body;
 
-    // 1. Get Employee Record
     const employee = await prisma.employee.findUnique({ where: { userId } });
-    if (!employee) {
-      return res.status(404).json({ success: false, message: "Employee not found." });
-    }
+    if (!employee) return res.status(404).json({ success: false, message: "Employee not found." });
 
-    // 2. Fetch Holidays within the date range
     const start = new Date(startDate);
     const end = new Date(endDate);
     
     const holidays = await prisma.holiday.findMany({
-      where: {
-        date: {
-          gte: start, // Greater than or equal to startDate
-          lte: end    // Less than or equal to endDate
-        }
-      }
+      where: { date: { gte: start, lte: end } }
     });
 
-    // 3. Run the Math Engine (Skip weekends & holidays)
     const appliedDays = calculateAppliedDays(start, end, holidays, isHalfDay || false);
 
-    // If they applied on a weekend/holiday and the result is 0
     if (appliedDays <= 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid date range. Leaves cannot be applied exclusively on weekends or holidays." 
-      });
+      return res.status(400).json({ success: false, message: "Invalid date range. Cannot apply exclusively on holidays/weekends." });
     }
 
-    // 4. Check the Employee's Leave Balance
+    // Look up balance using the new relational ID, and include the Master Table data
     const balance = await prisma.leaveBalance.findUnique({
       where: {
-        employeeId_leaveType: {
+        employeeId_leaveTypeId: {
           employeeId: employee.id,
-          leaveType: leaveType
+          leaveTypeId: leaveTypeId
         }
-      }
+      },
+      include: { leaveType: true } // Fetches the actual name (e.g., "Casual")
     });
 
     if (!balance) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `You do not have a balance allocated for '${leaveType}' leaves.` 
-      });
+      return res.status(400).json({ success: false, message: "You do not have a balance allocated for this leave type." });
     }
 
     const remainingLeaves = balance.allocated - balance.used;
 
-    // 5. Block if they don't have enough days left
     if (appliedDays > remainingLeaves) {
       return res.status(400).json({ 
         success: false, 
-        message: `Insufficient balance. You requested ${appliedDays} days, but only have ${remainingLeaves} days left.` 
+        message: `Insufficient balance. You requested ${appliedDays} days, but only have ${remainingLeaves} days left for ${balance.leaveType.name}.` 
       });
     }
 
-    // 6. Save the Request to the Database (Status defaults to 'pending')
+    // Save the request with the relational ID
     const leaveRequest = await prisma.leave.create({
       data: {
         employeeId: employee.id,
-        leaveType: leaveType,
+        leaveTypeId: leaveTypeId,
         fromDate: start,
         toDate: end,
         reason: description,
         isHalfDay: isHalfDay || false,
         appliedDays: appliedDays
-      }
+      },
+      include: { leaveType: true } 
     });
 
-    // 7. Send the exact response requested by the Frontend
     res.status(201).json({
       success: true,
       message: "Leave application submitted successfully.",
       data: {
-        leaveType: leaveRequest.leaveType,
+        leaveType: leaveRequest.leaveType.name, 
         description: leaveRequest.reason,
         startDate: leaveRequest.fromDate,
         endDate: leaveRequest.toDate,
         status: leaveRequest.status,
         numberOfLeavesTaken: leaveRequest.appliedDays,
-        leavesRemaining: remainingLeaves - leaveRequest.appliedDays
+        leavesRemaining: remainingLeaves - leaveRequest.appliedDays 
       }
     });
 
@@ -98,28 +83,27 @@ exports.applyForLeave = async (req, res) => {
 };
 
 // 2. GET MY LEAVE BALANCES (Employee)
-
 exports.getMyBalances = async (req, res) => {
   try {
     const userId = req.user.id;
     
-    // 1. Get Employee
     const employee = await prisma.employee.findUnique({ where: { userId } });
     if (!employee) return res.status(404).json({ success: false, message: "Employee not found." });
 
-    // 2. Fetch all balances for this employee
+    // Fetch balances and include the Master Menu name
     const balances = await prisma.leaveBalance.findMany({
       where: { employeeId: employee.id },
-      select: {
-        leaveType: true,
-        allocated: true,
-        used: true
+      include: {
+        leaveType: {
+          select: { name: true } 
+        }
       }
     });
 
-    // 3. Format the data to easily show "remaining" for the frontend
+    // Format the data perfectly for the frontend UI cards
     const formattedBalances = balances.map(b => ({
-      leaveType: b.leaveType,
+      leaveType: b.leaveType.name, 
+      leaveTypeId: b.leaveTypeId,  
       allocated: b.allocated,
       used: b.used,
       remaining: b.allocated - b.used
@@ -136,9 +120,7 @@ exports.getMyBalances = async (req, res) => {
   }
 };
 
-
 // 3. GET MY LEAVE HISTORY (Employee)
-
 exports.getMyLeaves = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -150,10 +132,11 @@ exports.getMyLeaves = async (req, res) => {
     // 2. Fetch all leave applications made by this employee
     const leaves = await prisma.leave.findMany({
       where: { employeeId: employee.id },
-      orderBy: { createdAt: 'desc' }, // Show newest applications first
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
-        leaveType: true,
+        // Grabs just the text name from the master table
+        leaveType: { select: { name: true } },
         reason: true,
         fromDate: true,
         toDate: true,
@@ -176,14 +159,11 @@ exports.getMyLeaves = async (req, res) => {
   }
 };
 
-// ==========================================
 // 4. GET ALL LEAVES (Admin)
-// ==========================================
 exports.getAllLeaves = async (req, res) => {
   try {
     const { status } = req.query; // E.g., ?status=pending
 
-    // Build the filter
     const whereClause = {};
     if (status) {
       whereClause.status = status.toLowerCase();
@@ -194,6 +174,10 @@ exports.getAllLeaves = async (req, res) => {
       include: {
         employee: {
           select: { name: true, department: true, designation: true }
+        },
+        // Ensures Admin sees the name of the leave in their inbox
+        leaveType: {
+          select: { name: true } 
         }
       },
       orderBy: { createdAt: 'desc' }
@@ -212,11 +196,10 @@ exports.getAllLeaves = async (req, res) => {
 };
 
 // 5. APPROVE / REJECT LEAVE (Admin)
-
 exports.updateLeaveStatus = async (req, res) => {
   try {
-    const adminId = req.user.id; // From verifyAdmin middleware
-    const { id } = req.params;   // The Leave Request ID
+    const adminId = req.user.id; 
+    const { id } = req.params;   
     const { status } = req.body; // 'approved' or 'rejected'
 
     // 1. Validate Input
@@ -253,9 +236,10 @@ exports.updateLeaveStatus = async (req, res) => {
       transaction.push(
         prisma.leaveBalance.update({
           where: {
-            employeeId_leaveType: {
+            // Now uses the new relational index
+            employeeId_leaveTypeId: {
               employeeId: leave.employeeId,
-              leaveType: leave.leaveType
+              leaveTypeId: leave.leaveTypeId 
             }
           },
           data: {
