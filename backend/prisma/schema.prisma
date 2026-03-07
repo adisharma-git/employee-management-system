@@ -90,29 +90,34 @@ model Attendance {
 }
 
 // --------------------------------------
-// 4. Leaves Table 
+// 4. Leaves Table (Updated)
 // --------------------------------------
 model Leave {
-  id          String   @id @default(uuid())
-  employeeId  String   @map("employee_id")
-  leaveType   String   @map("leave_type") // NEW: e.g., "Casual", "Sick"
-  fromDate    DateTime @map("from_date") @db.Date
-  toDate      DateTime @map("to_date") @db.Date
-  reason      String?  @db.Text
-  isHalfDay   Boolean  @default(false) @map("is_half_day") // NEW
-  appliedDays Float    @map("applied_days") // NEW: The calculated total (e.g., 3.5)
-  status      String   @default("pending") // 'pending', 'approved', 'rejected'
-  approvedBy  String?  @map("approved_by")
+  id           String   @id @default(uuid())
+  employeeId   String   @map("employee_id")
   
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  // ✅ NEW: Relational link to the Master Table
+  leaveTypeId  String   @map("leave_type_id") 
+  leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  fromDate     DateTime @map("from_date") @db.Date
+  toDate       DateTime @map("to_date") @db.Date
+  reason       String?  @db.Text
+  isHalfDay    Boolean  @default(false) @map("is_half_day")
+  appliedDays  Float    @map("applied_days") 
+  status       String   @default("pending") // 'pending', 'approved', 'rejected'
+  approvedBy   String?  @map("approved_by")
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   // Relationships
-  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  approver    User?    @relation("ApprovedBy", fields: [approvedBy], references: [id])
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  approver     User?    @relation("ApprovedBy", fields: [approvedBy], references: [id])
 
   @@map("leaves")
   @@index([employeeId])
+  @@index([leaveTypeId])
   @@index([status])
 }
 
@@ -173,22 +178,26 @@ model DailyLog {
 }
 
 // --------------------------------------
-// 7. Leave Balances Table (The Bank)
+// 7. Leave Balances Table (Updated)
 // --------------------------------------
 model LeaveBalance {
-  id          String   @id @default(uuid())
-  employeeId  String   @map("employee_id")
-  leaveType   String   @map("leave_type") // Matches the string in Leave
-  allocated   Float    // Total days given by admin (e.g., 10)
-  used        Float    @default(0) // Days already taken
-
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  id           String   @id @default(uuid())
+  employeeId   String   @map("employee_id")
   
-  // Ensures an employee only has one balance record per leave type
-  @@unique([employeeId, leaveType]) 
+  // ✅ NEW: Relational link to the Master Table
+  leaveTypeId  String   @map("leave_type_id")
+  leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  allocated    Float    
+  used         Float    @default(0) 
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  // Ensures an employee only has one balance record per specific Leave Type
+  @@unique([employeeId, leaveTypeId]) 
   @@map("leave_balances")
 }
 
@@ -201,4 +210,24 @@ model Holiday {
   date        DateTime @unique @db.Date
 
   @@map("holidays")
+}
+
+// --------------------------------------
+// 9. Leave Types Table (The Master Menu)
+// --------------------------------------
+model LeaveType {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g., "Casual", "Sick", "Maternity"
+  defaultDays Float    @map("default_days") // The standard allocation (e.g., 10, 5)
+  description String?  @db.Text
+  isActive    Boolean  @default(true) @map("is_active") // Admin can disable old policies
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relationships: A master leave type connects to many balances and many requests
+  balances    LeaveBalance[]
+  requests    Leave[]
+
+  @@map("leave_types")
 }
