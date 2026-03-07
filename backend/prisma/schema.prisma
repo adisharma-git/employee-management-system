@@ -27,6 +27,8 @@ model User {
   assignedTasks  Task[]   @relation("AssignedBy")
   approvedLeaves Leave[]  @relation("ApprovedBy")
 
+  announcements  Announcement[] 
+
   @@map("users")
   @@index([email])
   @@index([role])
@@ -230,4 +232,22 @@ model LeaveType {
   requests    Leave[]
 
   @@map("leave_types")
+}
+
+// --------------------------------------
+// 10. Announcements Table
+// --------------------------------------
+model Announcement {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   @db.Text
+  
+  // We link this to the User (Admin) who created it, just for auditing
+  createdBy   String   @map("created_by") 
+  author      User     @relation(fields: [createdBy], references: [id])
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("announcements")
 }
