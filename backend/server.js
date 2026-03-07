@@ -10,6 +10,7 @@ const prisma = require('./src/utils/prisma');
 const logRoutes = require('./src/routes/logRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const leaveRoutes = require('./src/routes/leaveRoutes');
+const annoutncementRoutes = require('./src/routes/announcementRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,6 +43,7 @@ app.use('/api/logs', logRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/leaves', leaveRoutes);
+app.use('/api/announcements', annoutncementRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {
