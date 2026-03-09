@@ -1,51 +1,35 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
-const LeaveFormModal = ({ date, onSubmit, onClose }) => {
+const CreateLeave = ({ onSubmit, onClose }) => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    leaveName: "",
-    defaultDays: date || null,
+    name: "",
+    defaultDays: "",
     description: "",
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (date) {
-      setFormData((prev) => ({
-        ...prev,
-        defaultDays: date,
-      }));
-    }
-  }, [date]);
-
-  // ESC close support
-  useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") {
         onClose();
       }
     };
+
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [onClose]);
-
-  const leaveTypes = [
-    "Casual Leave",
-    "Sick Leave",
-    "Earned Leave",
-    "Maternity Leave",
-    "Paternity Leave",
-  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "defaultDays" ? parseFloat(value) : value,
     }));
 
     setErrors((prev) => ({
@@ -57,30 +41,42 @@ const LeaveFormModal = ({ date, onSubmit, onClose }) => {
   const validate = () => {
     let newErrors = {};
 
-    if (!formData.leaveName) newErrors.leaveName = "Please select leave type";
-    if (!formData.defaultDays) newErrors.defaultDays = "Start date is required";
+    if (!formData.name.trim()) {
+      newErrors.name = "Leave name is required";
+    }
 
-    if (!formData.description.trim())
+    if (!formData.description.trim()) {
       newErrors.description = "Reason is required";
-    else if (formData.description.length < 10)
+    } else if (formData.description.length < 10) {
       newErrors.description = "Reason must be at least 10 characters";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const fetchLeaves = async () => {
+    try {
+      const response = await api.get('/leave-types');
+      console.log('Fetched Leaves:', response.data.data);
+    }
+    catch(error){
+      
+    }
+  }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
     if (validate()) {
-      const finalData = {
-        ...formData,
-        defaultDays: format(formData.defaultDays, "dd-MMM-yyyy"),
-      };
-
-      if (onSubmit) onSubmit(finalData);
-
-      onClose();
+      if (onSubmit) onSubmit(formData);
+      try {
+      await api.post('/leave-types', formData)
+      fetchLeaves();
+      // onSubmit()
+    } catch (error) {
+      console.error('Error saving log:', error)
+    }
+      
     }
   };
 
@@ -90,8 +86,8 @@ const LeaveFormModal = ({ date, onSubmit, onClose }) => {
         className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl p-6 animate-fadeIn">
 
+      <div className="relative bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl p-6">
         <button
           onClick={onClose}
           className="absolute top-3 right-4 text-gray-500 hover:text-black text-lg"
@@ -100,54 +96,53 @@ const LeaveFormModal = ({ date, onSubmit, onClose }) => {
         </button>
 
         <h2 className="text-xl font-semibold mb-6 text-gray-700">
-          Apply Leave
+          Create Leave
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form  className="space-y-5">
           <div>
             <label className="block text-gray-600 font-medium mb-2">
               Leave Name <span className="text-red-500">*</span>
             </label>
+
             <input
               type="text"
-              name="LeaveName"
+              name="name"
               value={formData.name}
               onChange={handleChange}
-              list="leave-types"
               className="w-full border rounded-lg px-4 py-2"
-
             />
-            {errors.leaveName && (
+
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Default Days */}
+          <div>
+            <label className="block text-gray-600 font-medium mb-2">
+              Default Days
+            </label>
+
+            <input
+              type="number"
+              name="defaultDays"
+              value={formData.defaultDays}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-4 py-2"
+            />
+
+            {errors.defaultDays && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.leaveName}
+                {errors.defaultDays}
               </p>
             )}
           </div>
 
-         
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-gray-600 font-medium mb-2">
-                Default Date
-              </label>
-              <input
-                type="text"
-                name="Days"
-                value={formData.defaultDays}
-              />
-              {errors.defaultDays && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.defaultDays}
-                </p>
-              )}
-            </div>
-
-          </div>
-
-         
+          {/* Description */}
           <div>
             <label className="block text-gray-600 font-medium mb-2">
-              Description
+              Description *
             </label>
 
             <textarea
@@ -165,10 +160,11 @@ const LeaveFormModal = ({ date, onSubmit, onClose }) => {
             )}
           </div>
 
+          
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => navigate("/LeavesPage")}
               className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
             >
               Cancel
@@ -176,16 +172,15 @@ const LeaveFormModal = ({ date, onSubmit, onClose }) => {
 
             <button
               type="submit"
-              className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black px-4 py-2 rounded-lg transition"
+              className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black px-4 py-2 rounded-lg transition"onClick={handleSubmit}
             >
               Submit
             </button>
           </div>
-
         </form>
       </div>
     </div>
   );
 };
 
-export default LeaveFormModal;
+export default CreateLeave;

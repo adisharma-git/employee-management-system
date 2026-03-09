@@ -1,4 +1,3 @@
-import React from 'react'
 import LeavesHeader from './LeavesHeader'
 
 const LeavesPage = () => {

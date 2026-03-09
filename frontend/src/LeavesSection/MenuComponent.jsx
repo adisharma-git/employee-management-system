@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import TotalLeaves from "./totalLeaves";
+import api from "../api/axios";
 
 const AttendanceNav = () => {
   const [activeTab, setActiveTab] = useState("leaves");
+   const [leaves, setLeaves] = useState([]);
   const isAdmin = false; 
 
   const tabs = [
@@ -13,6 +16,18 @@ const AttendanceNav = () => {
   const visibleTabs = tabs.filter(
     (tab) => !tab.adminOnly || isAdmin
   );
+  const fetchLeaves = async () => {
+    try {
+      const response = await api.get("/leave-types");
+      console.log("Fetched Leaves:", response.data.data);
+      setLeaves(response.data.data);
+    } catch (error) {
+      console.error("Error fetching leaves", error);
+    }
+  };
+  useEffect(() => {
+    fetchLeaves();
+  }, []);
 
   const renderComponent = () => {
     switch (activeTab) {
@@ -21,11 +36,11 @@ const AttendanceNav = () => {
       case "attendance":
         return <ActiveLeaves />;
       case "leaves":
-        return <Leaves />;
+        return <TotalLeaves leaves={leaves}/>;
       case "reports":
         return <Reports />;
       default:
-        return <Leaves />;
+        return <Reports />;
     }
   };
 
@@ -70,5 +85,4 @@ const AttendanceNav = () => {
 export default AttendanceNav;
 const PendingLeaves = () => <div>Pending Leaves</div>;
 const ActiveLeaves = () => <div>ActiveLeaves</div>;
-const Leaves = () => <div>Leaves Component</div>;
 const Reports = () => <div>Reports Component</div>;
