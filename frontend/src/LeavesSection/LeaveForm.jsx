@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
+import axios from "axios";
+import api from "../api/axios";
 
-const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
+const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
+
+  const [leaveTypes, setLeaveTypes] = useState([]);
+
   const [formData, setFormData] = useState({
-    leaveType: "",
+    leaveTypeId: "",
     startDate: null,
     endDate: null,
     reason: "",
@@ -13,13 +18,22 @@ const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
 
   const [errors, setErrors] = useState({});
 
-  const leaveTypes = [
-    "Casual Leave",
-    "Sick Leave",
-    "Earned Leave",
-    "Maternity Leave",
-    "Paternity Leave",
-  ];
+  // ✅ Fetch Leave Types
+  useEffect(() => {
+    fetchLeaveTypes();
+  }, []);
+
+  const fetchLeaveTypes = async () => {
+    try {
+      const res = await api.get("/leave-types");
+
+      if (res.data.success) {
+        setLeaveTypes(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching leave types", err);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,8 +52,8 @@ const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
   const validate = () => {
     let newErrors = {};
 
-    if (!formData.leaveType) {
-      newErrors.leaveType = "Please select leave type";
+    if (!formData.leaveTypeId) {
+      newErrors.leaveTypeId = "Please select leave type";
     }
 
     if (!formData.startDate) {
@@ -60,38 +74,46 @@ const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
 
     if (!formData.reason.trim()) {
       newErrors.reason = "Reason is required";
-    } else if (formData.reason.length < 10) {
-      newErrors.reason = "Reason must be at least 10 characters";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  // ✅ Submit Leave
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validate()) {
-      const finalData = {
-        ...formData,
-        startDate: format(formData.startDate, "dd-MMM-yyyy"),
-        endDate: format(formData.endDate, "dd-MMM-yyyy"),
-      };
+    if (!validate()) return;
 
-      console.log("Submitted Data:", finalData);
+    const payload = {
+      leaveTypeId: formData.leaveTypeId,
+      description: formData.reason,
+      startDate: format(formData.startDate, "yyyy-MM-dd"),
+      endDate: format(formData.endDate, "yyyy-MM-dd"),
+      isHalfDay: false,
+    };
 
-      if (onSubmit) {
-        onSubmit(finalData);
+    try {
+      const res = await api.post("/leaves/apply", payload);
+
+      if (res.data) {
+        alert("Leave Applied Successfully ✅");
+
+        setFormData({
+          leaveTypeId: "",
+          startDate: null,
+          endDate: null,
+          reason: "",
+        });
+
+        if (onSubmit) {
+          onSubmit(res.data);
+        }
       }
-
-      alert("Leave Applied Successfully ✅");
-
-      setFormData({
-        leaveType: "",
-        startDate: null,
-        endDate: null,
-        reason: "",
-      });
+    } catch (error) {
+      console.error("Leave Apply Error", error);
+      alert("Failed to apply leave ❌");
     }
   };
 
@@ -100,41 +122,47 @@ const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
       <h2 className="text-xl font-semibold mb-6 text-gray-700">
         Apply Leave
       </h2>
+
       <form onSubmit={handleSubmit} className="space-y-6">
+
+        {/* Leave Type */}
         <div>
           <label className="block text-gray-600 font-medium mb-2">
             Leave Type <span className="text-red-500">*</span>
           </label>
 
           <select
-            name="leaveType"
-            value={formData.leaveType}
+            name="leaveTypeId"
+            value={formData.leaveTypeId}
             onChange={handleChange}
             className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${
-              errors.leaveType
+              errors.leaveTypeId
                 ? "border-red-500 focus:ring-red-300"
                 : "border-gray-300 focus:ring-blue-400"
             }`}
           >
             <option value="">Select Leave Type</option>
-            {leaveTypes.map((type, index) => (
-              <option key={index} value={type}>
-                {type}
+
+            {leaveTypes.map((leave) => (
+              <option key={leave.id} value={leave.id}>
+                {leave.name}
               </option>
             ))}
           </select>
 
-          {errors.leaveType && (
+          {errors.leaveTypeId && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.leaveType}
+              {errors.leaveTypeId}
             </p>
           )}
         </div>
 
+        {/* Dates */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
           <div>
             <label className="block text-gray-600 font-medium mb-2">
-              Start Date <span className="text-red-500">*</span>
+              Start Date *
             </label>
 
             <DatePicker
@@ -146,24 +174,14 @@ const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
                 }))
               }
               dateFormat="dd-MMM-yyyy"
-              placeholderText="Select start date"
-              className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${
-                errors.startDate
-                  ? "border-red-500 focus:ring-red-300"
-                  : "border-gray-300 focus:ring-blue-400"
-              }`}
+              className="w-full border rounded-lg px-4 py-2"
               minDate={new Date()}
             />
-
-            {errors.startDate && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.startDate}
-              </p>
-            )}
           </div>
+
           <div>
             <label className="block text-gray-600 font-medium mb-2">
-              End Date <span className="text-red-500">*</span>
+              End Date *
             </label>
 
             <DatePicker
@@ -175,25 +193,16 @@ const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
                 }))
               }
               dateFormat="dd-MMM-yyyy"
-              placeholderText="Select end date"
-              className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${
-                errors.endDate
-                  ? "border-red-500 focus:ring-red-300"
-                  : "border-gray-300 focus:ring-blue-400"
-              }`}
+              className="w-full border rounded-lg px-4 py-2"
               minDate={formData.startDate || new Date()}
             />
-
-            {errors.endDate && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.endDate}
-              </p>
-            )}
           </div>
         </div>
+
+        {/* Reason */}
         <div>
           <label className="block text-gray-600 font-medium mb-2">
-            Reason for Leave <span className="text-red-500">*</span>
+            Reason *
           </label>
 
           <textarea
@@ -201,44 +210,29 @@ const ApplyLeaveForm = ({ date,onSubmit,onClose }) => {
             value={formData.reason}
             onChange={handleChange}
             rows="4"
-            placeholder="Enter your reason..."
-            className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${
-              errors.reason
-                ? "border-red-500 focus:ring-red-300"
-                : "border-gray-300 focus:ring-blue-400"
-            }`}
+            className="w-full border rounded-lg px-4 py-2"
+            placeholder="Enter reason..."
           />
-
-          {errors.reason && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.reason}
-            </p>
-          )}
         </div>
-        <div className="flex flex-col sm:flex-row justify-end gap-3">
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-3">
+
           <button
             type="button"
-            onClick={() =>
-              setFormData({
-                leaveType: "",
-                startDate: null,
-                endDate: null,
-                reason: "",
-              })
-            }
-            className="px-5 py-2 rounded-lg border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
+            onClick={onClose}
+            className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
           >
             Cancel
           </button>
 
           <button
             type="submit"
-            className="bg-[#021f54] text-white hover:bg-orange-400
-            hover:text-black text-sm font-medium px-4 py-1.5
-            rounded-md transition-colors duration-200"
+            className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black text-sm font-medium px-4 py-2 rounded-md transition"
           >
             Submit
           </button>
+
         </div>
       </form>
     </div>
