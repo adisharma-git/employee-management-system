@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
-import axios from "axios";
 import api from "../api/axios";
 
 const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
@@ -14,11 +13,11 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
     startDate: null,
     endDate: null,
     reason: "",
+    isHalfDay: false   // ✅ added
   });
 
   const [errors, setErrors] = useState({});
 
-  // ✅ Fetch Leave Types
   useEffect(() => {
     fetchLeaveTypes();
   }, []);
@@ -36,11 +35,11 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value, 
     }));
 
     setErrors((prev) => ({
@@ -80,7 +79,6 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ✅ Submit Leave
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -91,7 +89,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
       description: formData.reason,
       startDate: format(formData.startDate, "yyyy-MM-dd"),
       endDate: format(formData.endDate, "yyyy-MM-dd"),
-      isHalfDay: false,
+      isHalfDay: formData.isHalfDay, 
     };
 
     try {
@@ -105,6 +103,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
           startDate: null,
           endDate: null,
           reason: "",
+          isHalfDay: false,
         });
 
         if (onSubmit) {
@@ -135,11 +134,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
             name="leaveTypeId"
             value={formData.leaveTypeId}
             onChange={handleChange}
-            className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${
-              errors.leaveTypeId
-                ? "border-red-500 focus:ring-red-300"
-                : "border-gray-300 focus:ring-blue-400"
-            }`}
+            className="w-full border rounded-lg px-4 py-2"
           >
             <option value="">Select Leave Type</option>
 
@@ -149,12 +144,6 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
               </option>
             ))}
           </select>
-
-          {errors.leaveTypeId && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.leaveTypeId}
-            </p>
-          )}
         </div>
 
         {/* Dates */}
@@ -199,6 +188,17 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
           </div>
         </div>
 
+        {/* Half Day Checkbox */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="isHalfDay"
+            checked={formData.isHalfDay}
+            onChange={handleChange}
+          />
+          <label className="text-gray-600">Half Day Leave</label>
+        </div>
+
         {/* Reason */}
         <div>
           <label className="block text-gray-600 font-medium mb-2">
@@ -215,7 +215,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
           />
         </div>
 
-        {/* Buttons */}
+   
         <div className="flex justify-end gap-3">
 
           <button
