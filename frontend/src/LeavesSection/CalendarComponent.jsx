@@ -88,7 +88,6 @@ const CalendarComponent = () => {
 
       {showForm && (
         <LeaveFormModal
-          date={selectedDate}
           onClose={() => setShowForm(false)}
         />
       )}
