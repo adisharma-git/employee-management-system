@@ -1,153 +1,242 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
+import api from "../api/axios";
 
-const LeaveFormModal = ({ date, onSubmit, onClose }) => {
+const LeaveFormModal = ({ onSubmit, onClose }) => {
+
+  const [leaveTypes, setLeaveTypes] = useState([]);
+
   const [formData, setFormData] = useState({
-    leaveName: "",
-    defaultDays: date || null,
+    leaveTypeId: "",
+    startDate: "",
+    endDate: "",
     description: "",
+    isHalfDay: false
   });
 
   const [errors, setErrors] = useState({});
 
+  // Fetch Leave Types
   useEffect(() => {
-    if (date) {
-      setFormData((prev) => ({
-        ...prev,
-        defaultDays: date,
-      }));
-    }
-  }, [date]);
+    fetchLeaveTypes();
+  }, []);
 
-  // ESC close support
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") {
-        onClose();
+  const fetchLeaveTypes = async () => {
+    try {
+
+      const res = await api.get("/leave-types");
+
+      if (res.data.success) {
+        setLeaveTypes(res.data.data);
       }
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
 
-  const leaveTypes = [
-    "Casual Leave",
-    "Sick Leave",
-    "Earned Leave",
-    "Maternity Leave",
-    "Paternity Leave",
-  ];
+    } catch (error) {
+      console.error("Error fetching leave types", error);
+    }
+  };
 
+  // Input Change
   const handleChange = (e) => {
-    const { name, value } = e.target;
+
+    const { name, value, type, checked } = e.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value
     }));
 
     setErrors((prev) => ({
       ...prev,
-      [name]: "",
+      [name]: ""
     }));
   };
 
+  // Validation
   const validate = () => {
+
     let newErrors = {};
 
-    if (!formData.leaveName) newErrors.leaveName = "Please select leave type";
-    if (!formData.defaultDays) newErrors.defaultDays = "Start date is required";
+    if (!formData.leaveTypeId)
+      newErrors.leaveTypeId = "Please select leave type";
+
+    if (!formData.startDate)
+      newErrors.startDate = "Start date is required";
+
+    if (!formData.endDate)
+      newErrors.endDate = "End date is required";
 
     if (!formData.description.trim())
       newErrors.description = "Reason is required";
-    else if (formData.description.length < 10)
-      newErrors.description = "Reason must be at least 10 characters";
+
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      formData.endDate < formData.startDate
+    ) {
+      newErrors.endDate = "End date cannot be before start date";
+    }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  // Submit
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
 
-    if (validate()) {
-      const finalData = {
-        ...formData,
-        defaultDays: format(formData.defaultDays, "dd-MMM-yyyy"),
-      };
+    if (!validate()) return;
 
-      if (onSubmit) onSubmit(finalData);
+    const payload = {
+      leaveTypeId: formData.leaveTypeId,
+      description: formData.description,
+      startDate: format(new Date(formData.startDate), "yyyy-MM-dd"),
+      endDate: format(new Date(formData.endDate), "yyyy-MM-dd"),
+      isHalfDay: formData.isHalfDay
+    };
 
-      onClose();
+    try {
+
+      const res = await api.post("/leaves/apply", payload);
+
+      if (res.data) {
+
+        alert("Leave Applied Successfully ✅");
+
+        setFormData({
+          leaveTypeId: "",
+          startDate: "",
+          endDate: "",
+          description: "",
+          isHalfDay: false
+        });
+
+        if (onSubmit) onSubmit(res.data);
+
+        onClose();
+      }
+
+    } catch (error) {
+
+      console.error("Leave Apply Error", error);
+      alert("Failed to apply leave ❌");
+
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl p-6 animate-fadeIn">
+    <div className="fixed inset-0 flex items-center justify-center z-50">
 
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-4 text-gray-500 hover:text-black text-lg"
-        >
-          ✕
-        </button>
+      {/* Background */}
+      <div
+        className="absolute inset-0 bg-black bg-opacity-40"
+        onClick={onClose}
+      ></div>
+
+      {/* Modal */}
+      <div className="relative bg-white w-full max-w-lg rounded-xl shadow-xl p-6">
 
         <h2 className="text-xl font-semibold mb-6 text-gray-700">
           Apply Leave
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-gray-600 font-medium mb-2">
-              Leave Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="LeaveName"
-              value={formData.name}
-              onChange={handleChange}
-              list="leave-types"
-              className="w-full border rounded-lg px-4 py-2"
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-            />
-            {errors.leaveName && (
+          {/* Leave Type */}
+          <div>
+            <label className="block mb-2 font-medium">
+              Leave Type *
+            </label>
+
+            <select
+              name="leaveTypeId"
+              value={formData.leaveTypeId}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-4 py-2"
+            >
+
+              <option value="">Select Leave Type</option>
+
+              {leaveTypes.map((leave) => (
+                <option key={leave.id} value={leave.id}>
+                  {leave.name}
+                </option>
+              ))}
+
+            </select>
+
+            {errors.leaveTypeId && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.leaveName}
+                {errors.leaveTypeId}
               </p>
             )}
           </div>
 
-         
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Dates */}
+          <div className="grid grid-cols-2 gap-4">
+
             <div>
-              <label className="block text-gray-600 font-medium mb-2">
-                Default Date
+              <label className="block mb-2 font-medium">
+                Start Date *
               </label>
+
               <input
-                type="text"
-                name="Days"
-                value={formData.defaultDays}
+                type="date"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleChange}
+                className="w-full border rounded-lg px-4 py-2"
               />
-              {errors.defaultDays && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.defaultDays}
+
+              {errors.startDate && (
+                <p className="text-red-500 text-sm">
+                  {errors.startDate}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-2 font-medium">
+                End Date *
+              </label>
+
+              <input
+                type="date"
+                name="endDate"
+                value={formData.endDate}
+                onChange={handleChange}
+                className="w-full border rounded-lg px-4 py-2"
+              />
+
+              {errors.endDate && (
+                <p className="text-red-500 text-sm">
+                  {errors.endDate}
                 </p>
               )}
             </div>
 
           </div>
 
-         
+          {/* Half Day */}
+          <div className="flex items-center gap-2">
+
+            <input
+              type="checkbox"
+              name="isHalfDay"
+              checked={formData.isHalfDay}
+              onChange={handleChange}
+            />
+
+            <label>Half Day Leave</label>
+
+          </div>
+
+          {/* Description */}
           <div>
-            <label className="block text-gray-600 font-medium mb-2">
-              Description
+
+            <label className="block mb-2 font-medium">
+              Reason *
             </label>
 
             <textarea
@@ -156,30 +245,35 @@ const LeaveFormModal = ({ date, onSubmit, onClose }) => {
               onChange={handleChange}
               rows="3"
               className="w-full border rounded-lg px-4 py-2"
+              placeholder="Enter reason..."
             />
 
             {errors.description && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="text-red-500 text-sm">
                 {errors.description}
               </p>
             )}
+
           </div>
 
-          <div className="flex justify-end gap-3">
+          {/* Buttons */}
+          <div className="flex justify-end gap-3 pt-3">
+
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
+              className="px-4 py-2 border rounded-lg"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black px-4 py-2 rounded-lg transition"
+              className="bg-[#021f54] text-white px-5 py-2 rounded-lg hover:bg-orange-400 hover:text-black transition"
             >
               Submit
             </button>
+
           </div>
 
         </form>

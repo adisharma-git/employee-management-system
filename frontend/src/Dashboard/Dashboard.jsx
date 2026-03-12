@@ -12,6 +12,7 @@ import ComingSoon from "../ComingSoon/ComingSoon";
 import Settings from "./Settings";
 import EmployeeRegistration from "../Admin/EmployeeRegistration";
 import LeavesPage from "../LeavesSection/LeavesPage";
+import AnnouncementPage from "../../Announcement/Announcement";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
@@ -69,6 +70,8 @@ useEffect(() => {
         return <Settings/>;
       case "LeavesPage":
         return <LeavesPage/>;
+      case "Announcement":
+        return <AnnouncementPage permission={permission}/>;
       default:
         return <DashboardHome/>;
     }

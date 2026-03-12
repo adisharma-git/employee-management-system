@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
+import DashboardHome from "./Dashboard/DashboardHome";
 
 
 const Login = lazy(() => import("./pages/Login"));
@@ -126,6 +127,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ApplyLeaveForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Announcement"
+            element={
+              <ProtectedRoute>
+                <DashboardHome/>
               </ProtectedRoute>
             }
           />
