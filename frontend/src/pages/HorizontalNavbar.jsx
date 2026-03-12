@@ -70,7 +70,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
             </button>
 
             <button
-              className="hover:text-orange-400 transition-colors"
+              className="hover:text-orange-400 p-4 transition-colors"
               onClick={handleLogout}
             >
               Logout

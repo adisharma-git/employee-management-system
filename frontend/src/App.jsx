@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
 import DashboardHome from "./Dashboard/DashboardHome";
+// import Announcement from "./Announcement/Announcement";
 
 
 const Login = lazy(() => import("./pages/Login"));
@@ -26,6 +27,7 @@ const ReviewSection = lazy(() => import("./pages/ReviewHome"));
 const SaleryModule = lazy(() => import("./pages/SaleryModule"));
 const LeavesPage = lazy(() => import("./LeavesSection/LeavesPage"));
 const ApplyLeaveForm = lazy(() => import("./LeavesSection/LeaveForm"));
+const Announcement = lazy(() => import("./Announcement/Announcement"))
 
 function App() {
   return (
@@ -38,7 +40,6 @@ function App() {
         }
       >
         <Routes>
-
           <Route path="/" element={<Navigate to="/landingPage" replace />} />
 
           <Route path="/landingPage" element={<LandingPage />} />
@@ -53,7 +54,10 @@ function App() {
 
           <Route path="/updates" element={<Updates />} />
           <Route path="/employeeInfoPage" element={<EmployeeInfoPage />} />
-          <Route path="/EmployeeRegistration" element={<EmployeeRegistration />} />
+          <Route
+            path="/EmployeeRegistration"
+            element={<EmployeeRegistration />}
+          />
 
           <Route
             path="/AttendanceModule"
@@ -139,6 +143,10 @@ function App() {
             }
           />
 
+                <Announcement />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Suspense>
     </BrowserRouter>
