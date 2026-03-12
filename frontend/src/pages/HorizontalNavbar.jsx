@@ -17,6 +17,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
     { id: "Attendance", label: "Attendance" },
     { id: "LeavesPage", label: "Leaves" },
     { id: "reports", label: "Reports" },
+    { id: "Announcement", label: "Announcement" },
     
   ];
 
@@ -68,7 +69,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
             </button>
 
             <button
-              className="hover:text-orange-400 transition-colors"
+              className="hover:text-orange-400 p-4 transition-colors"
               onClick={handleLogout}
             >
               Logout

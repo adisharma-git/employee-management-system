@@ -10,7 +10,7 @@ const DashboardHome = () => {
 
   const announcementsData = [
     {
-      title: "Aaah Support Process Update – Important Announcement",
+      title: "Workalingr Support Process Update – Important Announcement",
       time: "13 January 10:53 AM",
       avatar: "https://i.pravatar.cc/40?img=12",
     },
