@@ -8,8 +8,8 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
   const [formData, setFormData] = useState({
     leaveTypeId: "",
-    startDate: null,
-    endDate: null,
+    startDate: "",
+    endDate: "",
     reason: "",
     isHalfDay: false  
   });
@@ -22,17 +22,20 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
   const fetchLeaveTypes = async () => {
     try {
+
       const res = await api.get("/leave-types");
 
       if (res.data.success) {
         setLeaveTypes(res.data.data);
       }
+
     } catch (err) {
       console.error("Error fetching leave types", err);
     }
   };
 
   const handleChange = (e) => {
+
     const { name, value, type, checked } = e.target;
 
     setFormData((prev) => ({
@@ -42,24 +45,22 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
     setErrors((prev) => ({
       ...prev,
-      [name]: "",
+      [name]: ""
     }));
   };
 
   const validate = () => {
+
     let newErrors = {};
 
-    if (!formData.leaveTypeId) {
+    if (!formData.leaveTypeId)
       newErrors.leaveTypeId = "Please select leave type";
-    }
 
-    if (!formData.startDate) {
+    if (!formData.startDate)
       newErrors.startDate = "Start date is required";
-    }
 
-    if (!formData.endDate) {
+    if (!formData.endDate)
       newErrors.endDate = "End date is required";
-    }
 
     if (
       formData.startDate &&
@@ -69,15 +70,16 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
       newErrors.endDate = "End date cannot be before start date";
     }
 
-    if (!formData.reason.trim()) {
+    if (!formData.reason.trim())
       newErrors.reason = "Reason is required";
-    }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     if (!validate()) return;
@@ -91,31 +93,38 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
     };
 
     try {
+
       const res = await api.post("/leaves/apply", payload);
 
       if (res.data) {
+
         alert("Leave Applied Successfully ✅");
 
         setFormData({
           leaveTypeId: "",
-          startDate: null,
-          endDate: null,
+          startDate: "",
+          endDate: "",
           reason: "",
-          isHalfDay: false,
+          isHalfDay: false
         });
 
         if (onSubmit) {
           onSubmit(res.data);
         }
+
       }
+
     } catch (error) {
+
       console.error("Leave Apply Error", error);
       alert("Failed to apply leave ❌");
+
     }
   };
 
   return (
     <div className="bg-white shadow-lg rounded-xl p-6 w-full">
+
       <h2 className="text-xl font-semibold mb-6 text-gray-700">
         Apply Leave
       </h2>
@@ -124,6 +133,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
 
         <div>
+
           <label className="block text-gray-600 font-medium mb-2">
             Leave Type <span className="text-red-500">*</span>
           </label>
@@ -134,6 +144,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
             onChange={handleChange}
             className="w-full border rounded-lg px-4 py-2"
           >
+
             <option value="">Select Leave Type</option>
 
             {leaveTypes.map((leave) => (
@@ -141,13 +152,21 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
                 {leave.name}
               </option>
             ))}
+
           </select>
+
+          {errors.leaveTypeId && (
+            <p className="text-red-500 text-sm">{errors.leaveTypeId}</p>
+          )}
+
         </div>
 
  
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+          {/* Start Date */}
           <div>
+
             <label className="block text-gray-600 font-medium mb-2">
               Start Date *
             </label>
@@ -165,9 +184,16 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
               className="w-full border rounded-lg px-4 py-2"
               min={new Date().toISOString().split("T")[0]}
             />
+
+            {errors.startDate && (
+              <p className="text-red-500 text-sm">{errors.startDate}</p>
+            )}
+
           </div>
 
+          {/* End Date */}
           <div>
+
             <label className="block text-gray-600 font-medium mb-2">
               End Date *
             </label>
@@ -185,22 +211,34 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
               className="w-full border rounded-lg px-4 py-2"
               min={formData.startDate || new Date().toISOString().split("T")[0]}
             />
+
+            {errors.endDate && (
+              <p className="text-red-500 text-sm">{errors.endDate}</p>
+            )}
+
           </div>
+
         </div>
 
       
         <div className="flex items-center gap-2">
+
           <input
             type="checkbox"
             name="isHalfDay"
             checked={formData.isHalfDay}
             onChange={handleChange}
           />
-          <label className="text-gray-600">Half Day Leave</label>
+
+          <label className="text-gray-600">
+            Half Day Leave
+          </label>
+
         </div>
 
    
         <div>
+
           <label className="block text-gray-600 font-medium mb-2">
             Reason *
           </label>
@@ -213,6 +251,11 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
             className="w-full border rounded-lg px-4 py-2"
             placeholder="Enter reason..."
           />
+
+          {errors.reason && (
+            <p className="text-red-500 text-sm">{errors.reason}</p>
+          )}
+
         </div>
 
 
@@ -234,6 +277,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
           </button>
 
         </div>
+
       </form>
     </div>
   );

@@ -136,6 +136,11 @@ function App() {
             path="/Announcement"
             element={
               <ProtectedRoute>
+                <DashboardHome/>
+              </ProtectedRoute>
+            }
+          />
+
                 <Announcement />
               </ProtectedRoute>
             }

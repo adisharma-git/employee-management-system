@@ -15,6 +15,7 @@ import AnnouncementPage from "../Announcement/Announcement";
 import GithubCommits from "../../ProjectActivity/ProjectCommits";
 import PullRequests from "../../ProjectActivity/Pull Requests";
 
+import AnnouncementPage from "../../Announcement/Announcement";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
@@ -78,6 +79,9 @@ export default function Dashboard() {
         return <GithubCommits />;
       case "Pull Requests":
         return <PullRequests />;
+        return <LeavesPage/>;
+      case "Announcement":
+        return <AnnouncementPage permission={permission}/>;
       default:
         return <DashboardHome />;
     }
