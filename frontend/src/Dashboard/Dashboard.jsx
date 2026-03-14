@@ -12,6 +12,8 @@ import Settings from "./Settings";
 import EmployeeRegistration from "../Admin/EmployeeRegistration";
 import LeavesPage from "../LeavesSection/LeavesPage";
 import AnnouncementPage from "../Announcement/Announcement";
+import GithubCommits from "../ProjectActivity/ProjectCommits";
+import PullRequests from "../ProjectActivity/Pull Requests";
 
 
 export default function Dashboard() {
@@ -72,6 +74,10 @@ useEffect(() => {
         return <LeavesPage/>;
       case "Announcement":
         return <AnnouncementPage permission={permission}/>;
+        case "ProjectActivity":
+        return <GithubCommits />;
+        case "Pull Requests":
+        return <PullRequests />;
       default:
         return <DashboardHome/>;
     }
