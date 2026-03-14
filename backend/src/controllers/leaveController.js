@@ -41,10 +41,38 @@ exports.applyForLeave = async (req, res) => {
 
     const remainingLeaves = balance.allocated - balance.used;
 
-    if (appliedDays > remainingLeaves) {
+    // Guard 1: Check for overlapping leave requests (pending or approved)
+    const overlappingLeave = await prisma.leave.findFirst({
+      where: {
+        employeeId: employee.id,
+        status: { not: 'rejected' },
+        fromDate: { lte: end },
+        toDate:   { gte: start }
+      }
+    });
+    if (overlappingLeave) {
+      const fmt = d => d.toISOString().split('T')[0];
+      return res.status(400).json({
+        success: false,
+        message: `You already have a leave request for overlapping dates (${fmt(overlappingLeave.fromDate)} to ${fmt(overlappingLeave.toDate)}).`
+      });
+    }
+
+    // Guard 2: Count days already locked in pending requests for this leave type
+    const pendingAggregate = await prisma.leave.aggregate({
+      where: { employeeId: employee.id, leaveTypeId, status: 'pending' },
+      _sum: { appliedDays: true }
+    });
+    const pendingDays = pendingAggregate._sum.appliedDays || 0;
+    const effectiveRemaining = remainingLeaves - pendingDays;
+
+    if (appliedDays > effectiveRemaining) {
+      const pendingNote = pendingDays > 0
+        ? ` (${pendingDays} day(s) are already under pending approval)`
+        : '';
       return res.status(400).json({ 
         success: false, 
-        message: `Insufficient balance. You requested ${appliedDays} days, but only have ${remainingLeaves} days left for ${balance.leaveType.name}.` 
+        message: `Insufficient balance. You requested ${appliedDays} day(s) but only ${effectiveRemaining} day(s) are available for ${balance.leaveType.name}${pendingNote}.` 
       });
     }
 
@@ -72,7 +100,7 @@ exports.applyForLeave = async (req, res) => {
         endDate: leaveRequest.toDate,
         status: leaveRequest.status,
         numberOfLeavesTaken: leaveRequest.appliedDays,
-        leavesRemaining: remainingLeaves - leaveRequest.appliedDays 
+        leavesRemaining: effectiveRemaining - leaveRequest.appliedDays 
       }
     });
 
@@ -217,7 +245,30 @@ exports.updateLeaveStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: `This leave has already been ${leave.status}.` });
     }
 
-    // 3. Database Transaction (Ensure both operations succeed or fail together)
+    // 3. Guard: Before approving, verify the employee still has enough balance
+    //    (another request may have been approved in the meantime)
+    if (status.toLowerCase() === 'approved') {
+      const currentBalance = await prisma.leaveBalance.findUnique({
+        where: {
+          employeeId_leaveTypeId: {
+            employeeId: leave.employeeId,
+            leaveTypeId: leave.leaveTypeId
+          }
+        }
+      });
+      if (!currentBalance) {
+        return res.status(400).json({ success: false, message: 'Employee leave balance record not found.' });
+      }
+      const effectiveRemaining = currentBalance.allocated - currentBalance.used;
+      if (leave.appliedDays > effectiveRemaining) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot approve. Employee only has ${effectiveRemaining} day(s) remaining but this request requires ${leave.appliedDays} day(s). Reject other pending requests first.`
+        });
+      }
+    }
+
+    // 4. Database Transaction (Ensure both operations succeed or fail together)
     const transaction = [];
 
     // Step A: Update the Leave Request Status

@@ -21,7 +21,7 @@ exports.addLog = async (req, res) => {
     if (!employee) return res.status(404).json({ message: "Employee not found" });
 
     // Now search correctly using employee.id
-    dailyLog = await prisma.dailyLog.findFirst({
+    let dailyLog = await prisma.dailyLog.findFirst({
       where: {
         employeeId: employee.id,
         date: today

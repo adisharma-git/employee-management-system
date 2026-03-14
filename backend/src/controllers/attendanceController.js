@@ -1,5 +1,83 @@
 const prisma = require('../utils/prisma');
-const DEV_MODE = true;
+const DEV_MODE = process.env.NODE_ENV !== 'production' && process.env.ATTENDANCE_DEV_MODE === 'true';
+
+const getUtcDayStart = (inputDate = new Date()) => {
+  return new Date(Date.UTC(
+    inputDate.getUTCFullYear(),
+    inputDate.getUTCMonth(),
+    inputDate.getUTCDate(),
+    0,
+    0,
+    0,
+    0
+  ));
+};
+
+const getUtcDayRange = (inputDate = new Date()) => {
+  const start = getUtcDayStart(inputDate);
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 1);
+  return { start, end };
+};
+
+const parseTimeOnCurrentUtcDate = (timeString, inputDate = new Date()) => {
+  if (!timeString) return null;
+  const [hours, minutes, seconds] = timeString.split(':').map(Number);
+  return new Date(Date.UTC(
+    inputDate.getUTCFullYear(),
+    inputDate.getUTCMonth(),
+    inputDate.getUTCDate(),
+    hours || 0,
+    minutes || 0,
+    seconds || 0,
+    0
+  ));
+};
+
+const formatDateOnly = (value) => {
+  if (!value) return value;
+  return new Date(value).toISOString().split('T')[0];
+};
+
+const serializeAttendance = (attendance) => {
+  if (!attendance) return attendance;
+  return {
+    ...attendance,
+    date: formatDateOnly(attendance.date)
+  };
+};
+
+const mapAttendanceHistoryEntry = (attendance) => {
+  const normalized = serializeAttendance(attendance);
+  const totalBreakTime = normalized.totalBreakMinutes || 0;
+
+  return {
+    ...normalized,
+    punchedInTime: normalized.checkInTime,
+    punchedOutTime: normalized.checkOutTime,
+    presentStatus: normalized.status,
+    breakHistory: Array.isArray(normalized.breakHistory) ? normalized.breakHistory : [],
+    breakStats: {
+      totalBreakTime,
+      leftBreakTime: Math.max(0, 40 - totalBreakTime)
+    }
+  };
+};
+
+const findTodayAttendance = async (employeeId, inputDate = new Date(), select, include) => {
+  const { start, end } = getUtcDayRange(inputDate);
+  return prisma.attendance.findFirst({
+    where: {
+      employeeId,
+      date: {
+        gte: start,
+        lt: end
+      }
+    },
+    ...(select ? { select } : {}),
+    ...(include ? { include } : {})
+  });
+};
 // ==========================================
 // 1. MARK ATTENDANCE (Check-In)
 // ==========================================
@@ -21,16 +99,10 @@ exports.markAttendance = async (req, res) => {
     }
 
     // Step 2: Get today's date (without time)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getUtcDayStart();
 
     // Step 3: Check if attendance already marked for today
-    const existingAttendance = await prisma.attendance.findFirst({
-      where: {
-        employeeId: employee.id,
-        date: today
-      }
-    });
+    const existingAttendance = await findTodayAttendance(employee.id);
 
     if (existingAttendance) {
       if (DEV_MODE) {
@@ -48,13 +120,13 @@ exports.markAttendance = async (req, res) => {
         return res.status(201).json({ 
           success: true, 
           message: '[DEV MODE] Attendance reset for a new test run today!',
-          data: resetAttendance
+          data: serializeAttendance(resetAttendance)
         });
       }
       return res.status(400).json({ 
         success: false,
         message: 'Attendance already marked for today',
-        data: existingAttendance
+        data: serializeAttendance(existingAttendance)
       });
     }
 
@@ -64,8 +136,8 @@ exports.markAttendance = async (req, res) => {
         employeeId: employee.id,
         date: today,
         status: status || 'present',
-        checkInTime: checkInTime ? new Date(`1970-01-01T${checkInTime}`) : new Date(),
-        checkOutTime: checkOutTime ? new Date(`1970-01-01T${checkOutTime}`) : null
+        checkInTime: checkInTime ? parseTimeOnCurrentUtcDate(checkInTime) : new Date(),
+        checkOutTime: checkOutTime ? parseTimeOnCurrentUtcDate(checkOutTime) : null
       },
       include: {
         employee: {
@@ -81,7 +153,7 @@ exports.markAttendance = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Attendance marked successfully',
-      data: attendance
+      data: serializeAttendance(attendance)
     });
 
   } catch (error) {
@@ -115,16 +187,7 @@ exports.updateCheckout = async (req, res) => {
     }
 
     // Get today's date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Find today's attendance
-    const attendance = await prisma.attendance.findFirst({
-      where: {
-        employeeId: employee.id,
-        date: today
-      }
-    });
+    const attendance = await findTodayAttendance(employee.id);
 
     if (!attendance) {
       return res.status(404).json({ 
@@ -144,14 +207,14 @@ exports.updateCheckout = async (req, res) => {
     const updatedAttendance = await prisma.attendance.update({
       where: { id: attendance.id },
       data: {
-        checkOutTime: checkOutTime ? new Date(`1970-01-01T${checkOutTime}`) : new Date()
+        checkOutTime: checkOutTime ? parseTimeOnCurrentUtcDate(checkOutTime) : new Date()
       }
     });
 
     res.json({
       success: true,
       message: 'Checked out successfully',
-      data: updatedAttendance
+      data: serializeAttendance(updatedAttendance)
     });
 
   } catch (error) {
@@ -182,21 +245,14 @@ exports.getPunchStatus = async (req, res) => {
     }
 
     // Get today's date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Find today's attendance
-    const attendance = await prisma.attendance.findFirst({
-      where: { employeeId: employee.id, date: today },
-      select: {
-        id: true,
-        status: true,
-        checkInTime: true,
-        checkOutTime: true,
-        date: true,
-        totalBreakMinutes: true, // ✅ NEW: Fetch total break minutes
-        breakHistory: true       // ✅ NEW: Fetch break history just in case they need it
-      }
+    const attendance = await findTodayAttendance(employee.id, new Date(), {
+      id: true,
+      status: true,
+      checkInTime: true,
+      checkOutTime: true,
+      date: true,
+      totalBreakMinutes: true, // ✅ NEW: Fetch total break minutes
+      breakHistory: true       // ✅ NEW: Fetch break history just in case they need it
     });
 
     // Determine status and math
@@ -211,7 +267,7 @@ exports.getPunchStatus = async (req, res) => {
       data: {
         isPunchedIn: isPunchedIn,
         employee: employee,
-        todayAttendance: attendance || null,
+        todayAttendance: attendance ? serializeAttendance(attendance) : null,
         breakStats: {
           totalBreakTime: totalBreakTime,
           leftBreakTime: leftBreakTime
@@ -243,12 +299,7 @@ exports.toggleBreak = async (req, res) => {
     if (!employee) return res.status(404).json({ message: "Employee not found" });
 
     // 2. Get Today's Attendance
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const attendance = await prisma.attendance.findFirst({
-      where: { employeeId: employee.id, date: today }
-    });
+    const attendance = await findTodayAttendance(employee.id);
 
     if (!attendance) return res.status(400).json({ message: "You must Check-In first!" });
     if (attendance.checkOutTime) return res.status(400).json({ message: "You have already Checked Out." });
@@ -284,13 +335,18 @@ exports.toggleBreak = async (req, res) => {
       const currentHistory = attendance.breakHistory || [];
       const lastBreak = currentHistory[currentHistory.length - 1];
 
+      if (!lastBreak || !lastBreak.start || lastBreak.end) {
+        return res.status(400).json({ message: "Break state is invalid. Please start break first." });
+      }
+
       // Calculate Duration
       const startTime = new Date(lastBreak.start);
       const endTime = new Date();
       const durationMinutes = Math.floor((endTime - startTime) / 60000); // Convert ms to mins
 
       // Calculate the new totals for the frontend
-      const newTotalBreakTime = attendance.totalBreakMinutes + durationMinutes;
+      const cappedDuration = Math.max(0, Math.min(durationMinutes, 40 - attendance.totalBreakMinutes));
+      const newTotalBreakTime = attendance.totalBreakMinutes + cappedDuration;
       const leftBreakTime = 40 - newTotalBreakTime;
 
       // Update the last entry with end time
@@ -308,7 +364,7 @@ exports.toggleBreak = async (req, res) => {
 
       return res.json({ 
         success: true, 
-        message: `Break Ended. Used: ${durationMinutes} mins. Total: ${newTotalBreakTime}/40 mins.`,
+        message: `Break Ended. Used: ${cappedDuration} mins. Total: ${newTotalBreakTime}/40 mins.`,
         data: {
           totalBreakTime: newTotalBreakTime,
           leftBreakTime: leftBreakTime < 0 ? 0 : leftBreakTime // Ensures it doesn't show negative minutes if they overstayed
@@ -328,15 +384,61 @@ exports.toggleBreak = async (req, res) => {
 exports.getMyAttendance = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { date, fromDate, toDate } = req.query;
     const employee = await prisma.employee.findUnique({ where: { userId } });
 
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'Employee record not found' });
+    }
+
+    const whereClause = { employeeId: employee.id };
+
+    if (date) {
+      const parsedDate = new Date(date);
+      if (Number.isNaN(parsedDate.getTime())) {
+        return res.status(400).json({ success: false, message: 'Invalid date. Use YYYY-MM-DD format.' });
+      }
+
+      const { start, end } = getUtcDayRange(parsedDate);
+      whereClause.date = { gte: start, lt: end };
+    } else if (fromDate || toDate) {
+      const parsedFromDate = fromDate ? new Date(fromDate) : null;
+      const parsedToDate = toDate ? new Date(toDate) : null;
+
+      if (fromDate && Number.isNaN(parsedFromDate.getTime())) {
+        return res.status(400).json({ success: false, message: 'Invalid fromDate. Use YYYY-MM-DD format.' });
+      }
+      if (toDate && Number.isNaN(parsedToDate.getTime())) {
+        return res.status(400).json({ success: false, message: 'Invalid toDate. Use YYYY-MM-DD format.' });
+      }
+
+      const dateFilter = {};
+      if (parsedFromDate) {
+        dateFilter.gte = getUtcDayStart(parsedFromDate);
+      }
+      if (parsedToDate) {
+        const toDayStart = getUtcDayStart(parsedToDate);
+        const toDayEnd = new Date(toDayStart);
+        toDayEnd.setUTCDate(toDayEnd.getUTCDate() + 1);
+        dateFilter.lt = toDayEnd;
+      }
+
+      if (parsedFromDate && parsedToDate && dateFilter.gte >= dateFilter.lt) {
+        return res.status(400).json({ success: false, message: 'fromDate must be earlier than or equal to toDate.' });
+      }
+
+      whereClause.date = dateFilter;
+    }
+
     const history = await prisma.attendance.findMany({
-      where: { employeeId: employee.id },
-      orderBy: { date: 'desc' },
-      take: 30 // Last 30 days only
+      where: whereClause,
+      orderBy: [
+        { date: 'desc' },
+        { createdAt: 'desc' }
+      ]
     });
 
-    res.json({ success: true, count: history.length, data: history });
+    res.json({ success: true, count: history.length, data: history.map(mapAttendanceHistoryEntry) });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -351,7 +453,12 @@ exports.getAllAttendance = async (req, res) => {
 
     const whereClause = {};
     if (date) {
-      whereClause.date = new Date(date);
+      const input = new Date(date);
+      const { start, end } = getUtcDayRange(input);
+      whereClause.date = {
+        gte: start,
+        lt: end
+      };
     }
 
     const allRecords = await prisma.attendance.findMany({
@@ -364,7 +471,7 @@ exports.getAllAttendance = async (req, res) => {
       orderBy: { date: 'desc' }
     });
 
-    res.json({ success: true, count: allRecords.length, data: allRecords });
+    res.json({ success: true, count: allRecords.length, data: allRecords.map(serializeAttendance) });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }

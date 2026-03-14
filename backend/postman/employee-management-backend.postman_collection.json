@@ -1,0 +1,607 @@
+{
+  "info": {
+    "name": "Employee Management Backend APIs",
+    "_postman_id": "d9a2e6f2-2e72-4f7a-b8dc-9ec9f4f4f0ab",
+    "description": "Backend API test flow for Employee Management System. Sequence: Login -> Employee profile -> Attendance punch/break/checkout -> History filters -> Admin routes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "employeeEmail", "value": "employee@example.com" },
+    { "key": "employeePassword", "value": "password123" },
+    { "key": "adminEmail", "value": "admin@example.com" },
+    { "key": "adminPassword", "value": "password123" },
+    { "key": "token", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "leaveId", "value": "" },
+    { "key": "logId", "value": "" },
+    { "key": "taskId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 - Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Auth",
+      "item": [
+        {
+          "name": "Employee Login (sets token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.token) pm.collectionVariables.set('token', res.token);",
+                  "pm.test('Employee login success', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{employeeEmail}}\",\n  \"password\": \"{{employeePassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Admin Login (sets adminToken)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.token) pm.collectionVariables.set('adminToken', res.token);",
+                  "pm.test('Admin login success', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Employee Attendance Flow",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/employee/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employee", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get Punch Status (Before Punch In)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/punch-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "punch-status"]
+            }
+          }
+        },
+        {
+          "name": "Punch In",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"present\",\n  \"checkInTime\": \"09:30:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/mark",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "mark"]
+            }
+          }
+        },
+        {
+          "name": "Start Break",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isStarting\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/break",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "break"]
+            }
+          }
+        },
+        {
+          "name": "End Break",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isStarting\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/break",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "break"]
+            }
+          }
+        },
+        {
+          "name": "Checkout",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"checkOutTime\": \"18:30:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/checkout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "checkout"]
+            }
+          }
+        },
+        {
+          "name": "Get Punch Status (After Checkout)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/punch-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "punch-status"]
+            }
+          }
+        },
+        {
+          "name": "My Attendance History (All)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/my-attendance-history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "my-attendance-history"]
+            }
+          }
+        },
+        {
+          "name": "My Attendance History (Single Day)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/my-attendance-history?date=2026-03-14",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "my-attendance-history"],
+              "query": [
+                { "key": "date", "value": "2026-03-14" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "My Attendance History (Date Range)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/my-attendance-history?fromDate=2026-03-01&toDate=2026-03-14",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "my-attendance-history"],
+              "query": [
+                { "key": "fromDate", "value": "2026-03-01" },
+                { "key": "toDate", "value": "2026-03-14" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Logs",
+      "item": [
+        {
+          "name": "Get Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "logs"]
+            }
+          }
+        },
+        {
+          "name": "Add Log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) pm.collectionVariables.set('logId', res.data.id);",
+                  "if (res && res.data && Array.isArray(res.data.workItems) && res.data.workItems.length > 0) {",
+                  "  const firstTask = res.data.workItems[res.data.workItems.length - 1];",
+                  "  if (firstTask && firstTask.id) pm.collectionVariables.set('taskId', firstTask.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Daily UI Fix\",\n  \"description\": \"Worked on dashboard cards\",\n  \"status\": \"done\",\n  \"timeTaken\": 1.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/logs/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "logs", "add"]
+            }
+          }
+        },
+        {
+          "name": "Update Log Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logId\": \"{{logId}}\",\n  \"taskId\": \"{{taskId}}\",\n  \"updates\": {\n    \"title\": \"Daily UI Fix Updated\",\n    \"timeTaken\": 2\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/logs/update",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "logs", "update"]
+            }
+          }
+        },
+        {
+          "name": "Delete Log Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logId\": \"{{logId}}\",\n  \"taskId\": \"{{taskId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/logs/delete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "logs", "delete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Leaves (Employee)",
+      "item": [
+        {
+          "name": "Get Leave Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/leave-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leave-types"]
+            }
+          }
+        },
+        {
+          "name": "Get My Leave Balances",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/leaves/my-balances",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leaves", "my-balances"]
+            }
+          }
+        },
+        {
+          "name": "Apply Leave",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveTypeId\": \"<paste-from-my-balances-or-leave-types>\",\n  \"description\": \"Personal work\",\n  \"startDate\": \"2026-03-20\",\n  \"endDate\": \"2026-03-20\",\n  \"isHalfDay\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/leaves/apply",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leaves", "apply"]
+            }
+          }
+        },
+        {
+          "name": "Get My Leave History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/leaves/my-history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leaves", "my-history"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Admin",
+      "item": [
+        {
+          "name": "Get Employees",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/employees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "employees"]
+            }
+          }
+        },
+        {
+          "name": "Create Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Employee\",\n  \"email\": \"new.employee@example.com\",\n  \"password\": \"TempPassword123\",\n  \"department\": \"Engineering\",\n  \"designation\": \"Developer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/employees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "employees"]
+            }
+          }
+        },
+        {
+          "name": "All Employees Attendance (optional date)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/attendance/all-employees-attendance?date=2026-03-14",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attendance", "all-employees-attendance"],
+              "query": [
+                { "key": "date", "value": "2026-03-14" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Leaves (optional status)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/leaves/all?status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leaves", "all"],
+              "query": [
+                { "key": "status", "value": "pending" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve/Reject Leave",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/leaves/{{leaveId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leaves", "{{leaveId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Create Leave Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Special Leave\",\n  \"defaultDays\": 2,\n  \"description\": \"Special policy leave\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/leave-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leave-types"]
+            }
+          }
+        },
+        {
+          "name": "Create Announcement",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Holiday Notice\",\n  \"content\": \"Office will remain closed on public holiday.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements"]
+            }
+          }
+        },
+        {
+          "name": "Get Announcements",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
