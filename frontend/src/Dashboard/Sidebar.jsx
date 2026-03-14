@@ -60,6 +60,17 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         >
           <i className="fas fa-money-bill"></i>
         </button>
+        <button
+          onClick={() => setSelectedTab("Pull Requests")}
+          title="Pull Requests"
+          className={
+            selectedTab === "Pull Requests"
+              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
+              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
+          }
+        >
+          <i className="fas fa-money-bill"></i>
+        </button>
       </div>
       <div className="flex flex-col gap-4">
     
