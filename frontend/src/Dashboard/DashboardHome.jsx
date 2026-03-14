@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import AnnouncementsCard from "./AnnouncementsCard";
 import TaskCompletionCard from "./TaskCard";
 import api from "../api/axios";
+import CommitGraph from "../../ProjectActivity/CommitGraph";
 
 const DashboardHome = () => {
   const [punchedIn, setPunchedIn] = useState(false);
   const [newEmployeesData, setNewEmployeesData] = useState([]);
   const [totalEmployees, setTotalEmployees] = useState(0);
+  const [announcements, setAnnouncements] = useState([]);
+
 
   const announcementsData = [
     {
@@ -37,6 +40,17 @@ const DashboardHome = () => {
     };
 
     fetchStatus();
+  }, []);
+
+  useEffect(() => {
+    api.get("/announcements?page=1&limit=10").then(res => {
+      const formatted = res.data.data.map(item => ({
+        title: item.title,
+        time: new Date(item.createdAt).toLocaleString(),
+        avatar: "https://ui-avatars.com/api/?name=" + item.author.email.split("@")[0]
+      }));
+      setAnnouncements(formatted);
+    });
   }, []);
 
   useEffect(() => {
@@ -133,7 +147,7 @@ const DashboardHome = () => {
         <div className="w-1/2">
           <AnnouncementsCard
             title="Announcements"
-            announcements={announcementsData}
+            announcements={announcements}
             height="h-[320px]"
           />
 
@@ -158,6 +172,9 @@ const DashboardHome = () => {
           />
         </div>
       </div>
+      <div className="mt-6">
+  <CommitGraph />
+</div>
     </div>
   );
 };

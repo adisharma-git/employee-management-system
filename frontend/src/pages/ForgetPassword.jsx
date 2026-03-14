@@ -4,6 +4,10 @@ import { Link } from "react-router-dom";
 const ForgetPassword = () => {
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
+    const[mail,setMail]=useState(false);
+    const handleForgetPassword=()=>{
+        alert("Only Admins Can Resest Your Password")
+    } 
 
     const handleChange = (e) => {
         setEmail(e.target.value);
@@ -63,6 +67,8 @@ const ForgetPassword = () => {
                     <button
                         type="submit"
                         className="w-full bg-[#021f54] text-white py-3 rounded-full font-semibold hover:opacity-90"
+                        // disabled={!mail}
+                        onClick={handleForgetPassword}
                     >
                         Send Reset Link
                     </button>

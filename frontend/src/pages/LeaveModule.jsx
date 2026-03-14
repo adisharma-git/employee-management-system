@@ -8,7 +8,7 @@ const LeaveModule = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
 
-      <header id="top" className="relative overflow-hidden bg-gradient-to-br from-[#1e3a8a] via-[#1e40af] to-[#172554] py-24 text-center text-white">
+      <header id="top" className="relative overflow-hidden bg-gradient-to-br from-[#021f54] to-[#0a368c] to-[#172554] py-24 text-center text-white">
         <div className="absolute -left-10 top-10 h-40 w-40 rounded-full bg-white/5" />
         <div className="absolute right-10 top-1/2 h-32 w-32 rounded-full border border-white/10" />
         <div className="relative z-10 mx-auto max-w-4xl px-4">
@@ -86,7 +86,7 @@ const LeaveModule = () => {
           </div>
         </div>
 
-        <div className="mt-10 rounded-[2rem] bg-blue-900 p-10 text-white shadow-2xl">
+        <div className="mt-10 rounded-[2rem] bg-gradient-to-br from-[#021f54] to-[#0a368c] p-10 text-white shadow-2xl">
           <div className="flex flex-col items-center justify-between gap-8 lg:flex-row">
             <div>
               <h3 className="text-3xl font-bold text-orange-400">Team Leave Calendar</h3>
@@ -124,7 +124,7 @@ const LeaveModule = () => {
                   <div className="text-sm text-slate-500">Annual Leave • 3 days</div>
                 </div>
               </div>
-              <button className="mt-6 w-full rounded-xl bg-blue-900 py-3 font-semibold text-white hover:bg-blue-800">View All (12)</button>
+              <button className="mt-6 w-full rounded-xl bg-gradient-to-br from-[#021f54] to-[#0a368c] py-3 font-semibold text-white hover:bg-blue-800">View All (12)</button>
             </div>
 
             <div className="rounded-3xl border border-blue-50 bg-white p-8 shadow-lg">
@@ -177,7 +177,7 @@ const LeaveModule = () => {
             ))}
           </div>
 
-          <div className="mt-12 rounded-[2.5rem] bg-blue-900 p-12 text-white shadow-2xl relative overflow-hidden">
+          <div className="mt-12 rounded-[2.5rem] bg-gradient-to-br from-[#021f54] to-[#0a368c] p-12 text-white shadow-2xl relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full -mr-20 -mt-20 blur-3xl" />
              <div className="text-left relative z-10">
                 <h3 className="text-3xl font-bold">Flexible <span className="text-orange-400">Policy Builder</span></h3>

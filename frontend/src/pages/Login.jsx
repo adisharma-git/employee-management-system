@@ -94,14 +94,14 @@ export default function Login() {
             <p className="text-gray-500 text-sm mb-6">
               Welcome to the Employee Management System
             </p>
-            <button className="w-full border rounded-full py-3 flex items-center justify-center gap-2 mb-6">
+            {/* <button className="w-full border rounded-full py-3 flex items-center justify-center gap-2 mb-6">
               <i className="fab fa-google text-red-500"></i>
               Sign in with Google
-            </button>
+            </button> */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex-1 border-t"></div>
-              <span className="text-xs text-gray-400">or Sign in with Email</span>
-              <div className="flex-1 border-t"></div>
+              {/* <div className="flex-1 border-t"></div> */}
+              {/* <span className="text-xs text-gray-400">or Sign in with Email</span> */}
+              {/* <div className="flex-1 border-t"></div> */}
             </div>
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div>

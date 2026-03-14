@@ -8,40 +8,43 @@ import EmployeeForm from "../User/User";
 import Attendance from "../Attendence/Attendence";
 import api from "../api/axios";
 import TimeLogDashboard from "../DailyLogs/TimeLog";
-import ComingSoon from "../ComingSoon/ComingSoon";
 import Settings from "./Settings";
 import EmployeeRegistration from "../Admin/EmployeeRegistration";
 import LeavesPage from "../LeavesSection/LeavesPage";
+import AnnouncementPage from "../Announcement/Announcement";
+import GithubCommits from "../../ProjectActivity/ProjectCommits";
+import PullRequests from "../../ProjectActivity/Pull Requests";
+
 import AnnouncementPage from "../../Announcement/Announcement";
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [userName, setUserName] = useState("Login");
-  const [permission,setPermission]=useState(false);
+  const [permission, setPermission] = useState(false);
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const response = await api.get("/employee/me");
-      const userData = response.data.data;
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/employee/me");
+        const userData = response.data.data;
 
-      if (userData?.name) {
-        setUserName(userData.name);
+        if (userData?.name) {
+          setUserName(userData.name);
+        }
+
+        if (userData?.user?.role === "admin") {
+          setPermission(true);
+        } else {
+          setPermission(false);
+        }
+
+      } catch (error) {
+        console.error("Error fetching user:", error);
       }
+    };
 
-      if (userData?.user?.role === "admin") {
-        setPermission(true);  
-      } else {
-        setPermission(false);  
-      }
-
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    }
-  };
-
-  fetchUser();
-}, []);
+    fetchUser();
+  }, []);
 
 
   const getGreeting = () => {
@@ -55,25 +58,32 @@ useEffect(() => {
   const renderContent = () => {
     switch (selectedTab) {
       case "employees":
-        return <Employees permission={permission}/>;
+        return <Employees permission={permission} />;
       case "reports":
-        return <Reports permission={permission}/>;
+        return <Reports permission={permission} />;
       case "EmployeeForm":
-        return <EmployeeForm/>;
+        return <EmployeeForm />;
       case "Attendance":
-        return <Attendance/>;
+        return <Attendance />;
       case "performance":
-        return <TimeLogDashboard/>;
+        return <TimeLogDashboard />;
       case "adminRegistration":
-        return <EmployeeRegistration permission={permission}/>;
+        return <EmployeeRegistration permission={permission} />;
       case "settings":
-        return <Settings/>;
+        return <Settings />;
       case "LeavesPage":
+        return <LeavesPage />;
+      case "Announcement":
+        return <AnnouncementPage permission={permission} />;
+      case "ProjectActivity":
+        return <GithubCommits />;
+      case "Pull Requests":
+        return <PullRequests />;
         return <LeavesPage/>;
       case "Announcement":
         return <AnnouncementPage permission={permission}/>;
       default:
-        return <DashboardHome/>;
+        return <DashboardHome />;
     }
   };
 

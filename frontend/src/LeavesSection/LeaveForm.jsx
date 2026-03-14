@@ -11,7 +11,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
     startDate: "",
     endDate: "",
     reason: "",
-    isHalfDay: false
+    isHalfDay: false  
   });
 
   const [errors, setErrors] = useState({});
@@ -40,7 +40,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     setErrors((prev) => ({
@@ -87,9 +87,9 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
     const payload = {
       leaveTypeId: formData.leaveTypeId,
       description: formData.reason,
-      startDate: format(new Date(formData.startDate), "yyyy-MM-dd"),
-      endDate: format(new Date(formData.endDate), "yyyy-MM-dd"),
-      isHalfDay: formData.isHalfDay
+      startDate: format(formData.startDate, "yyyy-MM-dd"),
+      endDate: format(formData.endDate, "yyyy-MM-dd"),
+      isHalfDay: formData.isHalfDay,
     };
 
     try {
@@ -131,7 +131,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* Leave Type */}
+
         <div>
 
           <label className="block text-gray-600 font-medium mb-2">
@@ -161,7 +161,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
         </div>
 
-        {/* Dates */}
+ 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           {/* Start Date */}
@@ -174,10 +174,15 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
             <input
               type="date"
               name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              min={format(new Date(), "yyyy-MM-dd")}
+              value={formData.startDate || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  startDate: e.target.value
+                }))
+              }
               className="w-full border rounded-lg px-4 py-2"
+              min={new Date().toISOString().split("T")[0]}
             />
 
             {errors.startDate && (
@@ -196,10 +201,15 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
             <input
               type="date"
               name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              min={formData.startDate || format(new Date(), "yyyy-MM-dd")}
+              value={formData.endDate || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  endDate: e.target.value
+                }))
+              }
               className="w-full border rounded-lg px-4 py-2"
+              min={formData.startDate || new Date().toISOString().split("T")[0]}
             />
 
             {errors.endDate && (
@@ -210,7 +220,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
         </div>
 
-        {/* Half Day */}
+      
         <div className="flex items-center gap-2">
 
           <input
@@ -226,7 +236,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
         </div>
 
-        {/* Reason */}
+   
         <div>
 
           <label className="block text-gray-600 font-medium mb-2">
@@ -248,7 +258,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
         </div>
 
-        {/* Buttons */}
+
         <div className="flex justify-end gap-3">
 
           <button

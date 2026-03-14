@@ -1,9 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
-import DashboardHome from "./Dashboard/DashboardHome";
-// import Announcement from "./Announcement/Announcement";
-
+import Loader from "./Loader/Loader";
 
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -35,7 +33,7 @@ function App() {
       <Suspense
         fallback={
           <div className="flex justify-center items-center h-screen text-xl">
-            Loading Page...
+             <Loader/>
           </div>
         }
       >
