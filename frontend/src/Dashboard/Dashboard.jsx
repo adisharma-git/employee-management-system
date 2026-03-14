@@ -8,11 +8,11 @@ import EmployeeForm from "../User/User";
 import Attendance from "../Attendence/Attendence";
 import api from "../api/axios";
 import TimeLogDashboard from "../DailyLogs/TimeLog";
-import ComingSoon from "../ComingSoon/ComingSoon";
 import Settings from "./Settings";
 import EmployeeRegistration from "../Admin/EmployeeRegistration";
 import LeavesPage from "../LeavesSection/LeavesPage";
-import AnnouncementPage from "../../Announcement/Announcement";
+import AnnouncementPage from "../Announcement/Announcement";
+
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
