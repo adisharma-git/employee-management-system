@@ -4,12 +4,8 @@ const {
   updateCheckout,
   getPunchStatus,
   getMyAttendance,
-  getTodayAttendance,
   toggleBreak,
-  getAllAttendance,
-  getAttendanceReport,
-  getAttendanceStatistics,
-  deleteAttendance
+  getAllAttendance
 } = require('../controllers/attendanceController');
 
 const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware'); // Check your path!
