@@ -66,10 +66,7 @@ export default function Navbar() {
                       title="Attendance & Leave"
                       desc="Track daily attendance, leave requests & approvals"
                     />
-                    <DropdownItem
-                      title="Performance & Reports"
-                      desc="Attendance & performance summaries"
-                    />
+                   
                   </MegaDropdown>
                   </div>
                 </div>
@@ -93,13 +90,13 @@ export default function Navbar() {
                     <DropdownItem
                       title="About Us"
                       desc="Who we are & what we do"                      
-                      onClick={() => window.open('/landingPage', '_blank')}
+                      onClick={() => window.open('/landingPage', '_self')}
                     />
-                    <DropdownItem
+                    {/* <DropdownItem
                       title="Team"
                       desc="Developers & contributors"
-                    />
-                    <DropdownItem title="Documentation" desc="How the system works" />
+                    />   */}
+                    {/* <DropdownItem title="Documentation" desc="How the system works" /> */}
                   </MegaDropdown>
                   </div>
                 </div>
@@ -132,6 +129,7 @@ export default function Navbar() {
                     <DropdownItem
                       title="System Status"
                       desc="Live service status"
+                      onClick={()=>window.open('/updates', '_blank')}
                     />
                   </MegaDropdown>
                   </div>
