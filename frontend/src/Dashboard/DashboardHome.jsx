@@ -8,6 +8,7 @@ const DashboardHome = () => {
   const [punchedIn, setPunchedIn] = useState(false);
   const [newEmployeesData, setNewEmployeesData] = useState([]);
   const [totalEmployees, setTotalEmployees] = useState(0);
+   const [announcements, setAnnouncements] = useState([]);
 
   const announcementsData = [
     {
@@ -81,6 +82,17 @@ const DashboardHome = () => {
     fetchEmployees();
   }, []);
 
+  useEffect(() => {
+    api.get("/announcements?page=1&limit=10").then(res => {
+      const formatted = res.data.data.map(item => ({
+        title: item.title,
+        time: new Date(item.createdAt).toLocaleString(),
+        avatar: "https://ui-avatars.com/api/?name=" + item.author.email.split("@")[0]
+      }));
+      setAnnouncements(formatted);
+    });
+  }, []);
+
   return (
     <div>
       <div className="flex flex-col md:flex-row gap-4">
@@ -148,7 +160,7 @@ const DashboardHome = () => {
         <div className="w-1/2">
           <AnnouncementsCard
             title="Upcoming Holidays Coming"
-            announcements={announcementsData}
+            announcements={announcements}
             height="h-[320px]"
           />
 
