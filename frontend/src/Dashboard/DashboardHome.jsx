@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AnnouncementsCard from "./AnnouncementsCard";
 import TaskCompletionCard from "./TaskCard";
 import api from "../api/axios";
+import CommitGraph from "../../ProjectActivity/CommitGraph";
 
 const DashboardHome = () => {
   const [punchedIn, setPunchedIn] = useState(false);
@@ -171,6 +172,9 @@ const DashboardHome = () => {
           />
         </div>
       </div>
+      <div className="mt-6">
+  <CommitGraph />
+</div>
     </div>
   );
 };
