@@ -9,6 +9,7 @@ async function main() {
   // 1. Clean the database
   await prisma.dailyLog.deleteMany();
   await prisma.attendance.deleteMany();
+  await prisma.announcement.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.user.deleteMany();
   
