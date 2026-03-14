@@ -2,8 +2,6 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
 import DashboardHome from "./Dashboard/DashboardHome";
-// import Announcement from "./Announcement/Announcement";
-
 
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -27,7 +25,7 @@ const ReviewSection = lazy(() => import("./pages/ReviewHome"));
 const SaleryModule = lazy(() => import("./pages/SaleryModule"));
 const LeavesPage = lazy(() => import("./LeavesSection/LeavesPage"));
 const ApplyLeaveForm = lazy(() => import("./LeavesSection/LeaveForm"));
-const Announcement = lazy(() => import("./Announcement/Announcement"))
+const Announcement = lazy(() => import("./Announcement/Announcement"));
 
 function App() {
   return (
@@ -134,15 +132,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/Announcement"
             element={
               <ProtectedRoute>
-                <DashboardHome/>
-              </ProtectedRoute>
-            }
-          />
-
                 <Announcement />
               </ProtectedRoute>
             }
