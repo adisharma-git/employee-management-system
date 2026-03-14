@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import api from "../api/axios";
 
@@ -13,7 +11,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
     startDate: null,
     endDate: null,
     reason: "",
-    isHalfDay: false   // ✅ added
+    isHalfDay: false  
   });
 
   const [errors, setErrors] = useState({});
@@ -39,7 +37,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value, 
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     setErrors((prev) => ({
@@ -89,7 +87,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
       description: formData.reason,
       startDate: format(formData.startDate, "yyyy-MM-dd"),
       endDate: format(formData.endDate, "yyyy-MM-dd"),
-      isHalfDay: formData.isHalfDay, 
+      isHalfDay: formData.isHalfDay,
     };
 
     try {
@@ -124,7 +122,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* Leave Type */}
+
         <div>
           <label className="block text-gray-600 font-medium mb-2">
             Leave Type <span className="text-red-500">*</span>
@@ -146,7 +144,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
           </select>
         </div>
 
-        {/* Dates */}
+ 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <div>
@@ -154,17 +152,18 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
               Start Date *
             </label>
 
-            <DatePicker
-              selected={formData.startDate}
-              onChange={(date) =>
+            <input
+              type="date"
+              name="startDate"
+              value={formData.startDate || ""}
+              onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  startDate: date,
+                  startDate: e.target.value
                 }))
               }
-              dateFormat="dd-MMM-yyyy"
               className="w-full border rounded-lg px-4 py-2"
-              minDate={new Date()}
+              min={new Date().toISOString().split("T")[0]}
             />
           </div>
 
@@ -173,22 +172,23 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
               End Date *
             </label>
 
-            <DatePicker
-              selected={formData.endDate}
-              onChange={(date) =>
+            <input
+              type="date"
+              name="endDate"
+              value={formData.endDate || ""}
+              onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  endDate: date,
+                  endDate: e.target.value
                 }))
               }
-              dateFormat="dd-MMM-yyyy"
               className="w-full border rounded-lg px-4 py-2"
-              minDate={formData.startDate || new Date()}
+              min={formData.startDate || new Date().toISOString().split("T")[0]}
             />
           </div>
         </div>
 
-        {/* Half Day Checkbox */}
+      
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -199,7 +199,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
           <label className="text-gray-600">Half Day Leave</label>
         </div>
 
-        {/* Reason */}
+   
         <div>
           <label className="block text-gray-600 font-medium mb-2">
             Reason *
@@ -215,7 +215,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
           />
         </div>
 
-   
+
         <div className="flex justify-end gap-3">
 
           <button
