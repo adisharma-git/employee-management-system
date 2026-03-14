@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import TotalLeaves from "./totalLeaves";
 import api from "../api/axios";
+import LeavesHistory from "./LeavesHistory";
 
 const AttendanceNav = () => {
   const [activeTab, setActiveTab] = useState("leaves");
@@ -11,6 +12,7 @@ const AttendanceNav = () => {
     { key: "PendingLeaves", label: "PendingLeaves", adminOnly: false },
     { key: "leaves", label: "Leaves", adminOnly: false },
     { key: "reports", label: "Reports", adminOnly: true },
+    { key: "Leaves History", label: "Leaves History", adminOnly: false }
   ];
 
   const visibleTabs = tabs.filter(
@@ -39,6 +41,8 @@ const AttendanceNav = () => {
         return <TotalLeaves leaves={leaves}/>;
       case "reports":
         return <Reports />;
+        case "Leaves History":
+        return <LeavesHistory/>;
       default:
         return <Reports />;
     }
