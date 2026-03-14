@@ -1,9 +1,20 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import ToastContainer from "../Toaster/Toast";
 
 const ForgetPassword = () => {
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
+    const [toasts, setToasts] = useState([]);
+
+    const addToast = (type, message) => {
+        const id = Date.now() + Math.random();
+        setToasts((prev) => [...prev, { id, type, message }]);
+    };
+
+    const removeToast = (id) => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+    };
 
     const handleChange = (e) => {
         setEmail(e.target.value);
@@ -23,12 +34,15 @@ const ForgetPassword = () => {
             return;
         }
 
-        alert("Password reset link sent to your email!");
+        addToast("success", "Password reset link sent to your email!");
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        <>
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+            <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+                <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
 
                 <div className="flex justify-center mb-6">
@@ -75,8 +89,9 @@ const ForgetPassword = () => {
                         Back to Login
                     </Link>
                 </p>
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

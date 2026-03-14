@@ -82,8 +82,6 @@ const CSS = `
 
   .toast-container {
     position: fixed;
-    top: 24px;
-    right: 24px;
     z-index: 99999;
     display: flex;
     flex-direction: column;
@@ -144,10 +142,14 @@ function ToastCard({ toast, onRemove, duration = 3500 }) {
 }
 
 
-export default function ToastContainer({ toasts, onRemove }) {
+export default function ToastContainer({ toasts, onRemove, topOffset = 24, rightOffset = 24 }) {
   injectStyles();
+
+  const top = typeof topOffset === "number" ? `${topOffset}px` : topOffset;
+  const right = typeof rightOffset === "number" ? `${rightOffset}px` : rightOffset;
+
   return (
-    <div className="toast-container">
+    <div className="toast-container" style={{ top, right }}>
       {toasts.map((toast) => (
         <ToastCard key={toast.id} toast={toast} onRemove={onRemove} />
       ))}

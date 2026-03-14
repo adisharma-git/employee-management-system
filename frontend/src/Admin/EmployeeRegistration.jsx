@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../api/axios";
 import Loader from "../Loader/Loader";
 import AccessRestricted from "../Components/AccessRestricted";
+import ToastContainer from "../Toaster/Toast";
 
 export default function EmployeeRegistration({permission}) {
   const [formData, setFormData] = useState({
@@ -15,6 +16,16 @@ export default function EmployeeRegistration({permission}) {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = (type, message) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -77,7 +88,7 @@ export default function EmployeeRegistration({permission}) {
 
       await api.post("/auth/register", payload);
 
-      alert("Registration successful!");
+      addToast("success", "Registration successful!");
 
       setFormData({
         name: "",
@@ -87,11 +98,11 @@ export default function EmployeeRegistration({permission}) {
       });
     } catch (error) {
       if (error.response?.data?.message) {
-        alert(error.response.data.message);
+        addToast("error", error.response.data.message);
       } else if (error.response?.data?.error) {
-        alert(error.response.data.error);
+        addToast("error", error.response.data.error);
       } else {
-        alert("Registration failed. Please try again.");
+        addToast("error", "Registration failed. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -107,8 +118,11 @@ export default function EmployeeRegistration({permission}) {
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-slate-50 px-6 py-10">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-md border border-gray-200 p-10">
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      <div className="min-h-[calc(100vh-80px)] bg-slate-50 px-6 py-10">
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-md border border-gray-200 p-10">
         {permission ? (
           <>
             <div className="mb-8 border-b pb-4">
@@ -217,8 +231,9 @@ export default function EmployeeRegistration({permission}) {
         ) : (
           <AccessRestricted />
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 
 

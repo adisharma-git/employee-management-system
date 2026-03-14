@@ -3,19 +3,27 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSignInAlt,
   faSignOutAlt,
-  faCheckCircle,
    faSync ,
 } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/axios";
+import ToastContainer from "../Toaster/Toast";
 
 const AttendenceHeader = ({ refreshData }) => {
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [totalBreakTime, setTotalBreakTime] = useState(0);
   const [leftBreakTime, setLeftBreakTime] = useState(0);
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = (type, message) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
 
   useEffect(() => {
@@ -54,16 +62,14 @@ const checkPunchStatus = async () => {
 
     try {
       await api.post("/attendance/mark", {});
-      setSuccessMessage("Checked In Successfully!");
-      setShowSuccessPopup(true);
+      addToast("success", "Checked in successfully!");
 
       await checkPunchStatus();
       if (refreshData) refreshData();
     } catch (error) {
-      alert(error.response?.data?.message || "Check-in failed");
+      addToast("error", error.response?.data?.message || "Check-in failed");
     } finally {
       setLoading(false);
-      setTimeout(() => setShowSuccessPopup(false), 3000);
     }
   };
 
@@ -81,16 +87,14 @@ const checkPunchStatus = async () => {
 
     try {
       await api.patch("/attendance/checkout", { checkOutTime });
-      setSuccessMessage("Checked Out Successfully!");
-      setShowSuccessPopup(true);
+      addToast("success", "Checked out successfully!");
 
       await checkPunchStatus();
       if (refreshData) refreshData();
     } catch (error) {
-      alert(error.response?.data?.message || "Check-out failed");
+      addToast("error", error.response?.data?.message || "Check-out failed");
     } finally {
       setLoading(false);
-      setTimeout(() => setShowSuccessPopup(false), 3000);
     }
   };
 
@@ -119,7 +123,7 @@ const handleToggle = async () => {
 
     if (refreshData) refreshData();
   } catch (error) {
-    alert(error.response?.data?.message || "Operation failed");
+    addToast("error", error.response?.data?.message || "Operation failed");
   } finally {
     setLoading(false);
   }
@@ -133,20 +137,7 @@ const handleRefreshBreakTime=()=>{
 
   return (
     <div className="sticky top-0 bg-gray-50 pb-4 z-20">
-      {showSuccessPopup && (
-        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-50 border border-green-200 shadow-xl rounded-lg px-6 py-4 flex items-center gap-3 z-50">
-          <div className="bg-green-100 p-2 rounded-full">
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              className="text-green-600 text-xl"
-            />
-          </div>
-          <div>
-            <h4 className="text-green-800 font-bold text-sm">Success</h4>
-            <p className="text-green-600 text-xs">{successMessage}</p>
-          </div>
-        </div>
-      )}
+      <ToastContainer toasts={toasts} onRemove={removeToast} topOffset={72} rightOffset={24} />
 
       <header className="bg-white border-b shadow-sm px-8 py-6 flex justify-between items-center">
         <div>
