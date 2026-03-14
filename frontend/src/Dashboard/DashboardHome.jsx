@@ -146,7 +146,7 @@ const DashboardHome = () => {
 
         <div className="w-1/2">
           <AnnouncementsCard
-            title="Upcoming Holidays"
+            title="Upcoming Holidays Coming"
             announcements={announcementsData}
             height="h-[320px]"
           />
