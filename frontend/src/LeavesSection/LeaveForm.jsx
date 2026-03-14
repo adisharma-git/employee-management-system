@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import api from "../api/axios";
+import ToastContainer from "../Toaster/Toast";
 
 const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
@@ -15,6 +16,16 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
   });
 
   const [errors, setErrors] = useState({});
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = (type, message) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   useEffect(() => {
     fetchLeaveTypes();
@@ -98,7 +109,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
       if (res.data) {
 
-        alert("Leave Applied Successfully ✅");
+        addToast("success", "Leave applied successfully");
 
         setFormData({
           leaveTypeId: "",
@@ -117,13 +128,14 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
     } catch (error) {
 
       console.error("Leave Apply Error", error);
-      alert("Failed to apply leave ❌");
+      addToast("error", "Failed to apply leave");
 
     }
   };
 
   return (
     <div className="bg-white shadow-lg rounded-xl p-6 w-full">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <h2 className="text-xl font-semibold mb-6 text-gray-700">
         Apply Leave

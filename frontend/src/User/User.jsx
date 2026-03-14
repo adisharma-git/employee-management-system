@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faPlus, faCamera, faEdit } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/axios";
 import Loader from "../Loader/Loader";
+import ToastContainer from "../Toaster/Toast";
 
 export default function EmployeeForm() {
   const [name, setName] = useState("");
@@ -20,8 +21,18 @@ export default function EmployeeForm() {
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [errors, setErrors] = useState({});
+  const [toasts, setToasts] = useState([]);
 
-  const handlePhoto = () => alert("This Feature Is Coming Soon! Stay Connected");
+  const addToast = (type, message) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const handlePhoto = () => addToast("error", "This feature is coming soon! Stay connected");
 
   const fetchEmployee = async () => {
     setLoading(true);
@@ -45,7 +56,7 @@ export default function EmployeeForm() {
       setErrors({});
     } catch (error) {
       console.error(error);
-      alert("Failed to load employee data");
+      addToast("error", "Failed to load employee data");
     } finally {
       setLoading(false);
     }
@@ -106,7 +117,7 @@ export default function EmployeeForm() {
       if (profileImage) payload.append("profileImage", profileImage);
 
       await api.put("/employee/update", payload);
-      alert("Profile updated successfully ");
+      addToast("success", "Profile updated successfully");
 
       const fileInput = document.getElementById("imageInput");
       if (fileInput) fileInput.value = "";
@@ -114,7 +125,7 @@ export default function EmployeeForm() {
       await fetchEmployee();
     } catch (error) {
       console.error(error);
-      alert("Profile update failed ");
+      addToast("error", "Profile update failed");
     } finally {
       setLoading(false);
     }
@@ -130,6 +141,7 @@ export default function EmployeeForm() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className="max-w-6xl mx-auto">
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">

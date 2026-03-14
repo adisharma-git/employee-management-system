@@ -1,8 +1,20 @@
 import React, { useState } from "react";
 import api from "../api/axios";
+import ToastContainer from "../Toaster/Toast";
 
 
 const AddAnnouncementModal = ({ onClose, onSuccess }) => {
+
+    const [toasts, setToasts] = useState([]);
+
+    const addToast = (type, message) => {
+        const id = Date.now() + Math.random();
+        setToasts((prev) => [...prev, { id, type, message }]);
+    };
+
+    const removeToast = (id) => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+    };
 
     const [formData, setFormData] = useState({
         title: "",
@@ -26,17 +38,21 @@ const AddAnnouncementModal = ({ onClose, onSuccess }) => {
             const res = await api.post("/announcements", formData);
 
             if (res.data) {
-                alert("Announcement Created ");
+                addToast("success", "Announcement created");
                 onSuccess();
             }
 
         } catch (error) {
             console.error("Create announcement error", error);
+            addToast("error", error.response?.data?.message || "Failed to create announcement");
         }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <>
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
 
             <div
                 className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -125,7 +141,8 @@ const AddAnnouncementModal = ({ onClose, onSuccess }) => {
 
             </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

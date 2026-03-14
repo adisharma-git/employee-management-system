@@ -9,6 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import TimeLogForm from './TimeLogForm'
 import api from '../api/axios'
+import ToastContainer from '../Toaster/Toast'
 
 export default function TimeLogDashboard() {
   const [timeLogs, setTimeLogs] = useState([])
@@ -16,6 +17,17 @@ export default function TimeLogDashboard() {
   const [editingLog, setEditingLog] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('All')
+  const [toasts, setToasts] = useState([])
+  const [pendingDeleteKey, setPendingDeleteKey] = useState(null)
+
+  const addToast = (type, message) => {
+    const id = Date.now() + Math.random()
+    setToasts((prev) => [...prev, { id, type, message }])
+  }
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
 
 
   const fetchLogs = async () => {
@@ -64,7 +76,18 @@ export default function TimeLogDashboard() {
 
   // ================= DELETE =================
   const handleDeleteLog = async (log) => {
-    if (!window.confirm('Delete this time log?')) return
+    const deleteKey = `${log.logId}-${log.taskId}`
+
+    if (pendingDeleteKey !== deleteKey) {
+      setPendingDeleteKey(deleteKey)
+      addToast('error', 'Click delete again to confirm')
+      setTimeout(() => {
+        setPendingDeleteKey((current) =>
+          current === deleteKey ? null : current
+        )
+      }, 4000)
+      return
+    }
 
     try {
       await api.delete('/logs/delete', {
@@ -79,9 +102,12 @@ export default function TimeLogDashboard() {
           (l) => !(l.logId === log.logId && l.taskId === log.taskId)
         )
       )
+      setPendingDeleteKey(null)
+      addToast('success', 'Time log deleted')
     } catch (error) {
       console.error('Delete failed:', error)
-      alert('Failed to delete log')
+      setPendingDeleteKey(null)
+      addToast('error', 'Failed to delete log')
     }
   }
 
@@ -128,6 +154,7 @@ export default function TimeLogDashboard() {
   // ================= UI =================
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       <h1 className="text-3xl font-bold mb-6">My Time Log</h1>
 
       <div className="bg-white p-4 rounded shadow mb-6">

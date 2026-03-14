@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
 import emailjs from "@emailjs/browser";
 import { useNavigate } from "react-router-dom";
+import ToastContainer from "../Toaster/Toast";
 
 export default function MainPageLanding() {
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = (type, message) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   const navigate = useNavigate();
 
@@ -15,7 +26,7 @@ export default function MainPageLanding() {
 
   const handleSubmit = async () => {
     if (!email) {
-      alert("Please enter your email");
+      addToast("error", "Please enter your email");
       return;
     }
     setLoading(true);
@@ -29,13 +40,14 @@ export default function MainPageLanding() {
       navigate("/thank-you");  
     } catch (error) {
       console.error(error);
-      alert("Something went wrong ❌");
+      addToast("error", "Something went wrong");
     }
     setLoading(false);
   };
 
   return (
     <section className="relative min-h-screen bg-white pt-36 pb-24 px-6 flex items-center justify-center overflow-hidden">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       <style>{`
         @keyframes shuffle {
           0% { transform: translate(0, 0) rotate(0deg); }
