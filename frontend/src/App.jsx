@@ -26,6 +26,7 @@ const SaleryModule = lazy(() => import("./pages/SaleryModule"));
 const LeavesPage = lazy(() => import("./LeavesSection/LeavesPage"));
 const ApplyLeaveForm = lazy(() => import("./LeavesSection/LeaveForm"));
 const Announcement = lazy(() => import("./Announcement/Announcement"));
+const ScheduledMeetings = lazy(() => import("../ScheduledMeetings/UpcomingMeetings"));
 
 function App() {
   return (
@@ -138,6 +139,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Announcement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/ScheduledMeetings"
+            element={
+              <ProtectedRoute>
+                <ScheduledMeetings />
               </ProtectedRoute>
             }
           />
