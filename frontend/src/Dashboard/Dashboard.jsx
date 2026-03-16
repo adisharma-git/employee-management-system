@@ -80,7 +80,7 @@ useEffect(() => {
         case "Pull Requests":
         return <PullRequests />;
         case "Meetings":
-          return <UpcomingMeetings/>
+          return <UpcomingMeetings permission={permission}/>
       default:
         return <DashboardHome/>;
     }
