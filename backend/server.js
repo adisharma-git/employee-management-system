@@ -12,6 +12,8 @@ const adminRoutes = require('./src/routes/adminRoutes');
 const leaveRoutes = require('./src/routes/leaveRoutes');
 const annoutncementRoutes = require('./src/routes/announcementRoutes');
 const leaveTypeRoutes = require('./src/routes/leaveTypeRoutes');
+const meetingRoutes = require('./src/routes/meetingRoutes');
+const holidayRoutes = require('./src/routes/holidayRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -46,6 +48,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/announcements', annoutncementRoutes);
 app.use('/api/leave-types', leaveTypeRoutes);
+app.use('/api/meetings', meetingRoutes);
+app.use('/api/holidays', holidayRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {

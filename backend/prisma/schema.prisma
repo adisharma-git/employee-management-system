@@ -28,6 +28,7 @@ model User {
   approvedLeaves Leave[]  @relation("ApprovedBy")
 
   announcements  Announcement[] 
+  meetings       Meeting[]      
 
   @@map("users")
   @@index([email])
@@ -250,4 +251,23 @@ model Announcement {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("announcements")
+}
+
+// --------------------------------------
+// 11. Meetings Table
+// --------------------------------------
+model Meeting {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  date        DateTime // Stores both date AND time
+  meetLink    String?  @map("meet_link") // Optional: Google Meet / Zoom link
+  
+  createdBy   String   @map("created_by")
+  author      User     @relation(fields: [createdBy], references: [id])
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("meetings")
 }
