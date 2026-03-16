@@ -14,6 +14,7 @@ import LeavesPage from "../LeavesSection/LeavesPage";
 import AnnouncementPage from "../Announcement/Announcement";
 import GithubCommits from "../ProjectActivity/ProjectCommits";
 import PullRequests from "../ProjectActivity/Pull Requests";
+import UpcomingMeetings from "../../ScheduledMeetings/UpcomingMeetings";
 
 
 export default function Dashboard() {
@@ -78,6 +79,8 @@ useEffect(() => {
         return <GithubCommits />;
         case "Pull Requests":
         return <PullRequests />;
+        case "Meetings":
+          return <UpcomingMeetings/>
       default:
         return <DashboardHome/>;
     }
