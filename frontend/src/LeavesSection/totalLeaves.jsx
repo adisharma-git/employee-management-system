@@ -30,9 +30,7 @@ const TotalLeaves = ({ leaves }) => {
                 {leave.name} Leave
               </h3>
 
-              <div className="w-8 h-8 flex items-center justify-center rounded-md bg-orange-100 text-orange-500 text-sm font-bold">
-                {leave.name?.charAt(0)}
-              </div>
+              
             </div>
 
             <div className="border-t pt-3 space-y-2 text-sm">
