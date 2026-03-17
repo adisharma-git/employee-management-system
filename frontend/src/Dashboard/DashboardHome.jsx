@@ -8,7 +8,9 @@ const DashboardHome = () => {
   const [punchedIn, setPunchedIn] = useState(false);
   const [newEmployeesData, setNewEmployeesData] = useState([]);
   const [totalEmployees, setTotalEmployees] = useState(0);
-   const [announcements, setAnnouncements] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [holidays, setHolidays] = useState([]);
+  
 
   const announcementsData = [
     {
@@ -40,6 +42,28 @@ const DashboardHome = () => {
 
     fetchStatus();
   }, []);
+  useEffect(() => {
+  const fetchHolidays = async () => {
+    try {
+      const res = await api.get("/holidays/upcoming-holidays");
+
+      if (res.data.success) {
+        const formatted = res.data.data.map(item => ({
+          title: item.name,
+          time: new Date(item.date).toLocaleDateString(),
+          avatar: "https://ui-avatars.com/api/?name=" + item.name
+        }));
+
+        setHolidays(formatted);
+      }
+    } catch (error) {
+      console.log("Holidays fetch error:", error);
+    }
+  };
+
+  fetchHolidays();
+}, []);
+
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -160,7 +184,7 @@ const DashboardHome = () => {
         <div className="w-1/2">
           <AnnouncementsCard
             title="Upcoming Holidays Coming"
-            announcements={announcements}
+            announcements={holidays}
             height="h-[320px]"
           />
 
