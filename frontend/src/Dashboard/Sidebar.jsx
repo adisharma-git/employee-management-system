@@ -82,6 +82,17 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         >
          <i class="fa-solid fa-calendar-check"></i>
         </button>
+        <button
+          onClick={() => setSelectedTab("Holidays")}
+          title="Holidays"
+          className={
+            selectedTab === "Holidays"
+              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
+              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
+          }
+        >
+          <i class="fa-solid fa-calendar-days"></i>  
+        </button>
       </div>
       <div className="flex flex-col gap-4">
     

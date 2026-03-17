@@ -15,6 +15,7 @@ import AnnouncementPage from "../Announcement/Announcement";
 import GithubCommits from "../ProjectActivity/ProjectCommits";
 import PullRequests from "../ProjectActivity/Pull Requests";
 import UpcomingMeetings from "../../ScheduledMeetings/UpcomingMeetings";
+import Holidays from "../../Holidays/Holidays";
 
 
 export default function Dashboard() {
@@ -81,6 +82,8 @@ useEffect(() => {
         return <PullRequests />;
         case "Meetings":
           return <UpcomingMeetings permission={permission}/>
+        case "Holidays":
+          return <Holidays permission={permission}/>;
       default:
         return <DashboardHome/>;
     }
