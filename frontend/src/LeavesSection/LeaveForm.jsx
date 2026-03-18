@@ -128,14 +128,23 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
     } catch (error) {
 
       console.error("Leave Apply Error", error);
-      addToast("error", "Failed to apply leave");
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Failed to apply leave";
+      addToast("error", backendMessage);
 
     }
   };
 
   return (
     <div className="bg-white shadow-lg rounded-xl p-6 w-full">
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <ToastContainer
+        toasts={toasts}
+        onRemove={removeToast}
+        topOffset={72}
+        rightOffset={24}
+      />
 
       <h2 className="text-xl font-semibold mb-6 text-gray-700">
         Apply Leave
@@ -143,7 +152,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* Leave Type */}
+
         <div>
 
           <label className="block text-gray-600 font-medium mb-2">
@@ -173,10 +182,10 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
         </div>
 
-        {/* Dates */}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          {/* Start Date */}
+
           <div>
 
             <label className="block text-gray-600 font-medium mb-2">
@@ -198,7 +207,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
           </div>
 
-          {/* End Date */}
+
           <div>
 
             <label className="block text-gray-600 font-medium mb-2">
@@ -222,7 +231,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
         </div>
 
-        {/* Half Day */}
+
         <div className="flex items-center gap-2">
 
           <input
@@ -238,7 +247,6 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
         </div>
 
-        {/* Reason */}
         <div>
 
           <label className="block text-gray-600 font-medium mb-2">
@@ -260,7 +268,7 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
         </div>
 
-        {/* Buttons */}
+        
         <div className="flex justify-end gap-3">
 
           <button
