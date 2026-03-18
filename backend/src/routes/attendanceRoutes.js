@@ -8,8 +8,16 @@ const {
   getAllAttendance
 } = require('../controllers/attendanceController');
 
-const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware'); // Check your path!
+//for admin attendance summary
+const { getMonthlySummary } = require('../controllers/attendanceController');
 
+//for employee monthly summary
+const { getMyMonthlySummary } = require('../controllers/attendanceController');
+
+//auto mark absentees
+const { markAbsentees } = require('../controllers/attendanceController');
+
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware'); // Check your path!
 const router = express.Router();
 
 // --- EMPLOYEE ROUTES ---
@@ -23,9 +31,15 @@ router.post('/break', verifyToken, toggleBreak);
 // New: Employee History
 router.get('/my-attendance-history', verifyToken, getMyAttendance);
 
+// New: Employee Monthly Summary
+router.get('/my-monthly-summary', verifyToken, getMyMonthlySummary);
 
 // --- ADMIN ROUTES ---
 // New: View All Attendance (Protected by verifyAdmin)
 router.get('/all-employees-attendance', verifyToken, verifyAdmin, getAllAttendance);
+router.get('/monthly-summary', verifyToken, verifyAdmin, getMonthlySummary);
+
+// Add this route
+router.post('/auto-mark-absent', markAbsentees);
 
 module.exports = router;

@@ -78,9 +78,8 @@ const findTodayAttendance = async (employeeId, inputDate = new Date(), select, i
     ...(include ? { include } : {})
   });
 };
-// ==========================================
+
 // 1. MARK ATTENDANCE (Check-In)
-// ==========================================
 exports.markAttendance = async (req, res) => {
   try {
     const userId = req.user.id; // From auth middleware
@@ -166,9 +165,7 @@ exports.markAttendance = async (req, res) => {
   }
 };
 
-// ==========================================
 // 2. UPDATE CHECKOUT TIME
-// ==========================================
 exports.updateCheckout = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -227,9 +224,7 @@ exports.updateCheckout = async (req, res) => {
   }
 };
 
-// ==========================================
 // GET PUNCH STATUS (for Dashboard Profile)
-// ==========================================
 exports.getPunchStatus = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -281,9 +276,7 @@ exports.getPunchStatus = async (req, res) => {
   }
 };
 
-// ==========================================
 // 3. TOGGLE BREAK (Start / End)
-// ==========================================
 exports.toggleBreak = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -378,9 +371,7 @@ exports.toggleBreak = async (req, res) => {
   }
 };
 
-// ==========================================
 // 4. GET MY ATTENDANCE (Employee View)
-// ==========================================
 exports.getMyAttendance = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -444,12 +435,10 @@ exports.getMyAttendance = async (req, res) => {
   }
 };
 
-// ==========================================
 // 5. GET ALL ATTENDANCE (Admin View)
-// ==========================================
 exports.getAllAttendance = async (req, res) => {
   try {
-    const { date } = req.query; // Allow filtering by date ?date=2024-02-20
+    const { date } = req.query; 
 
     const whereClause = {};
     if (date) {
@@ -474,5 +463,225 @@ exports.getAllAttendance = async (req, res) => {
     res.json({ success: true, count: allRecords.length, data: allRecords.map(serializeAttendance) });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// 6. GET MONTHLY SUMMARY (Admin View)
+exports.getMonthlySummary = async (req, res) => {
+  try {
+    const today = new Date();
+    const month = req.query.month ? parseInt(req.query.month) : today.getUTCMonth() + 1;
+    const year = req.query.year ? parseInt(req.query.year) : today.getUTCFullYear();
+
+    const startOfMonth = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
+    const startOfNextMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+
+    const records = await prisma.attendance.findMany({
+      where: { date: { gte: startOfMonth, lt: startOfNextMonth } },
+      include: {
+        employee: { select: { name: true, department: true, designation: true } }
+      }
+    });
+
+    const summaryMap = {};
+
+    records.forEach(record => {
+      const empId = record.employeeId;
+      
+      if (!summaryMap[empId]) {
+        summaryMap[empId] = {
+          employeeId: empId,
+          name: record.employee.name,
+          department: record.employee.department,
+          designation: record.employee.designation,
+          present: 0,
+          absent: 0,
+          halfDay: 0,
+          onLeave: 0,
+          totalLoggedDays: 0
+        };
+      }
+
+      const status = record.status.toLowerCase();
+      if (status === 'present') summaryMap[empId].present++;
+      else if (status === 'absent') summaryMap[empId].absent++;
+      else if (status === 'half-day' || status === 'halfday') summaryMap[empId].halfDay++;
+      else if (status === 'leave' || status === 'on-leave') summaryMap[empId].onLeave++;
+      
+      summaryMap[empId].totalLoggedDays++;
+    });
+
+    // Calculate the percentage for each employee
+    const finalData = Object.values(summaryMap).map(emp => {
+      // Prevent division by zero if they have no days logged yet
+      const safeTotal = emp.totalLoggedDays > 0 ? emp.totalLoggedDays : 1; 
+      
+      // Calculate points (Present = 1, Leave = 1, Half-Day = 0.5)
+      const points = emp.present + emp.onLeave + (emp.halfDay * 0.5);
+      
+      // Convert to a percentage with 1 decimal place (e.g., 95.5)
+      const percentage = ((points / safeTotal) * 100).toFixed(1);
+
+      return {
+        ...emp,
+        attendancePercentage: parseFloat(percentage) 
+      };
+    });
+
+    res.json({
+      success: true,
+      month: month,
+      year: year,
+      count: finalData.length,
+      data: finalData
+    });
+
+  } catch (error) {
+    console.error("Monthly Summary Error:", error);
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+// 7. GET MY MONTHLY SUMMARY (Employee View)
+
+exports.getMyMonthlySummary = async (req, res) => {
+  try {
+    const userId = req.user.id; 
+
+    const employee = await prisma.employee.findUnique({
+      where: { userId: userId }
+    });
+
+    if (!employee) return res.status(404).json({ success: false, message: 'Employee record not found' });
+
+    const today = new Date();
+    const month = req.query.month ? parseInt(req.query.month) : today.getUTCMonth() + 1;
+    const year = req.query.year ? parseInt(req.query.year) : today.getUTCFullYear();
+
+    const startOfMonth = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
+    const startOfNextMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+
+    const records = await prisma.attendance.findMany({
+      where: {
+        employeeId: employee.id, 
+        date: { gte: startOfMonth, lt: startOfNextMonth }
+      }
+    });
+
+    const summary = {
+      present: 0,
+      absent: 0,
+      halfDay: 0,
+      onLeave: 0,
+      totalLoggedDays: 0
+    };
+
+    records.forEach(record => {
+      const status = record.status.toLowerCase();
+      if (status === 'present') summary.present++;
+      else if (status === 'absent') summary.absent++;
+      else if (status === 'half-day' || status === 'halfday') summary.halfDay++;
+      else if (status === 'leave' || status === 'on-leave') summary.onLeave++;
+      
+      summary.totalLoggedDays++;
+    });
+
+    // ✅ NEW: Calculate the employee's personal percentage
+    const safeTotal = summary.totalLoggedDays > 0 ? summary.totalLoggedDays : 1;
+    const points = summary.present + summary.onLeave + (summary.halfDay * 0.5);
+    const percentage = ((points / safeTotal) * 100).toFixed(1);
+    
+    summary.attendancePercentage = parseFloat(percentage);
+
+    res.json({
+      success: true,
+      month: month,
+      year: year,
+      data: summary
+    });
+
+  } catch (error) {
+    console.error("My Monthly Summary Error:", error);
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+// 8. AUTO-MARK ABSENTEES (The Night Shift Cron Job)
+exports.markAbsentees = async (req, res) => {
+  try {
+    // 1. Determine "Today" in UTC
+    const today = new Date();
+    const startOfToday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0));
+    const endOfToday = new Date(startOfToday);
+    endOfToday.setUTCDate(endOfToday.getUTCDate() + 1);
+
+    // 2. Is it the Weekend? (0 = Sunday, 6 = Saturday)
+    const dayOfWeek = startOfToday.getUTCDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return res.status(200).json({ message: "Weekend. No absentees marked." });
+    }
+
+    // 3. Is it a Company Holiday?
+    const isHoliday = await prisma.holiday.findFirst({
+      where: { date: startOfToday }
+    });
+    if (isHoliday) {
+      return res.status(200).json({ message: "Holiday today. No absentees marked." });
+    }
+
+    // 4. Get everyone who ALREADY has an attendance record today
+    const todaysAttendance = await prisma.attendance.findMany({
+      where: { date: { gte: startOfToday, lt: endOfToday } },
+      select: { employeeId: true }
+    });
+    const presentEmployeeIds = todaysAttendance.map(a => a.employeeId);
+
+    // 5. Get everyone who is on an APPROVED LEAVE today
+    const activeLeaves = await prisma.leave.findMany({
+      where: {
+        status: 'approved',
+        fromDate: { lte: startOfToday },
+        toDate: { gte: startOfToday } // If today falls between their leave start and end dates
+      },
+      select: { employeeId: true }
+    });
+    const leaveEmployeeIds = activeLeaves.map(l => l.employeeId);
+
+    // 6. Combine the lists of people who are "Excused" for the day
+    const excusedEmployeeIds = [...presentEmployeeIds, ...leaveEmployeeIds];
+
+    // 7. Find all employees who are NOT excused
+    const missingEmployees = await prisma.employee.findMany({
+      where: {
+        id: { notIn: excusedEmployeeIds }
+      },
+      select: { id: true }
+    });
+
+    if (missingEmployees.length === 0) {
+      return res.status(200).json({ message: "Everyone is accounted for today!" });
+    }
+
+    // 8. Create "Absent" records for the missing employees
+    const absentRecords = missingEmployees.map(emp => ({
+      employeeId: emp.id,
+      date: startOfToday,
+      status: 'absent'
+    }));
+
+    // skipDuplicates ensures we don't accidentally mark someone absent twice
+    const result = await prisma.attendance.createMany({
+      data: absentRecords,
+      skipDuplicates: true 
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Night Shift Complete. Marked ${result.count} employees as absent.`
+    });
+
+  } catch (error) {
+    console.error("Auto-Absent Error:", error);
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 };
