@@ -10,6 +10,7 @@ const DashboardHome = () => {
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
+  const [scheduledMeetings, setScheduledMeetings] = useState([]);
   
 
   const announcementsData = [
@@ -117,6 +118,28 @@ const DashboardHome = () => {
     });
   }, []);
 
+  useEffect(() => {
+    const fetchUpcomingMeetings = async () => {
+      try {
+        const res = await api.get("/meetings/upcoming-meetings");
+
+        if (res.data.success) {
+          const formatted = res.data.data.map((item) => ({
+            title: item.title,
+            time: new Date(item.date).toLocaleString(),
+            avatar: "https://ui-avatars.com/api/?name=" + encodeURIComponent(item.title),
+          }));
+
+          setScheduledMeetings(formatted);
+        }
+      } catch (error) {
+        console.log("Meetings fetch error:", error);
+      }
+    };
+
+    fetchUpcomingMeetings();
+  }, []);
+
   return (
     <div>
       <div className="flex flex-col md:flex-row gap-4">
@@ -190,7 +213,7 @@ const DashboardHome = () => {
 
           <AnnouncementsCard
             title="Scheduled Meetings"
-            announcements={announcementsData}
+            announcements={scheduledMeetings}
             height="h-[320px]"
           />
         </div>
