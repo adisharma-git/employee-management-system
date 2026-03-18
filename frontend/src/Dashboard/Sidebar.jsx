@@ -69,7 +69,7 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
               : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
           }
         >
-          <i className="fas fa-money-bill"></i>
+          <i className="fab fa-github"></i>
         </button>
          <button
           onClick={() => setSelectedTab("Meetings")}
