@@ -110,7 +110,7 @@ useEffect(() => {
     hover:text-black text-sm font-medium px-4 py-1.5
     rounded-md transition-colors duration-200"
                 >
-                  + Add Employee
+                <span className="hidden sm:inline">Add Emp</span>
                 </button>
               )}
             </div>

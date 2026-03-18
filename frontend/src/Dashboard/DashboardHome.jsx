@@ -11,7 +11,6 @@ const DashboardHome = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [scheduledMeetings, setScheduledMeetings] = useState([]);
-  
 
   const announcementsData = [
     {
@@ -31,6 +30,7 @@ const DashboardHome = () => {
     },
   ];
 
+  // Fetch punched-in status
   useEffect(() => {
     const fetchStatus = async () => {
       try {
@@ -40,73 +40,63 @@ const DashboardHome = () => {
         console.log("Punch status error:", error);
       }
     };
-
     fetchStatus();
   }, []);
+
+  // Fetch holidays
   useEffect(() => {
-  const fetchHolidays = async () => {
-    try {
-      const res = await api.get("/holidays/upcoming-holidays");
-
-      if (res.data.success) {
-        const formatted = res.data.data.map(item => ({
-          title: item.name,
-          time: new Date(item.date).toLocaleDateString(),
-          avatar: "https://ui-avatars.com/api/?name=" + item.name
-        }));
-
-        setHolidays(formatted);
+    const fetchHolidays = async () => {
+      try {
+        const res = await api.get("/holidays/upcoming-holidays");
+        if (res.data.success) {
+          const formatted = res.data.data.map(item => ({
+            title: item.name,
+            time: new Date(item.date).toLocaleDateString(),
+            avatar: "https://ui-avatars.com/api/?name=" + item.name
+          }));
+          setHolidays(formatted);
+        }
+      } catch (error) {
+        console.log("Holidays fetch error:", error);
       }
-    } catch (error) {
-      console.log("Holidays fetch error:", error);
-    }
-  };
+    };
+    fetchHolidays();
+  }, []);
 
-  fetchHolidays();
-}, []);
-
-
+  // Fetch new employees
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const response = await api.get("/admin/employees");
         const employees = response.data?.data || [];
         const count = response.data?.count || 0;
-
         setTotalEmployees(count);
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const filteredEmployees = employees
-          .filter((emp) => {
-            if (!emp.employee?.dateOfJoining) return false;
-
+          .filter(emp => emp.employee?.dateOfJoining)
+          .filter(emp => {
             const joiningDate = new Date(emp.employee.dateOfJoining);
             joiningDate.setHours(0, 0, 0, 0);
-
-            const diffTime = today.getTime() - joiningDate.getTime();
-            const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
+            const diffDays = (today - joiningDate) / (1000 * 60 * 60 * 24);
             return diffDays >= 0 && diffDays <= 15;
           })
-          .map((emp) => ({
+          .map(emp => ({
             title: emp.employee.name,
-            time: `Joined on ${new Date(
-              emp.employee.dateOfJoining,
-            ).toLocaleDateString()}`,
+            time: `Joined on ${new Date(emp.employee.dateOfJoining).toLocaleDateString()}`,
             avatar: "https://i.pravatar.cc/40",
           }));
-
         setNewEmployeesData(filteredEmployees);
       } catch (error) {
         console.log("Employees fetch error:", error);
       }
     };
-
     fetchEmployees();
   }, []);
 
+  // Fetch announcements
   useEffect(() => {
     api.get("/announcements?page=1&limit=10").then(res => {
       const formatted = res.data.data.map(item => ({
@@ -118,31 +108,30 @@ const DashboardHome = () => {
     });
   }, []);
 
+  // Fetch upcoming meetings
   useEffect(() => {
     const fetchUpcomingMeetings = async () => {
       try {
         const res = await api.get("/meetings/upcoming-meetings");
-
         if (res.data.success) {
-          const formatted = res.data.data.map((item) => ({
+          const formatted = res.data.data.map(item => ({
             title: item.title,
             time: new Date(item.date).toLocaleString(),
             avatar: "https://ui-avatars.com/api/?name=" + encodeURIComponent(item.title),
           }));
-
           setScheduledMeetings(formatted);
         }
       } catch (error) {
         console.log("Meetings fetch error:", error);
       }
     };
-
     fetchUpcomingMeetings();
   }, []);
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row gap-4">
+    <div className="flex flex-col gap-6">
+      {/* 🔹 Task Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <TaskCompletionCard
           title="Task Completion"
           percentage={98.57}
@@ -171,7 +160,6 @@ const DashboardHome = () => {
           icon="fa-clipboard-check"
           accentColor="teal"
         />
-
         <TaskCompletionCard
           title="Total Employees"
           value={totalEmployees}
@@ -180,7 +168,6 @@ const DashboardHome = () => {
           accentColor="teal"
           isCount
         />
-
         <TaskCompletionCard
           title="Status"
           label={punchedIn ? "Punched In" : "Punched Out"}
@@ -189,28 +176,26 @@ const DashboardHome = () => {
         />
       </div>
 
-      <div className="flex w-full mt-6 gap-6">
-        <div className="w-1/2">
+      {/* 🔹 Announcement & Info Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col gap-6">
           <AnnouncementsCard
             title="Announcements"
             announcements={announcementsData}
             height="h-[320px]"
           />
-
           <AnnouncementsCard
             title="New Employees (Last 15 Days)"
             announcements={newEmployeesData}
             height="h-[320px]"
           />
         </div>
-
-        <div className="w-1/2">
+        <div className="flex flex-col gap-6">
           <AnnouncementsCard
-            title="Upcoming Holidays Coming"
+            title="Upcoming Holidays"
             announcements={holidays}
             height="h-[320px]"
           />
-
           <AnnouncementsCard
             title="Scheduled Meetings"
             announcements={scheduledMeetings}
@@ -218,7 +203,9 @@ const DashboardHome = () => {
           />
         </div>
       </div>
-      <div className="mt-6">
+
+      {/* 🔹 Commit Graph */}
+      <div className="mt-6 w-full overflow-x-auto">
         <CommitGraph />
       </div>
     </div>
