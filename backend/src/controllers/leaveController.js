@@ -13,7 +13,7 @@ exports.applyForLeave = async (req, res) => {
 
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     const holidays = await prisma.holiday.findMany({
       where: { date: { gte: start, lte: end } }
     });
@@ -47,7 +47,7 @@ exports.applyForLeave = async (req, res) => {
         employeeId: employee.id,
         status: { not: 'rejected' },
         fromDate: { lte: end },
-        toDate:   { gte: start }
+        toDate: { gte: start }
       }
     });
     if (overlappingLeave) {
@@ -70,9 +70,9 @@ exports.applyForLeave = async (req, res) => {
       const pendingNote = pendingDays > 0
         ? ` (${pendingDays} day(s) are already under pending approval)`
         : '';
-      return res.status(400).json({ 
-        success: false, 
-        message: `Insufficient balance. You requested ${appliedDays} day(s) but only ${effectiveRemaining} day(s) are available for ${balance.leaveType.name}${pendingNote}.` 
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient balance. You requested ${appliedDays} day(s) but only ${effectiveRemaining} day(s) are available for ${balance.leaveType.name}${pendingNote}.`
       });
     }
 
@@ -87,20 +87,20 @@ exports.applyForLeave = async (req, res) => {
         isHalfDay: isHalfDay || false,
         appliedDays: appliedDays
       },
-      include: { leaveType: true } 
+      include: { leaveType: true }
     });
 
     res.status(201).json({
       success: true,
       message: "Leave application submitted successfully.",
       data: {
-        leaveType: leaveRequest.leaveType.name, 
+        leaveType: leaveRequest.leaveType.name,
         description: leaveRequest.reason,
         startDate: leaveRequest.fromDate,
         endDate: leaveRequest.toDate,
         status: leaveRequest.status,
         numberOfLeavesTaken: leaveRequest.appliedDays,
-        leavesRemaining: effectiveRemaining - leaveRequest.appliedDays 
+        leavesRemaining: effectiveRemaining - leaveRequest.appliedDays
       }
     });
 
@@ -114,7 +114,7 @@ exports.applyForLeave = async (req, res) => {
 exports.getMyBalances = async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     const employee = await prisma.employee.findUnique({ where: { userId } });
     if (!employee) return res.status(404).json({ success: false, message: "Employee not found." });
 
@@ -123,15 +123,15 @@ exports.getMyBalances = async (req, res) => {
       where: { employeeId: employee.id },
       include: {
         leaveType: {
-          select: { name: true } 
+          select: { name: true }
         }
       }
     });
 
     // Format the data perfectly for the frontend UI cards
     const formattedBalances = balances.map(b => ({
-      leaveType: b.leaveType.name, 
-      leaveTypeId: b.leaveTypeId,  
+      leaveType: b.leaveType.name,
+      leaveTypeId: b.leaveTypeId,
       allocated: b.allocated,
       used: b.used,
       remaining: b.allocated - b.used
@@ -205,7 +205,7 @@ exports.getAllLeaves = async (req, res) => {
         },
         // Ensures Admin sees the name of the leave in their inbox
         leaveType: {
-          select: { name: true } 
+          select: { name: true }
         }
       },
       orderBy: { createdAt: 'desc' }
@@ -226,8 +226,8 @@ exports.getAllLeaves = async (req, res) => {
 // 5. APPROVE / REJECT LEAVE (Admin)
 exports.updateLeaveStatus = async (req, res) => {
   try {
-    const adminId = req.user.id; 
-    const { id } = req.params;   
+    const adminId = req.user.id;
+    const { id } = req.params;
     const { status } = req.body; // 'approved' or 'rejected'
 
     // 1. Validate Input
@@ -275,9 +275,9 @@ exports.updateLeaveStatus = async (req, res) => {
     transaction.push(
       prisma.leave.update({
         where: { id },
-        data: { 
+        data: {
           status: status.toLowerCase(),
-          approvedBy: adminId 
+          approvedBy: adminId
         }
       })
     );
@@ -290,7 +290,7 @@ exports.updateLeaveStatus = async (req, res) => {
             // Now uses the new relational index
             employeeId_leaveTypeId: {
               employeeId: leave.employeeId,
-              leaveTypeId: leave.leaveTypeId 
+              leaveTypeId: leave.leaveTypeId
             }
           },
           data: {
@@ -299,6 +299,16 @@ exports.updateLeaveStatus = async (req, res) => {
         })
       );
     }
+    // Step C: Send the In-App Notification
+    await prisma.notification.create({
+      data: {
+        userId: leave.employee.userId, // Sending it specifically to the employee
+        title: `Leave Request ${status}`,
+        message: `Your request for ${leave.appliedDays} days of ${leave.leaveType.name} has been ${status}.`,
+        type: 'leave'
+      }
+    });
+
 
     // Execute the transaction
     await prisma.$transaction(transaction);

@@ -3,13 +3,14 @@ const prisma = require('../utils/prisma');
 // 1. CREATE ANNOUNCEMENT (Admin Only)
 exports.createAnnouncement = async (req, res) => {
   try {
-    const adminId = req.user.id; 
+    const adminId = req.user.id;
     const { title, content } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ success: false, message: "Title and content are required." });
     }
 
+    // 1. Create the announcement
     const announcement = await prisma.announcement.create({
       data: {
         title,
@@ -18,9 +19,29 @@ exports.createAnnouncement = async (req, res) => {
       }
     });
 
+    // 2. Fetch all users in the system to notify them
+    const allUsers = await prisma.user.findMany({
+      select: { id: true }
+    });
+
+    // 3. Prepare a notification for every single user
+    const notificationsToCreate = allUsers.map(user => ({
+      userId: user.id,
+      title: `📢 Announcement: ${title}`,
+      message: content.length > 50 ? `${content.substring(0, 50)}...` : content, // Keep it short for the bell dropdown!
+      type: 'announcement'
+    }));
+    
+    // 4. Bulk insert all notifications
+    if (notificationsToCreate.length > 0) {
+      await prisma.notification.createMany({
+        data: notificationsToCreate
+      });
+    }
+
     res.status(201).json({
       success: true,
-      message: "Announcement posted successfully.",
+      message: "Announcement posted and notifications sent.",
       data: announcement
     });
 
@@ -37,7 +58,7 @@ exports.getAnnouncements = async (req, res) => {
     // Default to page 1 and limit 10 if the frontend doesn't provide them
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     // 2. Calculate how many records to skip
     const skip = (page - 1) * limit;
 
