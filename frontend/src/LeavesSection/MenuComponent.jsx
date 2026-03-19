@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import TotalLeaves from "./totalLeaves";
 import api from "../api/axios";
 import LeavesHistory from "./LeavesHistory";
+import ApproveLeaves from "./ApproveLeaves";
 
 const AttendanceNav = () => {
   const [activeTab, setActiveTab] = useState("leaves");
@@ -9,7 +10,7 @@ const AttendanceNav = () => {
   const isAdmin = false; 
 
   const tabs = [
-    { key: "PendingLeaves", label: "PendingLeaves", adminOnly: false },
+    { key: "ActiveLeaves", label: "ActiveLeaves", adminOnly: false },
     { key: "leaves", label: "Leaves", adminOnly: false },
     { key: "reports", label: "Reports", adminOnly: true },
     { key: "Leaves History", label: "Leaves History", adminOnly: false }
@@ -33,8 +34,8 @@ const AttendanceNav = () => {
 
   const renderComponent = () => {
     switch (activeTab) {
-      case "PendingLeaves":
-        return <PendingLeaves />;
+      case "ActiveLeaves":
+        return <ApproveLeaves />;
       case "attendance":
         return <ActiveLeaves />;
       case "leaves":

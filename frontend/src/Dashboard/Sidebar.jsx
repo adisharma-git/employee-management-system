@@ -1,119 +1,88 @@
+import { useState } from "react";
+
 export default function Sidebar({ selectedTab, setSelectedTab }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleSettings = () => {
-    setSelectedTab("settings");
-  };
-
-  const handleLogout = () => {
-    window.location.href = "/login";
-  };
+  const menuItems = [
+    { key: "dashboard", icon: "fas fa-chart-line", label: "Dashboard" },
+    { key: "EmployeeForm", icon: "fas fa-people-group", label: "Employees" },
+    { key: "performance", icon: "fas fa-clock", label: "Performance" },
+    { key: "adminRegistration", icon: "fas fa-user-plus", label: "Add Employee" },
+    { key: "Pull Requests", icon: "fab fa-github", label: "Pull Requests" },
+    { key: "Meetings", icon: "fa-solid fa-calendar-check", label: "Meetings" },
+    { key: "Holidays", icon: "fa-solid fa-calendar-days", label: "Holidays" },
+  ];
 
   return (
-    <div className="w-16 bg-[#021f54] border-r border-blue-900 flex flex-col items-center py-6 justify-between">
+    <>
+      {/* 🔹 Mobile Toggle Button */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 bg-[#021f54] text-white p-2 rounded shadow"
+        onClick={() => setMobileOpen(!mobileOpen)}
+      >
+        ☰
+      </button>
 
-      <div className="flex flex-col gap-6">
+      {/* 🔹 Overlay (mobile) */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        ></div>
+      )}
 
-        <button
-          onClick={() => setSelectedTab("dashboard")}
-          title="Dashboard"
-          className={
-            selectedTab === "dashboard"
-              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
-              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          }
-        >
-          <i className="fas fa-chart-line"></i>
-        </button>
+      {/* 🔹 Sidebar */}
+      <div
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+        className={`
+          fixed md:static z-50 h-full bg-[#021f54] text-white flex flex-col justify-between
+          transition-all duration-300 ease-in-out overflow-hidden
+          ${isOpen ? "md:w-56" : "md:w-16"}
+          ${mobileOpen ? "w-56 left-0" : "w-56 -left-56"}
+          md:left-0
+        `}
+      >
+        {/* Top Menu Items */}
+        <div className="flex flex-col gap-2 p-3 mt-10 md:mt-0">
+          {menuItems.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => {
+                setSelectedTab(item.key);
+                setMobileOpen(false);
+              }}
+              className={`flex items-center gap-3 p-3 rounded-lg
+                ${
+                  selectedTab === item.key
+                    ? "bg-orange-500 text-white"
+                    : "hover:bg-white hover:text-black"
+                } transition-colors duration-200`}
+            >
+              <i className={`${item.icon} min-w-[20px] text-lg`}></i>
+              <span
+                className={`transition-all duration-300 ease-in-out
+                  ${isOpen || mobileOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-3"}
+                `}
+              >
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
 
-        <button
-          onClick={() => setSelectedTab("EmployeeForm")}
-          title="EmployeeForm"
-          className={
-            selectedTab === "EmployeeForm"
-              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
-              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          }
-        >
-          <i className="fas fa-people-group"></i>
-        </button>
-
-        <button
-          onClick={() => setSelectedTab("performance")}
-          title="Performance"
-          className={
-            selectedTab === "performance"
-              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
-              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          }
-        >
-          <i className="fas fa-clock"></i>
-        </button>
-
-        <button
-          onClick={() => setSelectedTab("adminRegistration")}
-          title="adminRegistration"
-          className={
-            selectedTab === "adminRegistration"
-              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
-              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          }
-        >
-          <i className="fas fa-money-bill"></i>
-        </button>
-        <button
-          onClick={() => setSelectedTab("Pull Requests")}
-          title="Pull Requests"
-          className={
-            selectedTab === "Pull Requests"
-              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
-              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          }
-        >
-          <i className="fab fa-github"></i>
-        </button>
-         <button
-          onClick={() => setSelectedTab("Meetings")}
-          title="Meetings"
-          className={
-            selectedTab === "Meetings"
-              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
-              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          }
-        >
-         <i class="fa-solid fa-calendar-check"></i>
-        </button>
-        <button
-          onClick={() => setSelectedTab("Holidays")}
-          title="Holidays"
-          className={
-            selectedTab === "Holidays"
-              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
-              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          }
-        >
-          <i class="fa-solid fa-calendar-days"></i>  
-        </button>
+        {/* Bottom Settings */}
+        <div className="p-3">
+          <button
+            onClick={() => setSelectedTab("settings")}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-white hover:text-black transition-colors duration-200"
+          >
+            <i className="fas fa-gear min-w-[20px] text-lg"></i>
+            {(isOpen || mobileOpen) && <span>Settings</span>}
+          </button>
+        </div>
       </div>
-      <div className="flex flex-col gap-4">
-    
-        <button
-          onClick={handleLogout}
-          className="w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-red-100 hover:text-red-500"
-        >
-          <i className="fas fa-sign-out-alt"></i>
-        </button>
-        <button
-          onClick={handleSettings}
-          className={
-            selectedTab === "settings"
-              ? "w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-lg"
-              : "w-12 h-12 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          }
-        >
-          <i className="fas fa-gear"></i>
-        </button>
-
-      </div>
-    </div>
+    </>
   );
 }
