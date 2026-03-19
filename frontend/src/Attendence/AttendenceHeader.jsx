@@ -61,8 +61,12 @@ const checkPunchStatus = async () => {
     setLoading(true);
 
     try {
-      await api.post("/attendance/mark", {});
-      addToast("success", "Checked in successfully!");
+      const response = await api.post("/attendance/mark", {});
+      const successMessage =
+        response?.data?.message ||
+        response?.data?.data?.message ||
+        "Checked in successfully!";
+      addToast("success", successMessage);
 
       await checkPunchStatus();
       if (refreshData) refreshData();
@@ -86,8 +90,12 @@ const checkPunchStatus = async () => {
     });
 
     try {
-      await api.patch("/attendance/checkout", { checkOutTime });
-      addToast("success", "Checked out successfully!");
+      const response = await api.patch("/attendance/checkout", { checkOutTime });
+      const successMessage =
+        response?.data?.message ||
+        response?.data?.data?.message ||
+        "Checked out successfully!";
+      addToast("success", successMessage);
 
       await checkPunchStatus();
       if (refreshData) refreshData();

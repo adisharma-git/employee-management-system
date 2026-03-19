@@ -113,7 +113,12 @@ const LeaveFormModal = ({ onSubmit, onClose }) => {
 
       if (res.data) {
 
-        addToast("success", "Leave applied successfully");
+        const successMessage =
+          res?.data?.message ||
+          res?.data?.data?.message ||
+          "Leave applied successfully";
+
+        addToast("success", successMessage);
 
         setFormData({
           leaveTypeId: "",
@@ -131,7 +136,11 @@ const LeaveFormModal = ({ onSubmit, onClose }) => {
     } catch (error) {
 
       console.error("Leave Apply Error", error);
-      addToast("error", "Failed to apply leave");
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Failed to apply leave";
+      addToast("error", backendMessage);
 
     }
   };

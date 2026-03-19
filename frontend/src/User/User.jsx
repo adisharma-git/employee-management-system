@@ -56,7 +56,11 @@ export default function EmployeeForm() {
       setErrors({});
     } catch (error) {
       console.error(error);
-      addToast("error", "Failed to load employee data");
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Failed to load employee data";
+      addToast("error", backendMessage);
     } finally {
       setLoading(false);
     }
@@ -116,8 +120,12 @@ export default function EmployeeForm() {
       payload.append("dateOfJoining", formData.dateOfJoining);
       if (profileImage) payload.append("profileImage", profileImage);
 
-      await api.put("/employee/update", payload);
-      addToast("success", "Profile updated successfully");
+      const res = await api.put("/employee/update", payload);
+      const successMessage =
+        res?.data?.message ||
+        res?.data?.data?.message ||
+        "Profile updated successfully";
+      addToast("success", successMessage);
 
       const fileInput = document.getElementById("imageInput");
       if (fileInput) fileInput.value = "";
@@ -125,7 +133,11 @@ export default function EmployeeForm() {
       await fetchEmployee();
     } catch (error) {
       console.error(error);
-      addToast("error", "Profile update failed");
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Profile update failed";
+      addToast("error", backendMessage);
     } finally {
       setLoading(false);
     }

@@ -90,7 +90,7 @@ export default function TimeLogDashboard() {
     }
 
     try {
-      await api.delete('/logs/delete', {
+      const res = await api.delete('/logs/delete', {
         data: {
           logId: log.logId,
           taskId: log.taskId,
@@ -103,11 +103,19 @@ export default function TimeLogDashboard() {
         )
       )
       setPendingDeleteKey(null)
-      addToast('success', 'Time log deleted')
+      const successMessage =
+        res?.data?.message ||
+        res?.data?.data?.message ||
+        'Time log deleted'
+      addToast('success', successMessage)
     } catch (error) {
       console.error('Delete failed:', error)
       setPendingDeleteKey(null)
-      addToast('error', 'Failed to delete log')
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        'Failed to delete log'
+      addToast('error', backendMessage)
     }
   }
 

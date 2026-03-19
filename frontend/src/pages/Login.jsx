@@ -62,7 +62,11 @@ export default function Login() {
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        addToast("success", "Login successful! Welcome back");
+        const successMessage =
+          response?.data?.message ||
+          response?.data?.data?.message ||
+          "Login successful! Welcome back";
+        addToast("success", successMessage);
         setTimeout(() => {
           navigate("/dashboardNew", { replace: true });
         }, 1200);

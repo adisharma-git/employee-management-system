@@ -86,9 +86,13 @@ export default function EmployeeRegistration({permission}) {
         password: formData.password,
       };
 
-      await api.post("/auth/register", payload);
+      const res = await api.post("/auth/register", payload);
 
-      addToast("success", "Registration successful!");
+      const successMessage =
+        res?.data?.message ||
+        res?.data?.data?.message ||
+        "Registration successful!";
+      addToast("success", successMessage);
 
       setFormData({
         name: "",
@@ -97,13 +101,11 @@ export default function EmployeeRegistration({permission}) {
         confirmPassword: "",
       });
     } catch (error) {
-      if (error.response?.data?.message) {
-        addToast("error", error.response.data.message);
-      } else if (error.response?.data?.error) {
-        addToast("error", error.response.data.error);
-      } else {
-        addToast("error", "Registration failed. Please try again.");
-      }
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Registration failed. Please try again.";
+      addToast("error", backendMessage);
     } finally {
       setLoading(false);
     }

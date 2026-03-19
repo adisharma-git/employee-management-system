@@ -109,7 +109,12 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
       if (res.data) {
 
-        addToast("success", "Leave applied successfully");
+        const successMessage =
+          res?.data?.message ||
+          res?.data?.data?.message ||
+          "Leave applied successfully";
+
+        addToast("success", successMessage);
 
         setFormData({
           leaveTypeId: "",

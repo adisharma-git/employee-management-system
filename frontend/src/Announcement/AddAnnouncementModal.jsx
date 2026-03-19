@@ -38,7 +38,11 @@ const AddAnnouncementModal = ({ onClose, onSuccess }) => {
             const res = await api.post("/announcements", formData);
 
             if (res.data) {
-                addToast("success", "Announcement created");
+                const successMessage =
+                    res?.data?.message ||
+                    res?.data?.data?.message ||
+                    "Announcement created";
+                addToast("success", successMessage);
                 onSuccess();
             }
 
