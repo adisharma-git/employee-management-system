@@ -3,7 +3,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// ✅ RESTORED: This is the standard setup for Prisma 5
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -29,6 +28,8 @@ model User {
 
   announcements  Announcement[] 
   meetings       Meeting[]      
+
+  notifications  Notification[]
 
   @@map("users")
   @@index([email])
