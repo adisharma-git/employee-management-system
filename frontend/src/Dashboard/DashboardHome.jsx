@@ -8,6 +8,9 @@ const DashboardHome = () => {
   const [punchedIn, setPunchedIn] = useState(false);
   const [newEmployeesData, setNewEmployeesData] = useState([]);
   const [totalEmployees, setTotalEmployees] = useState(0);
+  const [totalPullRequests, setTotalPullRequests] = useState(0);
+  const [topCommitterName, setTopCommitterName] = useState("No Data");
+  const [topCommitterCount, setTopCommitterCount] = useState(0);
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [scheduledMeetings, setScheduledMeetings] = useState([]);
@@ -30,7 +33,6 @@ const DashboardHome = () => {
     },
   ];
 
-  // Fetch punched-in status
   useEffect(() => {
     const fetchStatus = async () => {
       try {
@@ -43,7 +45,7 @@ const DashboardHome = () => {
     fetchStatus();
   }, []);
 
-  // Fetch holidays
+  
   useEffect(() => {
     const fetchHolidays = async () => {
       try {
@@ -63,7 +65,7 @@ const DashboardHome = () => {
     fetchHolidays();
   }, []);
 
-  // Fetch new employees
+  
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -96,7 +98,7 @@ const DashboardHome = () => {
     fetchEmployees();
   }, []);
 
-  // Fetch announcements
+ 
   useEffect(() => {
     api.get("/announcements?page=1&limit=10").then(res => {
       const formatted = res.data.data.map(item => ({
@@ -108,7 +110,6 @@ const DashboardHome = () => {
     });
   }, []);
 
-  // Fetch upcoming meetings
   useEffect(() => {
     const fetchUpcomingMeetings = async () => {
       try {
@@ -128,23 +129,75 @@ const DashboardHome = () => {
     fetchUpcomingMeetings();
   }, []);
 
+  
+  useEffect(() => {
+    const fetchPullRequests = async () => {
+      try {
+        const res = await fetch(
+          "https://api.github.com/repos/adisharma-git/employee-management-system/pulls?state=all"
+        );
+        const data = await res.json();
+        setTotalPullRequests(Array.isArray(data) ? data.length : 0);
+      } catch (error) {
+        console.log("Pull requests fetch error:", error);
+      }
+    };
+
+    fetchPullRequests();
+  }, []);
+
+  useEffect(() => {
+    const fetchTopCommitter = async () => {
+      try {
+        const res = await fetch(
+          "https://api.github.com/repos/adisharma-git/employee-management-system/commits?per_page=100"
+        );
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          setTopCommitterName("No Data");
+          setTopCommitterCount(0);
+          return;
+        }
+
+        const commitCountByAuthor = data.reduce((acc, commit) => {
+          const authorName = commit?.commit?.author?.name || "Unknown";
+          acc[authorName] = (acc[authorName] || 0) + 1;
+          return acc;
+        }, {});
+
+        const [name, count] = Object.entries(commitCountByAuthor).sort(
+          (a, b) => b[1] - a[1]
+        )[0];
+
+        setTopCommitterName(name);
+        setTopCommitterCount(count);
+      } catch (error) {
+        console.log("Top committer fetch error:", error);
+      }
+    };
+
+    fetchTopCommitter();
+  }, []);
+
   return (
     <div className="flex flex-col gap-6">
-      {/* 🔹 Task Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <TaskCompletionCard
-          title="Task Completion"
-          percentage={98.57}
-          label="Coming Soon"
+          title="Total Pull Requests"
+          value={totalPullRequests}
+          label="Pull Requests"
           icon="fa-clipboard-check"
           accentColor="teal"
+          isCount
         />
         <TaskCompletionCard
-          title="Task Assigned"
-          percentage={98.56}
-          label="Coming Soon"
+          title="Top Committer"
+          value={topCommitterCount}
+          label={`Top Committer: ${topCommitterName}`}
           icon="fa-clipboard-check"
           accentColor="teal"
+          isCount
         />
         <TaskCompletionCard
           title="Attendance"
@@ -176,7 +229,6 @@ const DashboardHome = () => {
         />
       </div>
 
-      {/* 🔹 Announcement & Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col gap-6">
           <AnnouncementsCard
@@ -204,7 +256,6 @@ const DashboardHome = () => {
         </div>
       </div>
 
-      {/* 🔹 Commit Graph */}
       <div className="mt-6 w-full overflow-x-auto">
         <CommitGraph />
       </div>
