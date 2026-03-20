@@ -1,5 +1,6 @@
 const prisma = require('../utils/prisma');
 const { calculateAppliedDays } = require('../utils/leaveCalculator');
+const { sendMail, emailTemplates } = require('../utils/emailService'); 
 
 // 1. APPLY FOR LEAVE (Employee)
 exports.applyForLeave = async (req, res) => {
@@ -226,100 +227,76 @@ exports.getAllLeaves = async (req, res) => {
 // 5. APPROVE / REJECT LEAVE (Admin)
 exports.updateLeaveStatus = async (req, res) => {
   try {
-    const adminId = req.user.id;
-    const { id } = req.params;
-    const { status } = req.body; // 'approved' or 'rejected'
+    const adminId = req.user.id; 
+    const { id } = req.params;   
+    const { status } = req.body; 
 
-    // 1. Validate Input
     if (!['approved', 'rejected'].includes(status.toLowerCase())) {
       return res.status(400).json({ success: false, message: "Status must be 'approved' or 'rejected'." });
     }
 
-    // 2. Find the Leave Request
-    const leave = await prisma.leave.findUnique({ where: { id } });
-    if (!leave) {
-      return res.status(404).json({ success: false, message: "Leave request not found." });
-    }
+    // ✅ UPDATED QUERY: Fetch the user's email alongside the other data
+    const leave = await prisma.leave.findUnique({ 
+      where: { id },
+      include: {
+        employee: { 
+          select: { 
+            userId: true,
+            user: { select: { email: true } } // Grab email for nodemailer
+          } 
+        },
+        leaveType: { select: { name: true } }   
+      }
+    });
+    
+    if (!leave) return res.status(404).json({ success: false, message: "Leave request not found." });
+    if (leave.status !== 'pending') return res.status(400).json({ success: false, message: `This leave has already been ${leave.status}.` });
 
-    if (leave.status !== 'pending') {
-      return res.status(400).json({ success: false, message: `This leave has already been ${leave.status}.` });
-    }
-
-    // 3. Guard: Before approving, verify the employee still has enough balance
-    //    (another request may have been approved in the meantime)
     if (status.toLowerCase() === 'approved') {
       const currentBalance = await prisma.leaveBalance.findUnique({
-        where: {
-          employeeId_leaveTypeId: {
-            employeeId: leave.employeeId,
-            leaveTypeId: leave.leaveTypeId
-          }
-        }
+        where: { employeeId_leaveTypeId: { employeeId: leave.employeeId, leaveTypeId: leave.leaveTypeId } }
       });
-      if (!currentBalance) {
-        return res.status(400).json({ success: false, message: 'Employee leave balance record not found.' });
-      }
+      if (!currentBalance) return res.status(400).json({ success: false, message: 'Employee leave balance record not found.' });
       const effectiveRemaining = currentBalance.allocated - currentBalance.used;
       if (leave.appliedDays > effectiveRemaining) {
-        return res.status(400).json({
-          success: false,
-          message: `Cannot approve. Employee only has ${effectiveRemaining} day(s) remaining but this request requires ${leave.appliedDays} day(s). Reject other pending requests first.`
-        });
+        return res.status(400).json({ success: false, message: "Insufficient balance remaining." });
       }
     }
 
-    // 4. Database Transaction (Ensure both operations succeed or fail together)
     const transaction = [];
-
-    // Step A: Update the Leave Request Status
     transaction.push(
-      prisma.leave.update({
-        where: { id },
-        data: {
-          status: status.toLowerCase(),
-          approvedBy: adminId
-        }
-      })
+      prisma.leave.update({ where: { id }, data: { status: status.toLowerCase(), approvedBy: adminId } })
     );
 
-    // Step B: If Approved, deduct the balance from the "Bank"
     if (status.toLowerCase() === 'approved') {
       transaction.push(
         prisma.leaveBalance.update({
-          where: {
-            // Now uses the new relational index
-            employeeId_leaveTypeId: {
-              employeeId: leave.employeeId,
-              leaveTypeId: leave.leaveTypeId
-            }
-          },
-          data: {
-            used: { increment: leave.appliedDays } // Safely adds the days to the "used" column
-          }
+          where: { employeeId_leaveTypeId: { employeeId: leave.employeeId, leaveTypeId: leave.leaveTypeId } },
+          data: { used: { increment: leave.appliedDays } }
         })
       );
     }
-    // Step C: Send the In-App Notification
+
+    await prisma.$transaction(transaction);
+
+    // In-App Notification
     await prisma.notification.create({
       data: {
-        userId: leave.employee.userId, // Sending it specifically to the employee
-        title: `Leave Request ${status}`,
-        message: `Your request for ${leave.appliedDays} days of ${leave.leaveType.name} has been ${status}.`,
+        userId: leave.employee.userId,
+        title: `Leave Request ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        message: `Your request for ${leave.appliedDays} day(s) of ${leave.leaveType.name} has been ${status.toLowerCase()}.`,
         type: 'leave'
       }
     });
 
+    // ✅ DIRECT EMAIL NOTIFICATION
+    if (leave.employee.user.email) {
+      const template = emailTemplates.leaveApproval(status, leave.leaveType.name, leave.appliedDays);
+      await sendMail({ to: leave.employee.user.email, ...template });
+    }
 
-    // Execute the transaction
-    await prisma.$transaction(transaction);
-
-    res.json({
-      success: true,
-      message: `Leave request successfully ${status}.`
-    });
-
+    res.json({ success: true, message: `Leave request successfully ${status}.` });
   } catch (error) {
-    console.error("Update Leave Status Error:", error);
     res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 };

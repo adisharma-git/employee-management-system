@@ -1,52 +1,41 @@
 const prisma = require('../utils/prisma');
+const { sendMail, emailTemplates } = require('../utils/emailService'); // ✅ IMPORT ADDED
 
-// 1. CREATE ANNOUNCEMENT (Admin Only)
 exports.createAnnouncement = async (req, res) => {
   try {
     const adminId = req.user.id;
     const { title, content } = req.body;
 
-    if (!title || !content) {
-      return res.status(400).json({ success: false, message: "Title and content are required." });
-    }
+    if (!title || !content) return res.status(400).json({ success: false, message: "Title and content are required." });
 
-    // 1. Create the announcement
     const announcement = await prisma.announcement.create({
-      data: {
-        title,
-        content,
-        createdBy: adminId
-      }
+      data: { title, content, createdBy: adminId }
     });
 
-    // 2. Fetch all users in the system to notify them
+    // Fetch all users
     const allUsers = await prisma.user.findMany({
-      select: { id: true }
+      select: { id: true, email: true } // ✅ GRAB EMAIL
     });
 
-    // 3. Prepare a notification for every single user
+    // In-App Notifications
     const notificationsToCreate = allUsers.map(user => ({
       userId: user.id,
       title: `📢 Announcement: ${title}`,
-      message: content.length > 50 ? `${content.substring(0, 50)}...` : content, // Keep it short for the bell dropdown!
+      message: content.length > 50 ? `${content.substring(0, 50)}...` : content,
       type: 'announcement'
     }));
-    
-    // 4. Bulk insert all notifications
+
     if (notificationsToCreate.length > 0) {
-      await prisma.notification.createMany({
-        data: notificationsToCreate
-      });
+      await prisma.notification.createMany({ data: notificationsToCreate });
     }
 
-    res.status(201).json({
-      success: true,
-      message: "Announcement posted and notifications sent.",
-      data: announcement
-    });
+    // ✅ SEND EMAIL NOTIFICATION (BCC)
+    const userEmails = allUsers.map(u => u.email).filter(e => e);
+    const template = emailTemplates.newAnnouncement(title, content);
+    await sendMail({ bcc: userEmails, ...template });
 
+    res.status(201).json({ success: true, message: "Announcement posted and notifications sent.", data: announcement });
   } catch (error) {
-    console.error("Create Announcement Error:", error);
     res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 };

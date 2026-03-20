@@ -1,5 +1,6 @@
 const prisma = require('../utils/prisma');
 const DEV_MODE = process.env.NODE_ENV !== 'production' && process.env.ATTENDANCE_DEV_MODE === 'true';
+const { sendMail, emailTemplates } = require('../utils/emailService.js'); // ✅ IMPORT ADDED
 
 const getUtcDayStart = (inputDate = new Date()) => {
   return new Date(Date.UTC(
@@ -129,13 +130,33 @@ exports.markAttendance = async (req, res) => {
       });
     }
 
+    // 15-Minute Late Penalty Logic 
+    const actualCheckIn = checkInTime ? parseTimeOnCurrentUtcDate(checkInTime) : new Date();
+
+    // 1. Define Company Policy Variables
+    const SHIFT_START_HOUR = 10; // 10 represents 10:00 AM
+    const GRACE_PERIOD_MINS = 15; // 15 minutes of grace
+
+    // 2. Convert server UTC time to IST (India Standard Time is UTC + 5.5 hours)
+    const istTime = new Date(actualCheckIn.getTime() + (5.5 * 60 * 60 * 1000));
+    const currentHourIST = istTime.getUTCHours();
+    const currentMinuteIST = istTime.getUTCMinutes();
+
+    // 3. Determine the status
+    let finalStatus = status || 'present'; 
+
+    // Enforce the penalty if past 10:15 AM
+    if (currentHourIST > SHIFT_START_HOUR || (currentHourIST === SHIFT_START_HOUR && currentMinuteIST > GRACE_PERIOD_MINS)) {
+      finalStatus = 'half-day'; 
+    }
+
     // Step 4: Create attendance record
     const attendance = await prisma.attendance.create({
       data: {
         employeeId: employee.id,
         date: today,
-        status: status || 'present',
-        checkInTime: checkInTime ? parseTimeOnCurrentUtcDate(checkInTime) : new Date(),
+        status: finalStatus, // ✅ Uses the calculated status
+        checkInTime: actualCheckIn,
         checkOutTime: checkOutTime ? parseTimeOnCurrentUtcDate(checkOutTime) : null
       },
       include: {
@@ -151,7 +172,9 @@ exports.markAttendance = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Attendance marked successfully',
+      message: finalStatus === 'half-day' 
+        ? 'Checked in late. Attendance automatically marked as Half-Day.' 
+        : 'Attendance marked successfully',
       data: serializeAttendance(attendance)
     });
 
@@ -683,5 +706,109 @@ exports.markAbsentees = async (req, res) => {
   } catch (error) {
     console.error("Auto-Absent Error:", error);
     res.status(500).json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+// 9. REMINDER: FORGOT CHECK-IN
+exports.remindCheckIn = async (req, res) => {
+  try {
+    const today = new Date();
+    const startOfToday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0));
+    const endOfToday = new Date(startOfToday);
+    endOfToday.setUTCDate(endOfToday.getUTCDate() + 1);
+
+    // Skip weekends
+    const dayOfWeek = startOfToday.getUTCDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return res.status(200).json({ message: "Weekend. No check-in needed." });
+
+    // Skip holidays
+    const isHoliday = await prisma.holiday.findFirst({ where: { date: startOfToday } });
+    if (isHoliday) return res.status(200).json({ message: "Holiday. No check-in needed." });
+
+    // 1. Find everyone checked in today or on approved leave
+    const present = await prisma.attendance.findMany({ where: { date: { gte: startOfToday, lt: endOfToday } } });
+    const leaves = await prisma.leave.findMany({ 
+      where: { status: 'approved', fromDate: { lte: startOfToday }, toDate: { gte: startOfToday } } 
+    });
+    
+    const excusedIds = [...present.map(p => p.employeeId), ...leaves.map(l => l.employeeId)];
+
+    // 2. Find missing employees and their emails
+    const missingEmployees = await prisma.employee.findMany({
+      where: { id: { notIn: excusedIds } },
+      include: { user: { select: { email: true } } }
+    });
+
+    if (missingEmployees.length === 0) return res.status(200).json({ message: "Everyone is checked in!" });
+
+    // 3. Send Emails & In-App Notifications
+    const emails = [];
+    const notifications = [];
+
+    missingEmployees.forEach(emp => {
+      if (emp.user.email) emails.push(emp.user.email);
+      notifications.push({
+        userId: emp.userId,
+        title: `Reminder: Check-in`,
+        message: `You haven't checked in for work today yet. Please punch in.`,
+        type: 'reminder'
+      });
+    });
+
+    if (notifications.length > 0) await prisma.notification.createMany({ data: notifications });
+    if (emails.length > 0) {
+      const template = emailTemplates.forgotCheckIn();
+      await sendMail({ bcc: emails, ...template });
+    }
+
+    res.status(200).json({ success: true, message: `Reminders sent to ${emails.length} employees.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 10. REMINDER: FORGOT CHECK-OUT
+exports.remindCheckOut = async (req, res) => {
+  try {
+    const today = new Date();
+    const startOfToday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0));
+    const endOfToday = new Date(startOfToday);
+    endOfToday.setUTCDate(endOfToday.getUTCDate() + 1);
+
+    // Find everyone who checked in today, but checkOutTime is STILL NULL
+    const forgotToClockOut = await prisma.attendance.findMany({
+      where: { 
+        date: { gte: startOfToday, lt: endOfToday },
+        checkInTime: { not: null },
+        checkOutTime: null 
+      },
+      include: { employee: { include: { user: { select: { email: true } } } } }
+    });
+
+    if (forgotToClockOut.length === 0) return res.status(200).json({ message: "Everyone checked out!" });
+
+    // Send Emails & In-App Notifications
+    const emails = [];
+    const notifications = [];
+
+    forgotToClockOut.forEach(record => {
+      if (record.employee.user.email) emails.push(record.employee.user.email);
+      notifications.push({
+        userId: record.employee.userId,
+        title: `Reminder: Check-out`,
+        message: `You are still clocked in. Please remember to check out.`,
+        type: 'reminder'
+      });
+    });
+
+    if (notifications.length > 0) await prisma.notification.createMany({ data: notifications });
+    if (emails.length > 0) {
+      const template = emailTemplates.forgotCheckOut();
+      await sendMail({ bcc: emails, ...template });
+    }
+
+    res.status(200).json({ success: true, message: `Reminders sent to ${emails.length} employees.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
