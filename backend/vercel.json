@@ -3,6 +3,14 @@
     {
       "path": "/api/attendance/auto-mark-absent",
       "schedule": "59 23 * * 1-5" 
+    },
+    {
+      "path": "/api/attendance/remind-check-in",
+      "schedule": "30 04 * * 1-5" 
+    },
+    {
+      "path": "/api/attendance/remind-check-out",
+      "schedule": "30 13 * * 1-5" 
     }
   ]
 }

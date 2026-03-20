@@ -1,6 +1,6 @@
 const prisma = require('../utils/prisma');
+const { sendMail, emailTemplates } = require('../utils/emailService');
 
-// 1. CREATE MEETING (Admin)
 exports.createMeeting = async (req, res) => {
   try {
     const adminId = req.user.id;
@@ -17,12 +17,12 @@ exports.createMeeting = async (req, res) => {
       }
     });
 
-    // 2. Fetch all users in the system to notify them
+    // 2. Fetch all users in the system to notify them (include email)
     const allUsers = await prisma.user.findMany({
-      select: { id: true }
+      select: { id: true, email: true } // ✅ GRAB EMAIL
     });
 
-    // 3. Prepare a notification for every single user
+    // 3. In-App Notifications
     const notificationsToCreate = allUsers.map(user => ({
       userId: user.id,
       title: `New Meeting Scheduled`,
@@ -30,12 +30,14 @@ exports.createMeeting = async (req, res) => {
       type: 'meeting'
     }));
 
-    // 4. Bulk insert all notifications at once (Super fast!)
     if (notificationsToCreate.length > 0) {
-      await prisma.notification.createMany({
-        data: notificationsToCreate
-      });
+      await prisma.notification.createMany({ data: notificationsToCreate });
     }
+
+    // 4. ✅ SEND EMAIL NOTIFICATION (BCC)
+    const userEmails = allUsers.map(u => u.email).filter(e => e); // filter removes nulls
+    const template = emailTemplates.newMeeting(title, meeting.date, meetLink);
+    await sendMail({ bcc: userEmails, ...template }); 
 
     res.status(201).json({ success: true, message: "Meeting scheduled and notifications sent.", data: meeting });
   } catch (error) {
@@ -43,17 +45,14 @@ exports.createMeeting = async (req, res) => {
   }
 };
 
-// 2. GET UPCOMING MEETINGS (Everyone)
 exports.getUpcomingMeetings = async (req, res) => {
   try {
     const now = new Date();
-
     const meetings = await prisma.meeting.findMany({
       where: { date: { gte: now } }, 
       orderBy: { date: 'asc' },
       take: 5 
     });
-
     res.json({ success: true, count: meetings.length, data: meetings });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error", error: error.message });

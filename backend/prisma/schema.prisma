@@ -272,6 +272,7 @@ model Meeting {
 
   @@map("meetings")
 }
+
 // --------------------------------------
 // 12. Notifications Table (Personal Inbox)
 // --------------------------------------
