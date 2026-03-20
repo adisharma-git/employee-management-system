@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 const sendMail = async ({ to, bcc, subject, html }) => {
   try {
     const mailOptions = {
-      from: `"Company Admin" <${process.env.EMAIL_USER}>`,
+      from: `"Work Alignr" <${process.env.EMAIL_USER}>`,
       to: to || process.env.EMAIL_USER, // If using BCC, 'to' defaults to the sender
       bcc: bcc, 
       subject: subject,
