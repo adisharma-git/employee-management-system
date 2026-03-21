@@ -4,7 +4,7 @@ import Loader from '../Loader/Loader';
 import AccessRestricted from '../Components/AccessRestricted';
 import EmployeeTable from './EmployeeTable';
 
-const Attendance = ({ permission }) => {
+const Attendance = ({ permission, highlightQuery = "", searchTrigger = 0 }) => {
   console.log(permission);
   const [Employee, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,15 @@ const Attendance = ({ permission }) => {
     <div className="min-h-screen bg-gray-50">
       {permission ? (
         <main className="p-8">
-          {loading ? <Loader /> : <EmployeeTable Employee={Employee} />}
+          {loading ? (
+            <Loader />
+          ) : (
+            <EmployeeTable
+              Employee={Employee}
+              highlightQuery={highlightQuery}
+              searchTrigger={searchTrigger}
+            />
+          )}
         </main>
       ) : (
         <AccessRestricted />

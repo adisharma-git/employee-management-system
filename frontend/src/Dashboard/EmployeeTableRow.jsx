@@ -1,7 +1,7 @@
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 
-const EmployeeTableRow = ({ employee }) => {
+const EmployeeTableRow = ({ employee, isHighlighted = false }) => {
   console.log(employee);
   console.log(employee.email);
 
@@ -21,7 +21,12 @@ const EmployeeTableRow = ({ employee }) => {
   };
 
   return (
-    <tr className="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
+    <tr
+      id={`employee-row-${employee.id}`}
+      className={`transition-colors border-b border-gray-100 last:border-b-0 ${
+        isHighlighted ? "bg-orange-50 ring-1 ring-orange-200" : "hover:bg-gray-50"
+      }`}
+    >
       <td className="px-6 py-4">
         <input
           type="checkbox"
