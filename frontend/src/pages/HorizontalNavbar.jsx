@@ -3,7 +3,6 @@ import { useState } from 'react';
 export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleLogout = () => window.location.href = "/login";
   const handleNavigateHelpPage = () => window.open("/dashboardNew/help", "_blank");
 
   const navTabs = [
@@ -19,7 +18,6 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
     <nav className="bg-[#021f54] sticky top-0 z-50 w-full border-b border-blue-900">
       <div className="flex items-center justify-between h-14 px-4 md:px-6 relative">
         
-        {/* Left: Logo */}
         <div className="flex items-center gap-2 z-20">
           <img
             src="/logo.png"
@@ -32,7 +30,6 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
           </span>
         </div>
 
-        {/* Center Nav Tabs (hidden on small screens) */}
         <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-10 text-sm font-medium text-white">
           {navTabs.map((tab) => (
             <button
@@ -49,8 +46,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
           ))}
         </div>
 
-        {/* Right: Help, Logout, Mobile Hamburger */}
-        <div className="flex items-center gap-4 ml-auto">
+        <div className="flex items-center gap-4 ml-auto text-white">
           <button
             className="hover:text-orange-400 transition-colors text-sm md:text-base"
             onClick={handleNavigateHelpPage}
@@ -59,15 +55,21 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
           </button>
 
           <button
-            className="hover:text-orange-400 transition-colors text-sm md:text-base"
-            onClick={handleLogout}
+            className="hover:text-orange-400 transition-colors text-lg p-2 rounded "
+            title="Notifications"
           >
-            Logout
+            <i className="fas fa-bell"></i>
           </button>
 
-          {/* Mobile Hamburger */}
           <button
-            className="md:hidden ml-2 p-2 rounded text-white hover:bg-blue-800 transition z-30 relative"
+            className="hover:text-orange-400 transition-colors text-lg p-2 rounded"
+            title="Profile"
+          >
+            <i className="fas fa-user-circle"></i>
+          </button>
+
+          <button
+            className="md:hidden ml-2 p-2 rounded text-white  transition z-30 relative"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             ☰
@@ -75,7 +77,6 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
         </div>
       </div>
 
-      {/* Mobile Nav Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#021f54] border-t border-blue-900 z-10 relative">
           {navTabs.map((tab) => (
