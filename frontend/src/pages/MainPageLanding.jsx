@@ -21,7 +21,8 @@ export default function MainPageLanding() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setIsVisible(true);
+    const frame = window.requestAnimationFrame(() => setIsVisible(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const handleSubmit = async () => {
@@ -46,7 +47,7 @@ export default function MainPageLanding() {
   };
 
   return (
-    <section className="relative min-h-screen bg-white pt-36 pb-24 px-6 flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen bg-white pt-24 sm:pt-32 lg:pt-36 pb-16 sm:pb-24 px-4 sm:px-6 flex items-center justify-center overflow-hidden">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <style>{`
         @keyframes shuffle {
@@ -87,51 +88,51 @@ export default function MainPageLanding() {
       `}</style>
 
       <div className="absolute inset-0 z-0">
-        <div className="solid-shape shape-box color-navy w-36 h-36 top-[5%] left-[2%] delay-1" />
-        <div className="solid-shape shape-circle color-orange w-16 h-16 top-[25%] left-[12%] delay-2" />
-        <div className="solid-shape shape-box color-orange w-10 h-10 top-[15%] left-[20%] delay-3" />
+        <div className="solid-shape shape-box color-navy w-20 h-20 sm:w-36 sm:h-36 top-[8%] left-[2%] delay-1 opacity-80 sm:opacity-100" />
+        <div className="solid-shape shape-circle color-orange w-10 h-10 sm:w-16 sm:h-16 top-[25%] left-[10%] delay-2 opacity-80 sm:opacity-100" />
+        <div className="solid-shape shape-box color-orange w-8 h-8 sm:w-10 sm:h-10 top-[16%] left-[18%] delay-3 opacity-80 sm:opacity-100" />
 
-        <div className="solid-shape shape-box color-orange w-44 h-44 bottom-[5%] left-[5%] delay-2" />
-        <div className="solid-shape shape-circle color-navy w-24 h-24 bottom-[30%] left-[15%] delay-1" />
+        <div className="solid-shape shape-box color-orange w-24 h-24 sm:w-44 sm:h-44 bottom-[7%] left-[3%] delay-2 opacity-80 sm:opacity-100" />
+        <div className="solid-shape shape-circle color-navy w-14 h-14 sm:w-24 sm:h-24 bottom-[28%] left-[12%] delay-1 opacity-80 sm:opacity-100" />
        
-        <div className="solid-shape shape-box color-orange w-40 h-40 top-[8%] right-[5%] delay-3" />
-        <div className="solid-shape shape-circle color-navy w-20 h-20 top-[30%] right-[12%] delay-1" />
+        <div className="solid-shape shape-box color-orange w-24 h-24 sm:w-40 sm:h-40 top-[10%] right-[4%] delay-3 opacity-80 sm:opacity-100" />
+        <div className="solid-shape shape-circle color-navy w-12 h-12 sm:w-20 sm:h-20 top-[30%] right-[10%] delay-1 opacity-80 sm:opacity-100" />
        
-        <div className="solid-shape shape-box color-navy w-32 h-32 bottom-[10%] right-[3%] delay-1" />
-        <div className="solid-shape shape-circle color-orange w-28 h-28 bottom-[25%] right-[15%] delay-2" />
+        <div className="solid-shape shape-box color-navy w-20 h-20 sm:w-32 sm:h-32 bottom-[10%] right-[2%] delay-1 opacity-80 sm:opacity-100" />
+        <div className="solid-shape shape-circle color-orange w-16 h-16 sm:w-28 sm:h-28 bottom-[26%] right-[12%] delay-2 opacity-80 sm:opacity-100" />
       </div>      
-      <div className="relative z-10 max-w-4xl mx-auto text-center">
+      <div className="relative z-10 max-w-4xl mx-auto text-center w-full">
         <div
           className={`transition-all duration-1000 ease-out ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#021f54] leading-tight mb-7">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#021f54] leading-tight mb-5 sm:mb-7 px-1">
             All-in-One Employee
             <span className="block mt-2 text-orange-500">
               Management <span className="text-[#021f54]">Platform</span>
             </span>
           </h1>
 
-          <p className="text-gray-800 font-medium max-w-2xl mx-auto mb-12 text-base sm:text-lg leading-relaxed">
+          <p className="text-gray-800 font-medium max-w-2xl mx-auto mb-8 sm:mb-12 text-sm sm:text-lg leading-relaxed px-1">
             Manage attendance, payroll, leaves, and performance with ease using
             our secure and scalable employee management system.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-xl mx-auto w-full">
             <div className="relative w-full">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your work email"
-                className="w-full px-5 py-4 text-sm sm:text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#021f54] bg-white shadow-lg"
+                className="w-full px-4 sm:px-5 py-3.5 sm:py-4 text-sm sm:text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#021f54] bg-white shadow-lg"
               />
             </div>
 
             <button
               onClick={handleSubmit}
-              className="w-full bg-[#021f54] text-white py-4 rounded-xl font-semibold hover:bg-[#032a70] transition-all transform hover:scale-105 active:scale-95 shadow-xl"
+              className="w-full sm:w-auto sm:px-8 bg-[#021f54] text-white py-3.5 sm:py-4 rounded-xl font-semibold hover:bg-[#032a70] transition-all transform hover:scale-105 active:scale-95 shadow-xl"
             >
               {loading ? "Sending..." : "Get a Quote!"}
             </button>

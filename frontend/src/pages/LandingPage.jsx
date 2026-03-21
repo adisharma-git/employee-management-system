@@ -13,8 +13,8 @@ const LandingPage = () => {
       <MainPageLanding/>
       <FeaturePageLanding/>
       <PricingPageLanding/>
-      <ReviewsHome/>
       <Requirement/>
+      <ReviewsHome/>
       <FooterPageLanding/>
     </div>
   )

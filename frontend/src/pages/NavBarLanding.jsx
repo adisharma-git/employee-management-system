@@ -2,6 +2,7 @@ import { useState } from "react";
 
 export default function Navbar() {
   const [hoveredMenu, setHoveredMenu] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogin = () => {
     window.location.href = "/login";
@@ -20,20 +21,19 @@ export default function Navbar() {
       />
 
       <nav className="bg-gradient-to-r from-[#01163e] via-[#082f7a] to-[#01163e] text-white sticky top-0 z-50 border-b border-white/5 shadow-xl">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center h-16 relative justify-between">
-            
-            <div className="flex items-center gap-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center h-16 justify-between gap-3">
+            <div className="flex items-center gap-3 sm:gap-10 min-w-0">
               <div
-                className="flex items-center gap-3 cursor-pointer"
+                className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0"
                 onClick={() => (window.location.href = "/")}
               >
                 <img
                   src="/logo.png"
                   alt="Worlaligner Logo"
-                  className="w-10 h-10 object-contain rounded-lg shadow-inner"
+                  className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded-lg shadow-inner"
                 />
-                <span className="text-base font-semibold tracking-wide px-0">
+                <span className="text-sm sm:text-base font-semibold tracking-wide px-0 truncate">
                   <span className="text-white">Work</span>
                   <span className="text-orange-500">Alignr</span>
                 </span>
@@ -47,7 +47,6 @@ export default function Navbar() {
                 >
                   <button className="hover:text-orange-400 transition-colors duration-200 py-5 flex items-center gap-1">
                     Product
-                    
                   </button>
                   <div
                     className={`absolute left-0 top-12 transition-all duration-300 ${
@@ -57,20 +56,22 @@ export default function Navbar() {
                     }`}
                   >
                     <MegaDropdown>
-                    <DropdownItem
-                      title="Employee"
-                      desc="Manage employee profiles & roles"
-                       onClick={() => window.open('/EmployeeInfoPage', '_blank')}
-                    />
-                    <DropdownItem
-                      title="Attendance & Leave"
-                      desc="Track daily attendance, leave requests & approvals"
-                    />
-                    <DropdownItem
-                      title="Performance & Reports"
-                      desc="Attendance & performance summaries"
-                    />
-                  </MegaDropdown>
+                      <DropdownItem
+                        title="Employee"
+                        desc="Manage employee profiles & roles"
+                        onClick={() =>
+                          window.open("/EmployeeInfoPage", "_blank")
+                        }
+                      />
+                      <DropdownItem
+                        title="Attendance & Leave"
+                        desc="Track daily attendance, leave requests & approvals"
+                      />
+                      <DropdownItem
+                        title="Performance & Reports"
+                        desc="Attendance & performance summaries"
+                      />
+                    </MegaDropdown>
                   </div>
                 </div>
 
@@ -89,18 +90,21 @@ export default function Navbar() {
                         : "opacity-0 -translate-y-2 pointer-events-none"
                     }`}
                   >
-                     <MegaDropdown width="420px">
-                    <DropdownItem
-                      title="About Us"
-                      desc="Who we are & what we do"                      
-                      onClick={() => window.open('/landingPage', '_blank')}
-                    />
-                    <DropdownItem
-                      title="Team"
-                      desc="Developers & contributors"
-                    />
-                    <DropdownItem title="Documentation" desc="How the system works" />
-                  </MegaDropdown>
+                    <MegaDropdown width="420px">
+                      <DropdownItem
+                        title="About Us"
+                        desc="Who we are & what we do"
+                        onClick={() => window.open("/landingPage", "_blank")}
+                      />
+                      <DropdownItem
+                        title="Team"
+                        desc="Developers & contributors"
+                      />
+                      <DropdownItem
+                        title="Documentation"
+                        desc="How the system works"
+                      />
+                    </MegaDropdown>
                   </div>
                 </div>
                 <div
@@ -118,36 +122,38 @@ export default function Navbar() {
                         : "opacity-0 -translate-y-2 pointer-events-none"
                     }`}
                   >
-                     <MegaDropdown width="420px">
-                    <DropdownItem
-                      title="Help Center"
-                      desc="FAQs & common issues"
-                      onClick={() => window.open('/dashboardNew/help', '_blank')}
-                    />
-                    <DropdownItem
-                      title="Contact"
-                      desc="Reach out for support"
-                       onClick={() => window.open('/dashboardNew/help', '_blank')}
-                    />
-                    <DropdownItem
-                      title="System Status"
-                      desc="Live service status"
-                    />
-                  </MegaDropdown>
+                    <MegaDropdown width="420px">
+                      <DropdownItem
+                        title="Help Center"
+                        desc="FAQs & common issues"
+                        onClick={() =>
+                          window.open("/dashboardNew/help", "_blank")
+                        }
+                      />
+                      <DropdownItem
+                        title="Contact"
+                        desc="Reach out for support"
+                        onClick={() =>
+                          window.open("/dashboardNew/help", "_blank")
+                        }
+                      />
+                      <DropdownItem
+                        title="System Status"
+                        desc="Live service status"
+                      />
+                    </MegaDropdown>
                   </div>
                 </div>
               </div>
             </div>
 
-            
-            <div className="flex items-center gap-6">
-              
+            <div className="flex items-center gap-2 sm:gap-6">
               {/* <div className="flex items-center gap-5 text-white/80 mr-2">
                 <i className="fa-regular fa-bell cursor-pointer hover:text-white transition-all text-lg hover:scale-110"></i>
                 <i className="fa-solid fa-gear cursor-pointer hover:text-white transition-all text-lg hover:scale-110"></i>
               </div> */}
 
-              <div className="flex gap-4 absolute right-0 z-50">
+              <div className="hidden sm:flex gap-3 lg:gap-4 z-50">
                 <button
                   className="border border-white/40 px-6 py-1.5 rounded-lg font-semibold hover:bg-white hover:text-[#021f54] transition-all duration-200"
                   onClick={handleLogin}
@@ -161,8 +167,72 @@ export default function Navbar() {
                   Sign Up
                 </button>
               </div>
+
+              <div className="flex sm:hidden items-center gap-2 z-50">
+                <button
+                  className="border border-white/40 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-white hover:text-[#021f54]"
+                  onClick={handleLogin}
+                >
+                  <i className="fa-solid fa-right-to-bracket"></i>
+                </button>
+
+                <button
+                  className="bg-orange-500 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-orange-400"
+                  onClick={handleSignup}
+                >
+                  <i className="fa-solid fa-user-plus"></i>
+                </button>
+
+                <button
+                  className="border border-white/40 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-white hover:text-[#021f54]"
+                  onClick={handleLogin}
+                >
+                  <i className="fa-solid fa-right-to-bracket"></i>
+                </button>
+
+                <button
+                  className="bg-orange-500 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-orange-400"
+                  onClick={handleSignup}
+                >
+                  <i className="fa-solid fa-user-plus"></i>
+                </button>
+              </div>
             </div>
           </div>
+
+          {isMobileMenuOpen && (
+            <div className="md:hidden pb-4">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-2 space-y-1">
+                <button
+                  onClick={() => {
+                    window.open("/EmployeeInfoPage", "_blank");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10"
+                >
+                  Product
+                </button>
+                <button
+                  onClick={() => {
+                    window.open("/landingPage", "_blank");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10"
+                >
+                  Company
+                </button>
+                <button
+                  onClick={() => {
+                    window.open("/dashboardNew/help", "_blank");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10"
+                >
+                  Support
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
     </>
