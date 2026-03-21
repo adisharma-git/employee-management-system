@@ -172,6 +172,7 @@ export default function Navbar() {
                 <button
                   className="border border-white/40 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-white hover:text-[#021f54]"
                   onClick={handleLogin}
+                  aria-label="Log In"
                 >
                   <i className="fa-solid fa-right-to-bracket"></i>
                 </button>
@@ -179,23 +180,19 @@ export default function Navbar() {
                 <button
                   className="bg-orange-500 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-orange-400"
                   onClick={handleSignup}
+                  aria-label="Sign Up"
                 >
                   <i className="fa-solid fa-user-plus"></i>
                 </button>
 
                 <button
-                  className="border border-white/40 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-white hover:text-[#021f54]"
-                  onClick={handleLogin}
+                  className="border border-white/40 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-white hover:text-[#021f54] transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                  aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 >
-                  <i className="fa-solid fa-right-to-bracket"></i>
+                  <i className={`fa-solid ${isMobileMenuOpen ? "fa-xmark" : "fa-bars"}`}></i>
                 </button>
 
-                <button
-                  className="bg-orange-500 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-orange-400"
-                  onClick={handleSignup}
-                >
-                  <i className="fa-solid fa-user-plus"></i>
-                </button>
               </div>
             </div>
           </div>
