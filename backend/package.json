@@ -21,7 +21,7 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^8.0.2",
+    "nodemailer": "^8.0.3",
     "prisma": "^5.22.0",
     "uuid": "^8.3.2"
   },
