@@ -1,8 +1,31 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import EmployeeTableRow from "./EmployeeTableRow";
 // import TableRow from './TableRow';
 
-const EmployeeTable = ({ Employee }) => {
+const EmployeeTable = ({ Employee, highlightQuery = "", searchTrigger = 0 }) => {
+  const normalizedQuery = highlightQuery.trim().toLowerCase();
+
+  const highlightedIds = useMemo(() => {
+    if (!normalizedQuery) return [];
+
+    return (Employee || [])
+      .filter((em) => {
+        const name = (em.name || "").toLowerCase();
+        const email = (em.email || "").toLowerCase();
+        return name.includes(normalizedQuery) || email.includes(normalizedQuery);
+      })
+      .map((em) => em.id);
+  }, [Employee, normalizedQuery]);
+
+  useEffect(() => {
+    if (!normalizedQuery || highlightedIds.length === 0) return;
+
+    const firstMatchEl = document.getElementById(`employee-row-${highlightedIds[0]}`);
+    if (firstMatchEl) {
+      firstMatchEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightedIds, normalizedQuery, searchTrigger]);
+
   return (
     <div className="overflow-x-auto shadow-sm rounded-lg border border-gray-200 bg-white">
       <table className="min-w-full text-sm text-left">
@@ -24,7 +47,13 @@ const EmployeeTable = ({ Employee }) => {
 
         <tbody>
           {Employee && Employee.length > 0 ? (
-            Employee.map((em) => <EmployeeTableRow key={em.id} employee={em} />)
+            Employee.map((em) => (
+              <EmployeeTableRow
+                key={em.id}
+                employee={em}
+                isHighlighted={highlightedIds.includes(em.id)}
+              />
+            ))
           ) : (
             <tr>
               <td colSpan="8" className="px-6 py-8 text-center text-gray-500">

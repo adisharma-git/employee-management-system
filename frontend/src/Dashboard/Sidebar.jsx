@@ -12,7 +12,7 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
 
   const menuItems = [
     { key: "dashboard", icon: "fas fa-chart-line", label: "Dashboard" },
-    { key: "Profile", icon: "fas fa-people-group", label: "Profile" },
+    { key: "EmployeeForm", icon: "fas fa-people-group", label: "Profile" },
     { key: "performance", icon: "fas fa-clock", label: "Performance" },
     { key: "adminRegistration", icon: "fas fa-user-plus", label: "Add Employee" },
     { key: "Pull Requests", icon: "fab fa-github", label: "Pull Requests" },
@@ -22,7 +22,7 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
 
   return (
     <>
-      {/* 🔹 Mobile Toggle Button */}
+      
       <button
         className="md:hidden fixed top-4 left-4 z-50 bg-[#021f54] text-white p-2 rounded shadow"
         onClick={() => setMobileOpen(!mobileOpen)}
@@ -30,7 +30,6 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         ☰
       </button>
 
-      {/* 🔹 Overlay (mobile) */}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
@@ -38,7 +37,6 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         ></div>
       )}
 
-      {/* 🔹 Sidebar */}
       <div
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
@@ -50,7 +48,7 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
           md:left-0
         `}
       >
-        {/* Top Menu Items */}
+
         <div className="flex flex-col flex-1 gap-6 p-2 mt-10 md:mt-0 justify-start">
           {menuItems.map((item) => (
             <button
@@ -78,7 +76,6 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
           ))}
         </div>
 
-        {/* Bottom Settings */}
         <div className="p-3">
           <button
             onClick={() => setSelectedTab("settings")}

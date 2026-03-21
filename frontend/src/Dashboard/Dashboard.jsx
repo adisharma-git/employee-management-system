@@ -22,6 +22,18 @@ export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [userName, setUserName] = useState("Login");
   const [permission,setPermission]=useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [employeeSearchQuery, setEmployeeSearchQuery] = useState("");
+  const [searchTrigger, setSearchTrigger] = useState(0);
+
+  const handleFilterSearch = () => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return;
+
+    setEmployeeSearchQuery(searchTerm.trim());
+    setSelectedTab("employees");
+    setSearchTrigger((prev) => prev + 1);
+  };
 
 useEffect(() => {
   const fetchUser = async () => {
@@ -59,7 +71,13 @@ useEffect(() => {
   const renderContent = () => {
     switch (selectedTab) {
       case "employees":
-        return <Employees permission={permission}/>;
+        return (
+          <Employees
+            permission={permission}
+            highlightQuery={employeeSearchQuery}
+            searchTrigger={searchTrigger}
+          />
+        );
       case "reports":
         return <Reports permission={permission}/>;
       case "EmployeeForm":
@@ -103,16 +121,37 @@ useEffect(() => {
               <h2 className="text-xl font-semibold text-gray-800">
                 {getGreeting()}, {userName}!
               </h2>
-              {permission && (
-                <button
-                  onClick={() => setSelectedTab("adminRegistration")}
-                  className="bg-[#021f54] text-white hover:bg-orange-400
+
+              <div className="flex items-center gap-2">
+                {selectedTab === "employees" && (
+                  <>
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleFilterSearch();
+                        }
+                      }}
+                      placeholder="Search employee"
+                      className="w-28 sm:w-40 border border-gray-300 rounded-md px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-[#021f54]"
+                    />
+                    
+                  </>
+                )}
+
+                {permission && (
+                  <button
+                    onClick={() => setSelectedTab("adminRegistration")}
+                    className="bg-[#021f54] text-white hover:bg-orange-400
     hover:text-black text-sm font-medium px-4 py-1.5
     rounded-md transition-colors duration-200"
-                >
-                <span className="hidden sm:inline">Add Emp</span>
-                </button>
-              )}
+                  >
+                    <span className="hidden sm:inline">Add Employee</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {renderContent()}
