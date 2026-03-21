@@ -5,6 +5,7 @@ import Navbar from './NavBarLanding'
 import PricingPageLanding from './PricingPageLanding'
 import Requirement from './Requirement'
 import ReviewsHome from './ReviewHome'
+import CostFilter from './CostFilter'
 
 const LandingPage = () => {
   return (
@@ -13,6 +14,7 @@ const LandingPage = () => {
       <MainPageLanding/>
       <FeaturePageLanding/>
       <PricingPageLanding/>
+      <CostFilter/>
       <Requirement/>
       <ReviewsHome/>
       <FooterPageLanding/>
