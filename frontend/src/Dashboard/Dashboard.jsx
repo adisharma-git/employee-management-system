@@ -16,12 +16,14 @@ import GithubCommits from "../ProjectActivity/ProjectCommits";
 import PullRequests from "../ProjectActivity/Pull Requests";
 import UpcomingMeetings from "../../ScheduledMeetings/UpcomingMeetings";
 import Holidays from "../../Holidays/Holidays";
+import Payroll from "../Payroll/Payroll";
 
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [userName, setUserName] = useState("Login");
   const [permission,setPermission]=useState(false);
+  const [userRole, setUserRole] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeSearchQuery, setEmployeeSearchQuery] = useState("");
   const [searchTrigger, setSearchTrigger] = useState(0);
@@ -44,6 +46,8 @@ useEffect(() => {
       if (userData?.name) {
         setUserName(userData.name);
       }
+
+      setUserRole(userData?.user?.role || "");
 
       if (userData?.user?.role === "admin") {
         setPermission(true);  
@@ -102,6 +106,8 @@ useEffect(() => {
           return <UpcomingMeetings permission={permission}/>
         case "Holidays":
           return <Holidays permission={permission}/>;
+      case "Payroll":
+        return <Payroll permission={permission} userRole={userRole} />;
       default:
         return <DashboardHome/>;
     }
