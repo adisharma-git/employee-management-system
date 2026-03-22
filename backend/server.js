@@ -16,6 +16,8 @@ const meetingRoutes = require('./src/routes/meetingRoutes');
 const holidayRoutes = require('./src/routes/holidayRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const payrollRoutes = require('./src/routes/payrollRoutes');
+const projectRoutes = require('./src/routes/projectRoutes');
+const taskRoutes = require('./src/routes/taskRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -54,6 +56,8 @@ app.use('/api/meetings', meetingRoutes);
 app.use('/api/holidays', holidayRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payroll', payrollRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/tasks', taskRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {

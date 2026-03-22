@@ -25,6 +25,7 @@ model User {
   employee       Employee?
   assignedTasks  Task[]   @relation("AssignedBy")
   approvedLeaves Leave[]  @relation("ApprovedBy")
+  projectsCreated Project[] @relation("ProjectCreator")
 
   announcements  Announcement[] 
   meetings       Meeting[]      
@@ -102,7 +103,7 @@ model Leave {
   id           String   @id @default(uuid())
   employeeId   String   @map("employee_id")
   
-  // ✅ NEW: Relational link to the Master Table
+  // Relational link to the Master Table
   leaveTypeId  String   @map("leave_type_id") 
   leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id])
 
@@ -128,29 +129,24 @@ model Leave {
 }
 
 // --------------------------------------
-// 5. Tasks Table
+// 5. Projects Table (The Kanban Boards)
 // --------------------------------------
-model Task {
-  id          String    @id @default(uuid())
-  assignedTo  String    @map("assigned_to")
-  assignedBy  String?   @map("assigned_by")
-  title       String
-  description String?
-  status      String    @default("pending") // 'pending', 'in-progress', 'completed'
-  priority    String?   // 'low', 'medium', 'high'
-  dueDate     DateTime? @map("due_date") @db.Date
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?  @db.Text
+  status      String   @default("active") // 'active', 'completed', 'archived'
   
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relationships
-  employee    Employee  @relation(fields: [assignedTo], references: [id], onDelete: Cascade)
-  assigner    User?     @relation("AssignedBy", fields: [assignedBy], references: [id])
+  author      User     @relation("ProjectCreator", fields: [createdBy], references: [id])
+  tasks       Task[]   // A project contains many tasks
 
-  @@map("tasks")
-  @@index([assignedTo])
+  @@map("projects")
   @@index([status])
-  @@index([priority])
 }
 
 // --------------------------------------
@@ -190,7 +186,7 @@ model LeaveBalance {
   id           String   @id @default(uuid())
   employeeId   String   @map("employee_id")
   
-  // ✅ NEW: Relational link to the Master Table
+  // Relational link to the Master Table
   leaveTypeId  String   @map("leave_type_id")
   leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id])
 
@@ -347,4 +343,41 @@ model PayrollRecord {
   // Ensures we only generate one payslip per employee per month
   @@unique([employeeId, month, year]) 
   @@map("payroll_records")
+}
+
+// --------------------------------------
+// 15. Tasks Table (The Kanban Cards)
+// --------------------------------------
+model Task {
+  id          String   @id @default(uuid())
+  
+  // The Parent Board
+  projectId   String   @map("project_id")
+  
+  // Assignees
+  assignedTo  String   @map("assigned_to")
+  assignedBy  String?  @map("assigned_by")
+  
+  // Task Details
+  title       String
+  description String?  @db.Text
+  priority    String?  // 'low', 'medium', 'high'
+  dueDate     DateTime? @map("due_date") @db.Date
+  
+  // Kanban Specifics
+  status      String   @default("todo") // 'todo', 'in-progress', 'code-review', 'qa-testing', 'done'
+  position    Int      @default(0)      // Controls the drag-and-drop visual order!
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employee    Employee @relation(fields: [assignedTo], references: [id], onDelete: Cascade)
+  assigner    User?    @relation("AssignedBy", fields: [assignedBy], references: [id])
+
+  @@map("tasks")
+  @@index([projectId])
+  @@index([assignedTo])
+  @@index([status])
 }

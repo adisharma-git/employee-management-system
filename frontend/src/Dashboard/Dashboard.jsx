@@ -17,6 +17,7 @@ import PullRequests from "../ProjectActivity/Pull Requests";
 import UpcomingMeetings from "../../ScheduledMeetings/UpcomingMeetings";
 import Holidays from "../../Holidays/Holidays";
 import Payroll from "../Payroll/Payroll";
+import TaskManagement from "../TaskManagement/TaskManagement";
 
 
 export default function Dashboard() {
@@ -108,6 +109,8 @@ useEffect(() => {
           return <Holidays permission={permission}/>;
       case "Payroll":
         return <Payroll permission={permission} userRole={userRole} />;
+      case "TaskManagement":
+        return <TaskManagement permission={permission} />;
       default:
         return <DashboardHome/>;
     }
