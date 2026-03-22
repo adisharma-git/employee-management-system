@@ -9,6 +9,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
     { id: "employees", label: "Employees" },
     { id: "Attendance", label: "Attendance" },
     { id: "LeavesPage", label: "Leaves" },
+    { id: "TaskManagement", label: "Tasks" },
     { id: "reports", label: "Reports" },
     { id: "Announcement", label: "Announcement" },
     { id: "ProjectActivity", label: "ProjectActivity" },
