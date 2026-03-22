@@ -11,9 +11,13 @@ export default function EmployeeRegistration({permission}) {
     email: "",
     password: "",
     confirmPassword: "",
+    department: "",
+    designation: "",
+    baseSalary: "",
+    allowances: "",
+    taxRate: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [toasts, setToasts] = useState([]);
@@ -52,6 +56,20 @@ export default function EmployeeRegistration({permission}) {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
+    if (!formData.baseSalary) {
+      newErrors.baseSalary = "Base salary is required";
+    } else if (Number(formData.baseSalary) <= 0) {
+      newErrors.baseSalary = "Base salary must be greater than 0";
+    }
+
+    if (formData.allowances && Number(formData.allowances) < 0) {
+      newErrors.allowances = "Allowances cannot be negative";
+    }
+
+    if (formData.taxRate && (Number(formData.taxRate) < 0 || Number(formData.taxRate) > 100)) {
+      newErrors.taxRate = "Tax rate must be between 0 and 100";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -84,9 +102,14 @@ export default function EmployeeRegistration({permission}) {
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        department: formData.department || null,
+        designation: formData.designation || null,
+        baseSalary: Number(formData.baseSalary),
+        allowances: formData.allowances ? Number(formData.allowances) : 0,
+        taxRate: formData.taxRate ? Number(formData.taxRate) : 0,
       };
 
-      const res = await api.post("/auth/register", payload);
+      const res = await api.post("/admin/employees", payload);
 
       const successMessage =
         res?.data?.message ||
@@ -99,6 +122,11 @@ export default function EmployeeRegistration({permission}) {
         email: "",
         password: "",
         confirmPassword: "",
+        department: "",
+        designation: "",
+        baseSalary: "",
+        allowances: "",
+        taxRate: "",
       });
     } catch (error) {
       const backendMessage =
@@ -189,6 +217,97 @@ export default function EmployeeRegistration({permission}) {
                 {errors.password && (
                   <p className="text-red-500 text-xs mt-1">{errors.password}</p>
                 )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Department
+                  </label>
+                  <input
+                    type="text"
+                    name="department"
+                    value={formData.department}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Designation
+                  </label>
+                  <input
+                    type="text"
+                    name="designation"
+                    value={formData.designation}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Base Salary
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    name="baseSalary"
+                    value={formData.baseSalary}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-200 focus:outline-none ${
+                      errors.baseSalary ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.baseSalary && (
+                    <p className="text-red-500 text-xs mt-1">{errors.baseSalary}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Allowances
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    name="allowances"
+                    value={formData.allowances}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-200 focus:outline-none ${
+                      errors.allowances ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.allowances && (
+                    <p className="text-red-500 text-xs mt-1">{errors.allowances}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tax Rate (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    name="taxRate"
+                    value={formData.taxRate}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-200 focus:outline-none ${
+                      errors.taxRate ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.taxRate && (
+                    <p className="text-red-500 text-xs mt-1">{errors.taxRate}</p>
+                  )}
+                </div>
               </div>
 
               <div>

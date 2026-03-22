@@ -59,6 +59,8 @@ model Employee {
   leaves     Leave[]
   leaveBalances LeaveBalance[]
   tasks      Task[]
+  salaryStructure SalaryStructure?
+  payrollRecords  PayrollRecord[]
 
   @@map("employees")
   @@index([userId])
@@ -292,4 +294,57 @@ model Notification {
   @@map("notifications")
   @@index([userId])
   @@index([isRead])
+}
+
+// --------------------------------------
+// 13. Salary Structure Table
+// --------------------------------------
+model SalaryStructure {
+  id          String   @id @default(uuid())
+  employeeId  String   @unique @map("employee_id")
+  
+  baseSalary  Float    @map("base_salary")
+  allowances  Float    @default(0) 
+  taxRate     Float    @default(0) @map("tax_rate") // e.g., 10 for 10% flat tax
+  
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("salary_structures")
+}
+
+// --------------------------------------
+// 14. Payroll Records Table (Historical Payslips)
+// --------------------------------------
+model PayrollRecord {
+  id             String   @id @default(uuid())
+  employeeId     String   @map("employee_id")
+  
+  month          Int      // 1 to 12
+  year           Int      // e.g., 2026
+  
+  // Snapshot of structure at the time of generation
+  basicSalary    Float    @map("basic_salary")
+  allowances     Float    @default(0)
+  
+  // Attendance metrics
+  totalDays      Int      @map("total_days")
+  payableDays    Float    @map("payable_days") 
+  lopDays        Float    @map("lop_days") // Loss of Pay days
+  
+  // Financials
+  grossEarnings  Float    @map("gross_earnings") 
+  taxDeduction   Float    @map("tax_deduction") 
+  netPay         Float    @map("net_pay")
+  
+  status         String   @default("generated") // 'generated', 'paid'
+  
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  // Ensures we only generate one payslip per employee per month
+  @@unique([employeeId, month, year]) 
+  @@map("payroll_records")
 }

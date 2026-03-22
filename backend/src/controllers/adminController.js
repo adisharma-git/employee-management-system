@@ -18,7 +18,15 @@ exports.getAllEmployees = async (req, res) => {
             name: true,
             designation: true,
             department: true,
-            dateOfJoining: true
+            dateOfJoining: true,
+            salaryStructure: {
+              select: {
+                baseSalary: true,
+                allowances: true,
+                taxRate: true,
+                updatedAt: true
+              }
+            }
           }
         }
       }
@@ -33,7 +41,11 @@ exports.getAllEmployees = async (req, res) => {
 // 2. CREATE NEW EMPLOYEE (The Onboarding)
 exports.createEmployee = async (req, res) => {
   try {
-    const { name, email, password, department, designation } = req.body;
+  //  Extract the new salary fields from req.body
+    const { 
+      name, email, password, department, designation,
+      baseSalary, allowances, taxRate 
+    } = req.body;
 
     // A. Check if email exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -42,7 +54,7 @@ exports.createEmployee = async (req, res) => {
     // B. Hash the temporary password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // C. Transaction: Create User, Profile AND Leaves all at once!
+    // C. Transaction: Create User, Profile, Leaves, AND Salary all at once!
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create Login Account
       const newUser = await tx.user.create({
@@ -71,7 +83,7 @@ exports.createEmployee = async (req, res) => {
 
       if (activeLeavePolicies.length > 0) {
         const defaultBalances = activeLeavePolicies.map(policy => ({
-          employeeId: newProfile.id, // Fixed the variable reference!
+          employeeId: newProfile.id, 
           leaveTypeId: policy.id,
           allocated: policy.defaultDays,
           used: 0
@@ -82,7 +94,25 @@ exports.createEmployee = async (req, res) => {
         });
       }
 
-      return { user: newUser, employee: newProfile };
+      // 4. ✅ THE NEW AUTOMATION: Assign Salary Structure
+      let newSalaryStructure = null;
+      if (baseSalary) {
+        newSalaryStructure = await tx.salaryStructure.create({
+          data: {
+            employeeId: newProfile.id,
+            baseSalary: parseFloat(baseSalary),
+            allowances: parseFloat(allowances || 0),
+            taxRate: parseFloat(taxRate || 0)
+          }
+        });
+      }
+
+      // Return everything so the frontend gets the complete newly created record
+      return { 
+        user: newUser, 
+        employee: newProfile, 
+        salaryStructure: newSalaryStructure 
+      };
     });
 
     res.status(201).json({ success: true, message: "Employee Onboarded!", data: result });
