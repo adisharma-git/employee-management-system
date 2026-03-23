@@ -55,20 +55,20 @@ export default function EmployeeRegistration({permission}) {
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
+// if (!formData.baseSalary) {
+    //   newErrors.baseSalary = "Base salary is required";
+    // } else if (Number(formData.baseSalary) <= 0) {
+    //   newErrors.baseSalary = "Base salary must be greater than 0";
+    // }
 
-    if (!formData.baseSalary) {
-      newErrors.baseSalary = "Base salary is required";
-    } else if (Number(formData.baseSalary) <= 0) {
-      newErrors.baseSalary = "Base salary must be greater than 0";
-    }
+    // if (formData.allowances && Number(formData.allowances) < 0) {
+    //   newErrors.allowances = "Allowances cannot be negative";
+    // }
 
-    if (formData.allowances && Number(formData.allowances) < 0) {
-      newErrors.allowances = "Allowances cannot be negative";
-    }
-
-    if (formData.taxRate && (Number(formData.taxRate) < 0 || Number(formData.taxRate) > 100)) {
-      newErrors.taxRate = "Tax rate must be between 0 and 100";
-    }
+    // if (formData.taxRate && (Number(formData.taxRate) < 0 || Number(formData.taxRate) > 100)) {
+    //   newErrors.taxRate = "Tax rate must be between 0 and 100";
+    // }
+    // 
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -263,9 +263,7 @@ export default function EmployeeRegistration({permission}) {
                       errors.baseSalary ? "border-red-500" : "border-gray-300"
                     }`}
                   />
-                  {errors.baseSalary && (
-                    <p className="text-red-500 text-xs mt-1">{errors.baseSalary}</p>
-                  )}
+          
                 </div>
 
                 <div>
@@ -283,9 +281,6 @@ export default function EmployeeRegistration({permission}) {
                       errors.allowances ? "border-red-500" : "border-gray-300"
                     }`}
                   />
-                  {errors.allowances && (
-                    <p className="text-red-500 text-xs mt-1">{errors.allowances}</p>
-                  )}
                 </div>
 
                 <div>
@@ -304,9 +299,6 @@ export default function EmployeeRegistration({permission}) {
                       errors.taxRate ? "border-red-500" : "border-gray-300"
                     }`}
                   />
-                  {errors.taxRate && (
-                    <p className="text-red-500 text-xs mt-1">{errors.taxRate}</p>
-                  )}
                 </div>
               </div>
 
