@@ -32,7 +32,7 @@ const PricingPageLanding = () => {
                             <h3 className="text-lg font-semibold mb-4">Basic plan</h3>
 
                             <div className="text-4xl font-bold mb-7">
-                                $5<span className="text-lg font-normal">/mo</span>
+                                50<span className="text-lg font-normal">/mo</span>
                             </div>
 
                             <ul className="space-y-3 text-sm">
@@ -62,7 +62,7 @@ const PricingPageLanding = () => {
                             <h3 className="text-lg font-semibold mb-4">Business plan</h3>
 
                             <div className="text-4xl font-bold mb-7">
-                                $29<span className="text-lg font-normal">/mo</span>
+                                500<span className="text-lg font-normal">/mo</span>
                             </div>
 
                             <ul className="space-y-3 text-sm">
@@ -85,7 +85,7 @@ const PricingPageLanding = () => {
                             <h3 className="text-lg font-semibold mb-4">Enterprise plan</h3>
 
                             <div className="text-4xl font-bold mb-7">
-                                $49<span className="text-lg font-normal">/mo</span>
+                                2999<span className="text-lg font-normal">/mo</span>
                             </div>
 
                             <ul className="space-y-3 text-sm">

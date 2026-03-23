@@ -64,8 +64,8 @@ export default function CostFilter() {
               />
               <div className="mt-2 flex items-center justify-between text-xs text-slate-300">
                 <span>1</span>
-                <span>100</span>
-                <span>250</span>
+                <span>150</span>
+                <span>300</span>
                 <span>500+</span>
               </div>
             </div>

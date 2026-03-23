@@ -12,7 +12,7 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
 
   const menuItems = [
     { key: "dashboard", icon: "fas fa-chart-line", label: "Dashboard" },
-    { key: "EmployeeForm", icon: "fas fa-people-group", label: "Profile" },
+    // { key: "EmployeeForm", icon: "fas fa-people-group", label: "Profile" },
     { key: "performance", icon: "fas fa-clock", label: "Performance" },
     { key: "adminRegistration", icon: "fas fa-user-plus", label: "Add Employee" },
     { key: "Pull Requests", icon: "fab fa-github", label: "Pull Requests" },
@@ -77,14 +77,6 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         </div>
 
         <div className="p-3">
-          <button
-            onClick={() => setSelectedTab("settings")}
-            className="flex items-center justify-center md:justify-start gap-3 p-3 rounded-lg hover:bg-white hover:text-black transition-colors duration-200"
-          >
-            <i className="fas fa-gear min-w-[20px] text-lg"></i>
-            {(isOpen || mobileOpen) && <span className="whitespace-nowrap">Settings</span>}
-          </button>
-
           <button
             onClick={handleLogout}
             className="flex items-center justify-center md:justify-start gap-3 p-3 rounded-lg hover:bg-white hover:text-black transition-colors duration-200"
