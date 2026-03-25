@@ -20,12 +20,21 @@ exports.register = async (req, res) => {
     const hashedPassword = await hashPassword(password);
 
     const result = await prisma.$transaction(async (prisma) => {
+      // Fetch the default Employee role
+      const employeeRole = await prisma.role.findUnique({
+        where: { name: 'Employee' }
+      });
+
+      if (!employeeRole) {
+        throw new Error('Employee role not found in database');
+      }
       
       const user = await prisma.user.create({
         data: {
           email,
           passwordHash: hashedPassword,
-          role: 'employee', 
+          roleId: employeeRole.id,
+          isSuperAdmin: false,
           employee: {
             create: {
               name: name,
@@ -34,7 +43,10 @@ exports.register = async (req, res) => {
             }
           }
         },
-        include: { employee: true } // Return the profile data
+        include: { 
+          employee: true,
+          role: true
+        }
       });
 
       return user;
@@ -49,6 +61,7 @@ exports.register = async (req, res) => {
       user: {
         id: result.id,
         email: result.email,
+        isSuperAdmin: result.isSuperAdmin,
         role: result.role,
         name: result.employee.name
       }
@@ -67,7 +80,16 @@ exports.login = async (req, res) => {
 
     const user = await prisma.user.findUnique({
       where: { email },
-      include: { employee: true } 
+      include: { 
+        employee: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+            permissions: true
+          }
+        }
+      } 
     });
 
     if (!user) {
@@ -87,6 +109,7 @@ exports.login = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
+        isSuperAdmin: user.isSuperAdmin,
         role: user.role,
         name: user.employee ? user.employee.name : "Admin"
       }
