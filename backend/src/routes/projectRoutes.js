@@ -1,11 +1,13 @@
 const express = require('express');
 const { createProject, getAllProjects, getProjectBoard } = require('../controllers/projectController');
-const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
+const { authenticate } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 
 const router = express.Router();
 
-router.get('/', verifyToken, getAllProjects);
-router.get('/:id', verifyToken, getProjectBoard);
-router.post('/', verifyToken, verifyAdmin, createProject);
+router.get('/', authenticate, checkPermission(PERMISSIONS.VIEW_PROJECTS), getAllProjects);
+router.get('/:id', authenticate, checkPermission(PERMISSIONS.VIEW_PROJECTS), getProjectBoard);
+router.post('/', authenticate, checkPermission(PERMISSIONS.CREATE_PROJECT), createProject);
 
 module.exports = router;

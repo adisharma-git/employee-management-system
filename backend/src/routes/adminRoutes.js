@@ -1,18 +1,15 @@
 const express = require('express');
-const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
+const { authenticate } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 const { getAllEmployees, createEmployee } = require('../controllers/adminController');
 
 const router = express.Router();
 
-// Apply security to ALL routes in this file
-// 1. Must be Logged In (verifyToken)
-// 2. Must be Admin (verifyAdmin)
-router.use(verifyToken, verifyAdmin);
-
 // GET /api/admin/employees -> View the list
-router.get('/employees', getAllEmployees);
+router.get('/employees', authenticate, checkPermission(PERMISSIONS.VIEW_EMPLOYEES), getAllEmployees);
 
 // POST /api/admin/employees -> Create a new one
-router.post('/employees', createEmployee);
+router.post('/employees', authenticate, checkPermission(PERMISSIONS.CREATE_EMPLOYEE), createEmployee);
 
 module.exports = router;

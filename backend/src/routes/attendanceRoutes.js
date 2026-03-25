@@ -19,33 +19,35 @@ const { markAbsentees } = require('../controllers/attendanceController');
 
 const { remindCheckIn, remindCheckOut } = require('../controllers/attendanceController');
 
-const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware'); // Check your path!
+const { authenticate } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 const router = express.Router();
 
 // --- EMPLOYEE ROUTES ---
-router.post('/mark', verifyToken, markAttendance);
-router.patch('/checkout', verifyToken, updateCheckout);
-router.get('/punch-status', verifyToken, getPunchStatus);
+router.post('/mark', authenticate, checkPermission(PERMISSIONS.MARK_ATTENDANCE), markAttendance);
+router.patch('/checkout', authenticate, checkPermission(PERMISSIONS.MARK_ATTENDANCE), updateCheckout);
+router.get('/punch-status', authenticate, checkPermission(PERMISSIONS.VIEW_ATTENDANCE), getPunchStatus);
 
 // New: Break Handling
-router.post('/break', verifyToken, toggleBreak); 
+router.post('/break', authenticate, checkPermission(PERMISSIONS.MARK_ATTENDANCE), toggleBreak); 
 
 // New: Employee History
-router.get('/my-attendance-history', verifyToken, getMyAttendance);
+router.get('/my-attendance-history', authenticate, checkPermission(PERMISSIONS.VIEW_ATTENDANCE), getMyAttendance);
 
 // New: Employee Monthly Summary
-router.get('/my-monthly-summary', verifyToken, getMyMonthlySummary);
+router.get('/my-monthly-summary', authenticate, checkPermission(PERMISSIONS.VIEW_ATTENDANCE), getMyMonthlySummary);
 
 // --- ADMIN ROUTES ---
 // New: View All Attendance (Protected by verifyAdmin)
-router.get('/all-employees-attendance', verifyToken, verifyAdmin, getAllAttendance);
-router.get('/monthly-summary', verifyToken, verifyAdmin, getMonthlySummary);
+router.get('/all-employees-attendance', authenticate, checkPermission(PERMISSIONS.VIEW_ALL_ATTENDANCE), getAllAttendance);
+router.get('/monthly-summary', authenticate, checkPermission(PERMISSIONS.VIEW_ALL_ATTENDANCE), getMonthlySummary);
 
 // Add this route
-router.post('/auto-mark-absent', markAbsentees);
+router.post('/auto-mark-absent', authenticate, checkPermission(PERMISSIONS.MARK_ATTENDANCE), markAbsentees);
 
 // Add these to your route list (Make sure they are above any routes using /:id)
-router.post('/remind-check-in', remindCheckIn);
-router.post('/remind-check-out', remindCheckOut);
+router.post('/remind-check-in', authenticate, checkPermission(PERMISSIONS.MANAGE_NOTIFICATIONS), remindCheckIn);
+router.post('/remind-check-out', authenticate, checkPermission(PERMISSIONS.MANAGE_NOTIFICATIONS), remindCheckOut);
 
 module.exports = router;
