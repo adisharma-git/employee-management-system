@@ -6,16 +6,44 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...');
 
-  // 1. Clean the database
+  // 1. Clean the database (Order matters so we don't break relationships!)
   await prisma.dailyLog.deleteMany();
   await prisma.attendance.deleteMany();
   await prisma.announcement.deleteMany();
+  await prisma.task.deleteMany();
+  await prisma.project.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.role.deleteMany(); // ✅ NEW: Clear old roles
   
   console.log('🧹 Database cleared.');
 
-  // --- THE 4 ADMINS ---
+  // ==========================================
+  // 2. CREATE THE MASTER ROLES
+  // ==========================================
+  const superAdminRole = await prisma.role.create({
+    data: {
+      name: 'Super Admin',
+      description: 'Master access to all system features',
+      // Super Admin role starts with empty permissions - they bypass checks anyway via isSuperAdmin flag
+      permissions: [] 
+    }
+  });
+
+  const employeeRole = await prisma.role.create({
+    data: {
+      name: 'Employee',
+      description: 'Standard employee access',
+      // Employee role starts with empty permissions - will be assigned manually later
+      permissions: [] 
+    }
+  });
+
+  console.log('🛡️ Dynamic Roles created.');
+
+  // ==========================================
+  // 3. SEED THE 4 SUPER ADMIN USERS
+  // ==========================================
   const admins = [
     { name: 'Aniket Adarsh', email: 'aniket@workalignr.com', password: 'aniket' },
     { name: 'Akriti Kumari', email: 'akriti@workalignr.com' , password: 'akriti'},
@@ -24,14 +52,14 @@ async function main() {
   ];
 
   for (const admin of admins) {
-    // FIX: Hash the password before saving!
     const hashedPassword = await bcrypt.hash(admin.password, 10);
 
     const user = await prisma.user.create({
       data: {
         email: admin.email,
-        passwordHash: hashedPassword, // <--- Now this is safe
-        role: 'admin',
+        passwordHash: hashedPassword, 
+        roleId: superAdminRole.id,
+        isSuperAdmin: true, // ✅ Mark as Super Admin
         employee: {
           create: {
             name: admin.name,
@@ -42,16 +70,17 @@ async function main() {
         },
       },
     });
-    console.log(`✅ Created Admin: ${admin.email}`);
+    console.log(`✅ Created Super Admin: ${admin.email}`);
   }
 
-  // --- THE 2 EMPLOYEES ---
+  // ==========================================
+  // 4. SEED THE 2 TEST EMPLOYEE USERS
+  // ==========================================
   const employeePassword = await bcrypt.hash('employee', 10);
 
   const employees = [
-    // Fixed typo in email domain (workalignr vs worklignr)
-    { name: 'Employee 1', email: 'employee1@workalignr.com', role: 'employee' },
-    { name: 'Employee 2', email: 'employee2@workalignr.com', role: 'employee' },
+    { name: 'Employee 1', email: 'employee1@workalignr.com' },
+    { name: 'Employee 2', email: 'employee2@workalignr.com' },
   ];
 
   for (const emp of employees) {
@@ -59,7 +88,8 @@ async function main() {
       data: {
         email: emp.email,
         passwordHash: employeePassword,
-        role: 'employee',
+        roleId: employeeRole.id,
+        isSuperAdmin: false, // ✅ Regular employee
         employee: {
           create: {
             name: emp.name,

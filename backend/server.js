@@ -18,6 +18,7 @@ const notificationRoutes = require('./src/routes/notificationRoutes');
 const payrollRoutes = require('./src/routes/payrollRoutes');
 const projectRoutes = require('./src/routes/projectRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
+const roleRoutes = require('./src/routes/roleRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -58,6 +59,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/roles', roleRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {

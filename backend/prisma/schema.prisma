@@ -16,7 +16,10 @@ model User {
   id           String   @id @default(uuid())
   email        String   @unique
   passwordHash String   @map("password_hash")
-  role         String   // 'admin', 'manager', 'employee'
+  
+  roleId       String?  @map("role_id") 
+  role         Role?    @relation(fields: [roleId], references: [id])
+  isSuperAdmin Boolean  @default(false) @map("is_super_admin")
   
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -34,7 +37,7 @@ model User {
 
   @@map("users")
   @@index([email])
-  @@index([role])
+  @@index([roleId])
 }
 
 // --------------------------------------
@@ -380,4 +383,25 @@ model Task {
   @@index([projectId])
   @@index([assignedTo])
   @@index([status])
+}
+
+// --------------------------------------
+// 16. Roles Table (Dynamic RBAC)
+// --------------------------------------
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g., "HR Manager", "Team Lead"
+  description String?  
+  
+  // This stores the array of checked boxes from the frontend!
+  // e.g., ["create_employee", "approve_leave", "create_announcement"]
+  permissions String[] 
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Link back to the users who hold this role
+  users       User[]
+
+  @@map("roles")
 }

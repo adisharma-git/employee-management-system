@@ -29,7 +29,14 @@ const authenticate = async (req, res, next) => {
       select: {
         id: true,
         email: true,
-        role: true
+        isSuperAdmin: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+            permissions: true
+          }
+        }
       }
     });
 
