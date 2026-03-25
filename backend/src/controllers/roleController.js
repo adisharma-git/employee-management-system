@@ -1,4 +1,5 @@
 const prisma = require('../utils/prisma');
+const { PERMISSION_CATALOG } = require('../constants/permissions');
 
 // ==========================================
 // GET ALL ROLES
@@ -258,78 +259,16 @@ exports.deleteRole = async (req, res) => {
 // ==========================================
 exports.getPermissionCatalog = async (req, res) => {
   try {
-    const permissions = [
-      // Employee Management
-      'view_employees',
-      'create_employee',
-      'update_employee',
-      'delete_employee',
-
-      // Leave Management
-      'apply_leave',
-      'approve_leave',
-      'reject_leave',
-      'view_all_leaves',
-
-      // Attendance
-      'view_attendance',
-      'mark_attendance',
-      'view_all_attendance',
-
-      // Announcements
-      'create_announcement',
-      'edit_announcement',
-      'delete_announcement',
-      'view_announcements',
-
-      // Meetings
-      'create_meeting',
-      'edit_meeting',
-      'delete_meeting',
-      'view_meetings',
-
-      // Projects & Tasks
-      'view_projects',
-      'create_project',
-      'edit_project',
-      'delete_project',
-      'view_tasks',
-      'create_task',
-      'update_task_status',
-      'edit_task',
-      'delete_task',
-      'assign_task',
-
-      // Payroll
-      'view_payroll',
-      'generate_payroll',
-      'update_payroll',
-
-      // Holidays & Leave Types
-      'manage_holidays',
-      'manage_leave_types',
-
-      // Roles & Permissions
-      'manage_roles',
-      'manage_permissions',
-
-      // Logs & Admin
-      'view_logs',
-      'view_admin_dashboard',
-
-      // Notifications
-      'view_notifications',
-      'manage_notifications',
-
-      // Daily Logs
-      'view_daily_logs',
-      'create_daily_log',
-      'edit_daily_log'
-    ];
+    if (!req.user.isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only Super Admin can view permission catalog'
+      });
+    }
 
     res.status(200).json({
       success: true,
-      data: permissions
+      data: PERMISSION_CATALOG
     });
   } catch (error) {
     console.error('Error fetching permission catalog:', error);

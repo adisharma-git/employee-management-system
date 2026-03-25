@@ -1,14 +1,15 @@
 const express = require('express');
 const { getMyNotifications, markAsRead, markAllAsRead } = require('../controllers/notificationController');
-const { verifyToken } = require('../middleware/authMiddleware');
+const { authenticate } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 
 const router = express.Router();
 
-// Apply verifyToken to all routes
-router.use(verifyToken); 
+router.use(authenticate); 
 
-router.get('/', getMyNotifications);
-router.patch('/read-all', markAllAsRead); // IMPORTANT: Must be above the /:id route
-router.patch('/:id/read', markAsRead);
+router.get('/', checkPermission(PERMISSIONS.VIEW_NOTIFICATIONS), getMyNotifications);
+router.patch('/read-all', checkPermission(PERMISSIONS.VIEW_NOTIFICATIONS), markAllAsRead);
+router.patch('/:id/read', checkPermission(PERMISSIONS.VIEW_NOTIFICATIONS), markAsRead);
 
 module.exports = router;

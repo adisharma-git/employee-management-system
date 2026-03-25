@@ -1,13 +1,15 @@
 const express = require('express');
 const { createAnnouncement, getAnnouncements } = require('../controllers/announcementController');
-const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
+const { authenticate } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 
 const router = express.Router();
 
 // Admin creates an announcement
-router.post('/', verifyToken, verifyAdmin, createAnnouncement);
+router.post('/', authenticate, checkPermission(PERMISSIONS.CREATE_ANNOUNCEMENT), createAnnouncement);
 
 // Everyone can view the announcements
-router.get('/', verifyToken, getAnnouncements);
+router.get('/', authenticate, checkPermission(PERMISSIONS.VIEW_ANNOUNCEMENTS), getAnnouncements);
 
 module.exports = router;

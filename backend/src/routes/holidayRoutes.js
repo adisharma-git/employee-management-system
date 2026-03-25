@@ -1,9 +1,11 @@
 const express = require('express');
 const { createHoliday, getUpcomingHolidays } = require('../controllers/holidayController');
-const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
+const { authenticate } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 const router = express.Router();
 
-router.post('/', verifyToken, verifyAdmin, createHoliday);
-router.get('/upcoming-holidays', verifyToken, getUpcomingHolidays);
+router.post('/', authenticate, checkPermission(PERMISSIONS.MANAGE_HOLIDAYS), createHoliday);
+router.get('/upcoming-holidays', authenticate, checkPermission(PERMISSIONS.MANAGE_HOLIDAYS), getUpcomingHolidays);
 
 module.exports = router;

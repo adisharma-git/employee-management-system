@@ -6,18 +6,20 @@ const {
   getAllLeaves,
   updateLeaveStatus
 } = require('../controllers/leaveController');
-const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
+const { authenticate } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 
 const router = express.Router();
 
-router.post('/apply', verifyToken, applyForLeave);
-router.get('/my-balances', verifyToken, getMyBalances);
-router.get('/my-history', verifyToken, getMyLeaves);
+router.post('/apply', authenticate, checkPermission(PERMISSIONS.APPLY_LEAVE), applyForLeave);
+router.get('/my-balances', authenticate, checkPermission(PERMISSIONS.APPLY_LEAVE), getMyBalances);
+router.get('/my-history', authenticate, checkPermission(PERMISSIONS.APPLY_LEAVE), getMyLeaves);
 
 // GET: View all leaves (Can filter with ?status=pending)
-router.get('/all', verifyToken, verifyAdmin, getAllLeaves);
+router.get('/all', authenticate, checkPermission(PERMISSIONS.VIEW_ALL_LEAVES), getAllLeaves);
 
 // PATCH: Approve or Reject a leave
-router.patch('/:id/status', verifyToken, verifyAdmin, updateLeaveStatus);
+router.patch('/:id/status', authenticate, checkPermission(PERMISSIONS.APPROVE_LEAVE), updateLeaveStatus);
 
 module.exports = router;
