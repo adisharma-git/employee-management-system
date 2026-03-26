@@ -11,7 +11,7 @@ const DashboardHome = () => {
   const [totalPullRequests, setTotalPullRequests] = useState(0);
   const [topCommitterName, setTopCommitterName] = useState("No Data");
   const [topCommitterCount, setTopCommitterCount] = useState(0);
-  const [announcements, setAnnouncements] = useState([]);
+  const [, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [scheduledMeetings, setScheduledMeetings] = useState([]);
 

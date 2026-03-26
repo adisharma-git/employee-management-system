@@ -24,7 +24,9 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
     <>
       
       <button
-        className="md:hidden fixed top-4 left-4 z-50 bg-[#021f54] text-white p-2 rounded shadow"
+        className={`md:hidden fixed top-4 left-4 z-50 bg-[#021f54] text-white p-2 rounded shadow ${
+          mobileOpen ? "hidden" : "block"
+        }`}
         onClick={() => setMobileOpen(!mobileOpen)}
       >
         ☰
@@ -42,14 +44,14 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         onMouseLeave={() => setIsOpen(false)}
         className={`
           fixed md:static z-50 h-full bg-[#021f54] text-white flex flex-col
-          transition-all duration-300 ease-in-out overflow-hidden
+          transition-all duration-300 ease-in-out overflow-y-auto md:overflow-hidden
           ${isOpen ? "md:w-56" : "md:w-16"}
           ${mobileOpen ? "w-56 left-0" : "w-56 -left-56"}
           md:left-0
         `}
       >
 
-        <div className="flex flex-col flex-1 gap-6 p-2 mt-10 md:mt-0 justify-start">
+        <div className="flex flex-col flex-1 gap-4 p-3 pt-16 md:pt-3 justify-start">
           {menuItems.map((item) => (
             <button
               key={item.key}
@@ -57,7 +59,7 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
                 setSelectedTab(item.key);
                 setMobileOpen(false);
               }}
-              className={`flex items-center justify-center md:justify-start gap-3 p-3 rounded-lg transition-colors duration-200
+              className={`flex items-center justify-start gap-3 p-3 rounded-lg transition-colors duration-200
                 ${
                   selectedTab === item.key
                     ? "bg-orange-500 text-white"
@@ -76,10 +78,10 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
           ))}
         </div>
 
-        <div className="p-3">
+        <div className="p-3 mt-auto">
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center md:justify-start gap-3 p-3 rounded-lg hover:bg-white hover:text-black transition-colors duration-200"
+            className="flex w-full items-center justify-start gap-3 p-3 rounded-lg hover:bg-white hover:text-black transition-colors duration-200"
           >
             <i className="fas fa-sign-out-alt min-w-[20px] text-lg"></i>
             {(isOpen || mobileOpen) && <span className="whitespace-nowrap">Logout</span>}

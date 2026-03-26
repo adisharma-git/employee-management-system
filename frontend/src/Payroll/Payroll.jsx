@@ -21,7 +21,7 @@ const monthOptions = [
 
 const currentDate = new Date();
 
-export default function Payroll({ permission, userRole }) {
+export default function Payroll() {
   const [loading, setLoading] = useState(false);
   const [toasts, setToasts] = useState([]);
 
@@ -56,8 +56,7 @@ export default function Payroll({ permission, userRole }) {
     setToasts((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const isAdmin = permission || userRole === "admin";
-  const isEmployee = userRole === "employee";
+  
 
   const currency = (value) => {
     const number = Number(value || 0);
@@ -140,18 +139,13 @@ export default function Payroll({ permission, userRole }) {
   }, []);
 
   useEffect(() => {
-    if (isAdmin) {
+    
       fetchAdminBootstrap();
       fetchCompanyPayroll(companyFilter.month, companyFilter.year);
-      return;
-    }
-
-    if (isEmployee) {
       fetchMyPayslips();
-    }
+    
   }, [
-    isAdmin,
-    isEmployee,
+   
     companyFilter.month,
     companyFilter.year,
     fetchAdminBootstrap,
@@ -249,11 +243,9 @@ export default function Payroll({ permission, userRole }) {
     await fetchCompanyPayroll(Number(companyFilter.month), Number(companyFilter.year));
   };
 
-  if (!isAdmin && !isEmployee) {
-    return <AccessRestricted />;
-  }
+ 
 
-  if (loading && !isAdmin && isEmployee) {
+  if (loading ) {
     return <Loader />;
   }
 
@@ -261,7 +253,7 @@ export default function Payroll({ permission, userRole }) {
     <div className="min-h-screen bg-gray-50 p-2 md:p-0">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
-      {isAdmin ? (
+      {loading ? (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <SummaryCard title="Total Records" value={companyPayroll.length} />
