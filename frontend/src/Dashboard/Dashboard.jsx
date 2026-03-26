@@ -24,7 +24,7 @@ export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [userName, setUserName] = useState("Login");
   const [permission,setPermission]=useState(false);
-  const [userRole, setUserRole] = useState("");
+  const [, setUserRole] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeSearchQuery, setEmployeeSearchQuery] = useState("");
   const [searchTrigger, setSearchTrigger] = useState(0);
@@ -84,7 +84,7 @@ useEffect(() => {
           />
         );
       case "reports":
-        return <Reports permission={permission}/>;
+        return <Reports />;
       case "EmployeeForm":
         return <EmployeeForm/>;
       case "Attendance":
@@ -92,25 +92,25 @@ useEffect(() => {
       case "performance":
         return <TimeLogDashboard/>;
       case "adminRegistration":
-        return <EmployeeRegistration permission={permission}/>;
+        return <EmployeeRegistration />;
       case "settings":
         return <Settings/>;
       case "LeavesPage":
         return <LeavesPage/>;
       case "Announcement":
-        return <AnnouncementPage permission={permission}/>;
+        return <AnnouncementPage />;
         case "ProjectActivity":
         return <GithubCommits />;
         case "Pull Requests":
         return <PullRequests />;
         case "Meetings":
-          return <UpcomingMeetings permission={permission}/>
+          return <UpcomingMeetings />
         case "Holidays":
-          return <Holidays permission={permission}/>;
+          return <Holidays />;
       case "Payroll":
-        return <Payroll permission={permission} userRole={userRole} />;
+        return <Payroll />;
       case "TaskManagement":
-        return <TaskManagement permission={permission} />;
+        return <TaskManagement />;
       default:
         return <DashboardHome/>;
     }
