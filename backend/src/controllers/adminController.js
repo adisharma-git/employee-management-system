@@ -44,7 +44,7 @@ exports.createEmployee = async (req, res) => {
   //  Extract the new salary fields from req.body
     const { 
       name, email, password, department, designation,
-      baseSalary, allowances, taxRate 
+      baseSalary, allowances, taxRate, roleId 
     } = req.body;
 
     // A. Check if email exists
@@ -56,13 +56,27 @@ exports.createEmployee = async (req, res) => {
 
     // C. Transaction: Create User, Profile, Leaves, AND Salary all at once!
     const result = await prisma.$transaction(async (tx) => {
+      // 0A. Determine Role: Use provided roleId or default to 'Employee' role
+      let assignedRoleId = roleId;
+      if (!assignedRoleId) {
+        const employeeRole = await tx.role.findUnique({
+          where: { name: 'Employee' }
+        });
+        if (!employeeRole) {
+          throw new Error('Employee role not found in database');
+        }
+        assignedRoleId = employeeRole.id;
+      }
+
       // 1. Create Login Account
       const newUser = await tx.user.create({
         data: {
           email,
           passwordHash: hashedPassword,
-          role: 'employee', 
-        }
+          roleId: assignedRoleId,
+          isSuperAdmin: false
+        },
+        include: { role: true }
       });
 
       // 2. Create Profile
@@ -115,7 +129,20 @@ exports.createEmployee = async (req, res) => {
       };
     });
 
-    res.status(201).json({ success: true, message: "Employee Onboarded!", data: result });
+    res.status(201).json({ 
+      success: true, 
+      message: "Employee Onboarded!", 
+      data: {
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          isSuperAdmin: result.user.isSuperAdmin,
+          role: result.user.role
+        },
+        employee: result.employee,
+        salaryStructure: result.salaryStructure
+      }
+    });
 
   } catch (error) {
     console.error("Onboarding Error:", error);
