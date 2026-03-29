@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MeetingModal from "./MeetingModal";
 import api from "../src/api/axios";
 
-const UpcomingMeetings = ({ permission = false }) => {
+const UpcomingMeetings = () => {
   const [meetings, setMeetings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -42,14 +42,14 @@ const UpcomingMeetings = ({ permission = false }) => {
             Upcoming company meetings
           </p>
         </div>
-        {permission && (
+        
           <button
   onClick={() => setShowModal(true)}
   className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black text-sm font-medium px-3 py-1.5 rounded-md transition-colors duration-200 flex items-center gap-1"
 >
   <span className="text-base">+</span> Meeting
 </button>
-        )}
+       
       </div>
 
       {/* Meetings Grid */}

@@ -18,7 +18,7 @@ const PRIORITY_STYLES = {
   high: "bg-red-100 text-red-700",
 };
 
-export default function TaskManagement({ permission }) {
+export default function TaskManagement() {
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [boardData, setBoardData] = useState(null);
@@ -247,7 +247,7 @@ export default function TaskManagement({ permission }) {
             My Tasks
           </button>
 
-          {permission && (
+         
             <>
               <button
                 onClick={() => setShowCreateProjectModal(true)}
@@ -268,7 +268,7 @@ export default function TaskManagement({ permission }) {
                 + Task
               </button>
             </>
-          )}
+         
         </div>
       </div>
 

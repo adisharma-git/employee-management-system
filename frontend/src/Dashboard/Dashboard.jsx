@@ -121,13 +121,13 @@ export default function Dashboard() {
       case "Pull Requests":
         return <PullRequests />;
       case "Meetings":
-        return <UpcomingMeetings permission={permission} />
+        return <UpcomingMeetings  />
       case "Holidays":
-        return <Holidays permission={permission} />;
+        return <Holidays  />;
       case "Payroll":
-        return <Payroll permission={permission} userRole={userRole} />;
+        return <Payroll  userRole={userRole} />;
       case "TaskManagement":
-        return <TaskManagement permission={permission} />;
+        return <TaskManagement />;
       case "role":
         return <RolesPage />;
       default:

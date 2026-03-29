@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../src/api/axios";
 import HolidayModal from "./HolidaysModal";
 
-const Holidays = ({ permission = false }) => {
+const Holidays = () => {
   const [holidays, setHolidays] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -44,14 +44,14 @@ const Holidays = ({ permission = false }) => {
           </p>
         </div>
 
-        {permission && (
+       
           <button
             onClick={() => setShowModal(true)}
             className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black text-sm sm:text-base font-medium px-3 py-1.5 rounded-md transition-colors duration-200 flex items-center gap-1"
           >
             <span className="text-base">+</span> Holiday
           </button>
-        )}
+        
       </div>
 
       {/* Holidays Grid */}
