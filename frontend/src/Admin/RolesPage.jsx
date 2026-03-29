@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../api/axios";
 import AddRoleModal from "./AddRoleModal";
 
-const RolesPage = ({ permission = true }) => {
+const RolesPage = () => {
   const [roles, setRoles] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
@@ -47,7 +47,7 @@ const RolesPage = ({ permission = true }) => {
           </p>
         </div>
 
-        {permission && (
+       
           <button
             onClick={() => {
               setSelectedRole(null);
@@ -57,7 +57,7 @@ const RolesPage = ({ permission = true }) => {
           >
             + Add Role
           </button>
-        )}
+      
       </div>
 
       {/* Loader */}

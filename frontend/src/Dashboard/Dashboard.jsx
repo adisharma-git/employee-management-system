@@ -19,16 +19,23 @@ import Holidays from "../../Holidays/Holidays";
 import Payroll from "../Payroll/Payroll";
 import TaskManagement from "../TaskManagement/TaskManagement";
 import RolesPage from "../Admin/RolesPage";
+import { useAuth } from "../../Context/AuthContext";
+import { usePermission } from "../hooks/usePermission";
+
 
 
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [userName, setUserName] = useState("Login");
-  const [permission,setPermission]=useState(false);
+  const [permission, setPermission] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeSearchQuery, setEmployeeSearchQuery] = useState("");
   const [searchTrigger, setSearchTrigger] = useState(0);
+  const { permissions, setUserPermissions } = useAuth();
+  const { can } = usePermission();
+  console.log("Dashboard permissions:", permissions);
+  console.log("can",can);
 
   const handleFilterSearch = () => {
     const query = searchTerm.trim().toLowerCase();
@@ -39,31 +46,36 @@ export default function Dashboard() {
     setSearchTrigger((prev) => prev + 1);
   };
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const response = await api.get("/employee/me");
-      const userData = response.data.data;
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/employee/me");
+        const userData = response.data.data;
 
-      if (userData?.name) {
-        setUserName(userData.name);
+        if (userData?.name) {
+          setUserName(userData.name);
+        }
+
+        const roleData = userData?.user?.role;
+
+        setUserRole(roleData?.name || "");
+
+      
+        const perms = roleData?.permissions;
+
+        // 🔥 ONLY update if valid data
+        if (perms && perms.length > 0) {
+          setUserPermissions(perms, userData?.user?.isSuperAdmin);
+        }
+        console.log("API perms:", perms);
+
+      } catch (error) {
+        console.error("Error fetching user:", error);
       }
+    };
 
-      setUserRole(userData?.user?.role || "");
-
-      if (userData?.user?.role === "admin") {
-        setPermission(true);  
-      } else {
-        setPermission(false);  
-      }
-
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    }
-  };
-
-  fetchUser();
-}, []);
+    fetchUser();
+  }, []);
 
 
   const getGreeting = () => {
@@ -85,37 +97,41 @@ useEffect(() => {
           />
         );
       case "reports":
-        return <Reports permission={permission}/>;
+        return <Reports permission={permission} />;
       case "EmployeeForm":
-        return <EmployeeForm/>;
+        return <EmployeeForm />;
       case "Attendance":
-        return <Attendance/>;
+        return <Attendance />;
       case "performance":
-        return <TimeLogDashboard/>;
+        return <TimeLogDashboard />;
       case "adminRegistration":
         return <EmployeeRegistration />;
       case "settings":
-        return <Settings/>;
+        return <Settings />;
       case "LeavesPage":
-        return <LeavesPage/>;
-      case "Announcement":
-        return <AnnouncementPage permission={permission}/>;
-        case "ProjectActivity":
+        return <LeavesPage />;
+        case "Announcement":
+          if (!can("view_announcements")) {
+            return <div>Access Denied</div>;
+          }
+        
+          return <AnnouncementPage />;
+      case "ProjectActivity":
         return <GithubCommits />;
-        case "Pull Requests":
+      case "Pull Requests":
         return <PullRequests />;
-        case "Meetings":
-          return <UpcomingMeetings permission={permission}/>
-        case "Holidays":
-          return <Holidays permission={permission}/>;
+      case "Meetings":
+        return <UpcomingMeetings permission={permission} />
+      case "Holidays":
+        return <Holidays permission={permission} />;
       case "Payroll":
         return <Payroll permission={permission} userRole={userRole} />;
       case "TaskManagement":
         return <TaskManagement permission={permission} />;
-        case "Roles":
-        return<RolesPage/>;
+      case "role":
+        return <RolesPage />;
       default:
-        return <DashboardHome/>;
+        return <DashboardHome />;
     }
   };
 
@@ -149,11 +165,11 @@ useEffect(() => {
                       placeholder="Search employee"
                       className="w-28 sm:w-40 border border-gray-300 rounded-md px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-[#021f54]"
                     />
-                    
+
                   </>
                 )}
 
-                {permission && (
+                {permissions.includes("create_employee") && (
                   <button
                     onClick={() => setSelectedTab("adminRegistration")}
                     className="bg-[#021f54] text-white hover:bg-orange-400
