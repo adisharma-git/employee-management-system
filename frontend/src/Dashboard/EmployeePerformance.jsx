@@ -1,92 +1,170 @@
 import React from "react";
 
-const EmployeePerformance = () => {
-  const tasks = [
-    { id: 1, title: "Design new landing page concept", status: "Completed" },
-    { id: 2, title: "Create wireframes for signup flow", status: "Pending" },
-    { id: 3, title: "User feedback analysis", status: "Completed" },
-    { id: 4, title: "Prepare UI presentation stladies", status: "Overdue" },
-    { id: 5, title: "Update component library in Figma", status: "Completed" },
-    { id: 6, title: "Team meeting for feedback discussion", status: "Pending" },
-    { id: 7, title: "Prepare UI presentation slides", status: "Overdue" },
-  ];
+const STATUS_STYLE_MAP = {
+  Completed: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  Pending: "bg-amber-100 text-amber-700 border border-amber-200",
+  Overdue: "bg-rose-100 text-rose-700 border border-rose-200",
+  "In Progress": "bg-sky-100 text-sky-700 border border-sky-200",
+};
+
+const EmployeePerformance = ({
+  employee = {},
+  tasks = [],
+  summary = {},
+  loading = false,
+}) => {
+  const {
+    name = "Employee",
+    employeeCode = "--",
+    role = "Role not available",
+    avatar,
+  } = employee;
+
+  const assignedCount =
+    summary.assigned ?? (Array.isArray(tasks) ? tasks.length : 0);
+  const completedCount =
+    summary.completed ??
+    (Array.isArray(tasks)
+      ? tasks.filter((task) => task.status === "Completed").length
+      : 0);
+  const pendingCount =
+    summary.pending ??
+    (Array.isArray(tasks)
+      ? tasks.filter((task) => ["Pending", "In Progress"].includes(task.status))
+          .length
+      : 0);
 
   const getStatusStyles = (status) => {
-    switch (status) {
-      case "Completed":
-        return "bg-[#E8F5E9] text-[#2E7D32]";
-      case "Pending":
-        return "bg-[#FFF8E1] text-[#F57F17]";
-      case "Overdue":
-        return "bg-[#FFEBEE] text-[#C62828]";
-      default:
-        return "bg-gray-100 text-gray-600";
-    }
+    return (
+      STATUS_STYLE_MAP[status] ||
+      "bg-slate-100 text-slate-700 border border-slate-200"
+    );
   };
 
   return (
-    <div className="w-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 font-sans">
-      <div className="flex items-center mb-6">
-        <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100">
-          <img
-            src="https://ui-avatars.com/api/?name=Akriti+Singh&background=random"
-            alt="Akriti Singh"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="ml-4">
-          <h2 className="text-lg font-bold text-gray-800 leading-tight">
-            Akriti Singh
-          </h2>
-          <p className="text-xs text-gray-400 font-medium">
-            EMP-2824-089 • Senior UI/UX Designer
-          </p>
-        </div>
-      </div>
-      <div className="flex gap-4 mb-8">
-        <div className="flex-1 bg-[#F0F7FF] py-3 px-4 rounded-xl text-center border border-blue-50">
-          <span className="text-blue-600 font-bold text-sm">Assigned: 6</span>
-        </div>
-        <div className="flex-1 bg-[#E8F5E9] py-3 px-4 rounded-xl text-center border border-green-50">
-          <span className="text-green-600 font-bold text-sm">Completed: 4</span>
-        </div>
-        <div className="flex-1 bg-[#FFF8E1] py-3 px-4 rounded-xl text-center border border-yellow-50">
-          <span className="text-yellow-600 font-bold text-sm">Pending: 2</span>
-        </div>
-      </div>
-      <div className="overflow-hidden">
-        <div className="flex justify-between items-center mb-4 px-2">
-          <h3 className="text-sm font-bold text-gray-700">Tasks</h3>
-          <h3 className="text-sm font-bold text-gray-700">Status</h3>
-        </div>
-
-        <div className="space-y-1">
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              className="flex items-center justify-between p-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors rounded-lg"
-            >
-              <div className="flex items-center gap-3">
-                <span className="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
-                <span className="text-sm text-gray-600 font-medium">
-                  {task.title}
-                </span>
-              </div>
-              <div
-                className={`px-4 py-1 rounded-full text-[11px] font-bold min-w-[90px] text-center ${getStatusStyles(task.status)}`}
-              >
-                {task.status}
-              </div>
+    <section className="w-full bg-white">
+      <div className="p-5 sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-blue-900 text-lg font-semibold text-white">
+              {avatar ? (
+                <img src={avatar} alt={name} className="h-full w-full object-cover" />
+              ) : (
+                name
+                  .split(" ")
+                  .slice(0, 2)
+                  .map((item) => item[0])
+                  .join("")
+                  .toUpperCase()
+              )}
             </div>
-          ))}
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Performance Overview
+              </p>
+              <h2 className="text-2xl font-semibold text-slate-900">{name}</h2>
+              <p className="text-sm text-slate-600">
+                {employeeCode} | {role}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid w-full max-w-[420px] grid-cols-3 gap-6 text-center">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Assigned
+              </p>
+              <p className="mt-1 text-xl font-semibold text-slate-900">{assignedCount}</p>
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Completed
+              </p>
+              <p className="mt-1 text-xl font-semibold text-slate-900">{completedCount}</p>
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Open
+              </p>
+              <p className="mt-1 text-xl font-semibold text-slate-900">{pendingCount}</p>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="mt-6 px-2">
-        <p className="text-xs text-gray-400 font-medium">
-          Showing 6 out of 6 tasks
-        </p>
+
+      <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-x-auto">
+          <table className="w-full table-fixed text-left">
+            <colgroup>
+              <col className="w-[55%]" />
+              <col className="w-[25%]" />
+              <col className="w-[20%]" />
+            </colgroup>
+          <thead>
+            <tr className="bg-blue-900 text-white">
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                Task
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                Due Date
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                Status
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td
+                  colSpan={3}
+                  className="px-6 py-14 text-center text-sm font-medium text-slate-600"
+                >
+                  Loading performance tasks...
+                </td>
+              </tr>
+            ) : tasks.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={3}
+                  className="px-6 py-14 text-center text-sm font-medium text-slate-600"
+                >
+                  No task records available yet.
+                </td>
+              </tr>
+            ) : (
+              tasks.map((task, index) => (
+                <tr
+                  key={task.id || `${task.title}-${index}`}
+                  className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
+                >
+                  <td className="px-6 py-4 text-sm font-medium text-slate-800">
+                    {task.title || "Untitled task"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {task.dueDate || "-"}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusStyles(
+                        task.status
+                      )}`}
+                    >
+                      {task.status || "Unknown"}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      <div className="px-6 py-3 text-xs font-medium text-slate-500">
+        Showing {tasks.length} task{tasks.length === 1 ? "" : "s"}
+      </div>
+    </section>
   );
 };
 
