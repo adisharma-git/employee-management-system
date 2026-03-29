@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import ToastContainer from "../Toaster/Toast";
+import { useAuth } from "../../Context/AuthContext";
+
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +14,9 @@ export default function Login() {
     email: "",
     password: "",
   });
+
   const navigate = useNavigate();
+  const { setUserPermissions } = useAuth(); // 🔥 ADD THIS
 
   /* ── toast helpers ── */
   const addToast = (type, message) => {
@@ -23,7 +27,7 @@ export default function Login() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  /* ── validation (unchanged) ── */
+  /* ── validation ── */
   const validateForm = () => {
     const newErrors = {};
 
@@ -58,14 +62,29 @@ export default function Login() {
         email: formData.email,
         password: formData.password,
       };
+
       const response = await api.post("/auth/login", payload);
+
       if (response.status === 200) {
+
+        // 🔐 TOKEN
         localStorage.setItem("token", response.data.token);
+
+        // 🔥 USER (optional)
         localStorage.setItem("user", JSON.stringify(response.data.user));
+
+        // 🔥🔥 MOST IMPORTANT (RBAC)
+        const permissions =
+          response.data?.user?.role?.permissions || [];
+
+          const isSuperAdmin = response.data.user.isSuperAdmin;
+
+          setUserPermissions(permissions, isSuperAdmin);
+
         const successMessage =
           response?.data?.message ||
-          response?.data?.data?.message ||
           "Login successful! Welcome back";
+
         addToast("success", successMessage);
         setTimeout(() => {
           navigate("/dashboardNew", { replace: true });
@@ -77,10 +96,11 @@ export default function Login() {
       });
     } catch (error) {
       console.error("Login error:", error);
+
       const msg =
         error.response?.data?.message ||
-        error.response?.data?.error ||
         "Login failed. Please try again.";
+
       addToast("error", msg);
     } finally {
       setLoading(false);
@@ -109,12 +129,12 @@ export default function Login() {
             </div>
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="mail@website.com"
-                  value={formData.email}
-                  onChange={handleChange}
+              <input
+                type="email"
+                name="email"
+                placeholder="mail@website.com"
+                value={formData.email}
+                onChange={handleChange}
                   className={`w-full px-4 py-3 rounded-full border ${
                     errors.email ? "border-red-500" : "border-gray-300"
                   }`}
@@ -124,12 +144,12 @@ export default function Login() {
                 )}
               </div>
               <div className="relative">
-                <input
+              <input
                   type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Min. 6 characters"
-                  value={formData.password}
-                  onChange={handleChange}
+                name="password"
+                placeholder="Min. 6 characters"
+                value={formData.password}
+                onChange={handleChange}
                   className={`w-full px-4 py-3 rounded-full border ${
                     errors.password ? "border-red-500" : "border-gray-300"
                   }`}
@@ -154,7 +174,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#021f54] text-white py-3 rounded-full font-semibold hover:opacity-90 disabled:opacity-60"
+                className="w-full bg-[#021f54] text-white py-3 rounded-full"
               >
                 {loading ? "Logging in..." : "Login"}
               </button>

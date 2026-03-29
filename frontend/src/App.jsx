@@ -2,6 +2,8 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
 import DashboardHome from "./Dashboard/DashboardHome";
+import { AuthProvider } from "../Context/AuthContext";
+
 
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -30,6 +32,7 @@ const ScheduledMeetings = lazy(() => import("../ScheduledMeetings/UpcomingMeetin
 
 function App() {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Suspense
         fallback={
@@ -154,6 +157,7 @@ function App() {
         </Routes>
       </Suspense>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
 
