@@ -97,7 +97,7 @@ export default function Dashboard() {
           />
         );
       case "reports":
-        return <Reports permission={permission} />;
+        return <Reports />;
       case "EmployeeForm":
         return <EmployeeForm />;
       case "Attendance":
