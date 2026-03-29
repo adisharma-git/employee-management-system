@@ -10,16 +10,14 @@ import {
 import EmployeePerformance from "./EmployeePerformance";
 import AccessRestricted from "../Components/AccessRestricted";
 
-const DashboardHeader = ({permission}) => {
+const DashboardHeader = () => {
   const [view, setView] = useState("Daily");
 
   return (
    
     <div className="w-full bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
-      {!permission &&
-      <AccessRestricted/>
-      }
-      {permission &&
+     
+    
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
         <div className="relative flex-grow lg:max-w-md">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
@@ -79,8 +77,8 @@ const DashboardHeader = ({permission}) => {
           </div>
         </div>
       </div>
-      }
-      {permission &&<EmployeePerformance />}
+    
+      <EmployeePerformance />
       
     </div>
         
