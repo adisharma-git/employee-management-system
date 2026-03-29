@@ -18,6 +18,7 @@ import UpcomingMeetings from "../../ScheduledMeetings/UpcomingMeetings";
 import Holidays from "../../Holidays/Holidays";
 import Payroll from "../Payroll/Payroll";
 import TaskManagement from "../TaskManagement/TaskManagement";
+import RolesPage from "../Admin/RolesPage";
 
 
 export default function Dashboard() {
@@ -92,7 +93,7 @@ useEffect(() => {
       case "performance":
         return <TimeLogDashboard/>;
       case "adminRegistration":
-        return <EmployeeRegistration permission={permission}/>;
+        return <EmployeeRegistration />;
       case "settings":
         return <Settings/>;
       case "LeavesPage":
@@ -111,6 +112,8 @@ useEffect(() => {
         return <Payroll permission={permission} userRole={userRole} />;
       case "TaskManagement":
         return <TaskManagement permission={permission} />;
+        case "Roles":
+        return<RolesPage/>;
       default:
         return <DashboardHome/>;
     }

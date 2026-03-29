@@ -5,7 +5,7 @@ import Loader from "../Loader/Loader";
 import AccessRestricted from "../Components/AccessRestricted";
 import ToastContainer from "../Toaster/Toast";
 
-export default function EmployeeRegistration({permission}) {
+export default function EmployeeRegistration() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -153,7 +153,7 @@ export default function EmployeeRegistration({permission}) {
 
       <div className="min-h-[calc(100vh-80px)] bg-slate-50 px-6 py-10">
         <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-md border border-gray-200 p-10">
-        {permission ? (
+       
           <>
             <div className="mb-8 border-b pb-4">
               <h1 className="text-2xl font-bold text-[#021f54]">
@@ -341,9 +341,7 @@ export default function EmployeeRegistration({permission}) {
               </div>
             </form>
           </>
-        ) : (
-          <AccessRestricted />
-        )}
+
         </div>
       </div>
     </>

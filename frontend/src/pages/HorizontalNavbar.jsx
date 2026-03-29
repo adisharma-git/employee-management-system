@@ -145,6 +145,8 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
         return 'Meeting';
       case 'task':
         return 'Task';
+      case "role":
+        return "Role";
       default:
         return 'Update';
     }
