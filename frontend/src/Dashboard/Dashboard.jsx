@@ -103,6 +103,9 @@ export default function Dashboard() {
       case "Attendance":
         return <Attendance />;
       case "performance":
+        if (!can("view_logs") && !can("view_daily_logs")) {
+          return <div>Access Denied</div>;
+        }
         return <TimeLogDashboard />;
       case "adminRegistration":
         return <EmployeeRegistration />;
