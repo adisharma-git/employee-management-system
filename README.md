@@ -57,9 +57,11 @@ The Employee Management System (EMS) is a comprehensive web application designed
 - **Development Timeline**: 20 Days (January 13 - February 7, 2026)
 - **Team Size**: 4 Developers
 - **Total Components**: 50+ React components
-- **API Endpoints**: 21 REST endpoints
-- **Database Tables**: 5 PostgreSQL tables
+- **API Endpoints**: 50+ REST endpoints
+- **Database Tables**: 12+ PostgreSQL tables
 - **Test Coverage**: 80%+ for critical paths
+- **Feature Modules**: 15+ modules (Auth, Attendance, Leave, Payroll, Meetings, etc.)
+- **Email Service**: Integrated NodeMailer with multiple notification templates
 
 ---
 
@@ -103,6 +105,35 @@ The Employee Management System (EMS) is a comprehensive web application designed
   - Attendance patterns
   - Custom report generation
 
+- **💰 Payroll Management**
+  - Set salary structures with base salary, allowances, and tax rates
+  - Generate monthly payroll reports
+  - Automatic salary calculations
+  - Payroll history tracking
+
+- **🗓️ Meetings**
+  - Schedule meetings with meeting links
+  - Email and in-app notifications to all employees
+  - Meeting history and upcoming meetings view
+  - Automated notification system
+
+- **📢 Announcements**
+  - Post system-wide announcements
+  - Email and in-app notifications
+  - Announcement pagination and sorting
+  - Content management
+
+- **🏗️ Projects & Kanban Board**
+  - Create and manage projects
+  - Kanban board view with task columns
+  - Task assignment and progress tracking
+  - Project status management (active, completed, archived)
+
+- **🏖️ Holiday Management**
+  - Configure company holidays
+  - Holiday calendar integration
+  - Holiday impact on Leave calculations
+
 ### 👔 Manager Features
 
 - **📊 Team Dashboard**
@@ -132,8 +163,15 @@ The Employee Management System (EMS) is a comprehensive web application designed
 - **📊 Personal Dashboard**
   - Quick stats overview
   - Recent activity feed
-  - Upcoming tasks
+  - Upcoming tasks and meetings
   - Leave balance
+  - Notifications summary
+
+- **📝 Daily Logs**
+  - Log daily tasks and activities
+  - Track time spent on tasks
+  - Update task status
+  - Daily summary view
 
 - **📅 Attendance**
   - Mark daily attendance
@@ -157,6 +195,29 @@ The Employee Management System (EMS) is a comprehensive web application designed
   - Update personal information
   - Change password
   - Notification preferences
+  - View personal activity logs
+
+---
+
+## 📧 Core Features
+
+### Email Notifications
+- **Automatic Email System**: Integrated email notifications for:
+  - New meeting announcements with meeting links
+  - System announcements and updates
+  - Leave request approvals/rejections
+  - Task assignments and updates
+  - Payroll notifications
+- **In-App Notifications**: Real-time in-app notification system
+- **Notification Center**: View all notifications in one place
+- **Email Service**: NodeMailer integration for reliable email delivery
+
+### Role-Based Access Control (RBAC)
+- **Admin**: Full system access, user management, approvals
+- **Manager**: Team management, leave approvals, task assignment
+- **Employee**: Personal data management, leave requests, task updates
+- **Super Admin**: Extended permissions for system configuration
+- **Granular Permissions**: Fine-grained permission control at action level
 
 ---
 
@@ -214,27 +275,31 @@ Password: Employee@123
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **React** | 18.2.0 | UI library |
-| **Vite** | 5.0.0 | Build tool & dev server |
-| **React Router** | 6.20.0 | Client-side routing |
-| **Tailwind CSS** | 3.4.0 | Utility-first CSS framework |
-| **Recharts** | 2.10.0 | Chart library |
-| **Axios** | 1.6.0 | HTTP client |
+| **React** | 19.2.0 | UI library |
+| **Vite** | 7.2.4 | Build tool & dev server |
+| **React Router** | 7.12.0 | Client-side routing |
+| **Tailwind CSS** | 3.4.19 | Utility-first CSS framework |
+| **Recharts** | 3.8.0 | Chart library |
+| **Axios** | 1.13.2 | HTTP client |
 | **React Context** | - | State management |
+| **EmailJS** | 4.4.1 | Email integration (frontend) |
+| **React DatePicker** | 9.1.0 | Date picker component |
+| **FontAwesome** | 7.2.0 | Icon library |
+| **Styled Components** | 6.3.8 | CSS-in-JS styling |
 
 ### Backend
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **Node.js** | 18+ | Runtime environment |
-| **Express.js** | 4.18.0 | Web framework |
-| **Prisma** | 5.7.0 | ORM for database |
-| **JWT** | 9.0.2 | Authentication tokens |
-| **Bcrypt** | 5.1.1 | Password hashing |
-| **Express Validator** | 7.0.0 | Input validation |
-| **Helmet** | 7.1.0 | Security middleware |
-| **Morgan** | 1.10.0 | HTTP request logger |
+| **Express.js** | 5.2.1 | Web framework |
+| **Prisma** | 5.22.0 | ORM for database |
+| **JWT** | 9.0.3 | Authentication tokens |
+| **Bcrypt** | 3.0.3 | Password hashing |
+| **Helmet** | 8.1.0 | Security middleware |
 | **CORS** | 2.8.5 | Cross-origin resource sharing |
+| **NodeMailer** | 8.0.4 | Email service integration |
+| **UUID** | 8.3.2 | Unique ID generation |
 
 ### Database
 

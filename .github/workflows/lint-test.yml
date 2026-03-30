@@ -1,0 +1,58 @@
+name: Lint & Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      # Backend Linting & Testing
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+      
+      - name: Lint backend code
+        run: |
+          cd backend
+          npm run lint
+        continue-on-error: true
+      
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm test
+        continue-on-error: true
+      
+      # Frontend Linting & Testing
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+      
+      - name: Lint frontend code
+        run: |
+          cd frontend
+          npm run lint
+        continue-on-error: true
+      
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
