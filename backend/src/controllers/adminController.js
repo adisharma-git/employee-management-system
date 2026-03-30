@@ -4,14 +4,20 @@ const bcrypt = require('bcryptjs');
 // 1. GET ALL EMPLOYEES (The Directory)
 exports.getAllEmployees = async (req, res) => {
   try {
-    // Fetch users who are NOT admins (Role = 'employee')
+    // Fetch users who have the 'Employee' role (RBAC-based filtering)
     // We include the 'employee' profile data too
     const employees = await prisma.user.findMany({
-      where: { role: 'employee' },
+      where: { role: { name: 'Employee' } },
       select: {
         id: true,
         email: true,
-        role: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+            permissions: true
+          }
+        },
         employee: {
           select: {
             id: true,
