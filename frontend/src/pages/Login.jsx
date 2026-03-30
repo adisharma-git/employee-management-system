@@ -87,7 +87,7 @@ export default function Login() {
 
         addToast("success", successMessage);
         setTimeout(() => {
-          navigate("/dashboardNew", { replace: true });
+          navigate("/dashboardNew");
         }, 1200);
       }
       setFormData({

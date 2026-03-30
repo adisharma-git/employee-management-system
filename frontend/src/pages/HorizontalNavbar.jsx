@@ -47,7 +47,7 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setProfileDropdownOpen(false);
-    navigate('/login', { replace: true });
+    navigate('/login');
   };
 
   const loadNotifications = async () => {
