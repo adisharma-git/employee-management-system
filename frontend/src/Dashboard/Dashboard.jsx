@@ -89,9 +89,12 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (selectedTab) {
       case "employees":
+        if (!can("view_employees")) {
+          return <div>Access Denied</div>;
+        }
         return (
           <Employees
-            permission={permission}
+           
             highlightQuery={employeeSearchQuery}
             searchTrigger={searchTrigger}
           />
@@ -101,6 +104,9 @@ export default function Dashboard() {
       case "EmployeeForm":
         return <EmployeeForm />;
       case "Attendance":
+        if (!can("view_attendance")) {
+          return <div>Access Denied</div>;
+        }
         return <Attendance />;
       case "performance":
         if (!can("view_logs") && !can("view_daily_logs")) {
@@ -112,6 +118,9 @@ export default function Dashboard() {
       case "settings":
         return <Settings />;
       case "LeavesPage":
+        if (!can("view_all_leaves")) {
+          return <div>Access Denied</div>;
+        }
         return <LeavesPage />;
         case "Announcement":
           if (!can("view_announcements")) {
@@ -141,6 +150,9 @@ export default function Dashboard() {
         }
         return <TaskManagement />;
       case "role":
+        if (!can("manage_roles")) {
+          return <div>Access Denied</div>;
+        }
         return <RolesPage />;
       default:
         return <DashboardHome />;
