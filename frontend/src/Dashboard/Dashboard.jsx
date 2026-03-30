@@ -129,10 +129,16 @@ export default function Dashboard() {
         }
         return <UpcomingMeetings  />
       case "Holidays":
+        if (!can("manage_holidays")) {
+          return <div>Access Denied</div>;
+        }
         return <Holidays  />;
       case "Payroll":
         return <Payroll  userRole={userRole} />;
       case "TaskManagement":
+        if (!can("view_tasks")) {
+          return <div>Access Denied</div>;
+        }
         return <TaskManagement />;
       case "role":
         return <RolesPage />;

@@ -3,6 +3,7 @@ import api from "../api/axios";
 import ToastContainer from "../Toaster/Toast";
 import CreateProjectModal from "./CreateProjectModal";
 import CreateTaskModal from "./CreateTaskModal";
+import { usePermission } from "../hooks/usePermission";
 
 const KANBAN_COLUMNS = [
   { key: "todo", label: "To Do" },
@@ -19,6 +20,7 @@ const PRIORITY_STYLES = {
 };
 
 export default function TaskManagement() {
+  const { can } = usePermission();
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [boardData, setBoardData] = useState(null);
@@ -163,7 +165,7 @@ export default function TaskManagement() {
   }, [boardData]);
 
   const canMoveTask = (task) => {
-    if (permission) return true;
+    if (can("update_task_status")) return true;
     return task.assignedTo === profile?.id;
   };
 
@@ -249,24 +251,28 @@ export default function TaskManagement() {
 
          
             <>
-              <button
-                onClick={() => setShowCreateProjectModal(true)}
-                className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 text-sm font-medium px-4 py-2 rounded-md transition"
-              >
-                + Project
-              </button>
-              <button
-                onClick={() => {
-                  if (!selectedProjectId) {
-                    addToast("error", "Create/select a project first");
-                    return;
-                  }
-                  setShowCreateTaskModal(true);
-                }}
-                className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200"
-              >
-                + Task
-              </button>
+            {can("create_project") && (
+  <button
+    onClick={() => setShowCreateProjectModal(true)}
+    className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 text-sm font-medium px-4 py-2 rounded-md transition"
+  >
+    + Project
+  </button>
+)}
+              {can("create_task") && (
+  <button
+    onClick={() => {
+      if (!selectedProjectId) {
+        addToast("error", "Create/select a project first");
+        return;
+      }
+      setShowCreateTaskModal(true);
+    }}
+    className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200"
+  >
+    + Task
+  </button>
+)}
             </>
          
         </div>
