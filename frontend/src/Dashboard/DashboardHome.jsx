@@ -3,8 +3,11 @@ import AnnouncementsCard from "./AnnouncementsCard";
 import TaskCompletionCard from "./TaskCard";
 import api from "../api/axios";
 import CommitGraph from "../../ProjectActivity/CommitGraph";
+import { usePermission } from "../hooks/usePermission"; // 🔥 ADD
 
 const DashboardHome = () => {
+  const { can } = usePermission(); // 🔥 ADD
+
   const [punchedIn, setPunchedIn] = useState(false);
   const [newEmployeesData, setNewEmployeesData] = useState([]);
   const [totalEmployees, setTotalEmployees] = useState(0);
@@ -45,7 +48,6 @@ const DashboardHome = () => {
     fetchStatus();
   }, []);
 
-  
   useEffect(() => {
     const fetchHolidays = async () => {
       try {
@@ -65,7 +67,6 @@ const DashboardHome = () => {
     fetchHolidays();
   }, []);
 
-  
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -98,7 +99,6 @@ const DashboardHome = () => {
     fetchEmployees();
   }, []);
 
- 
   useEffect(() => {
     api.get("/announcements?page=1&limit=10").then(res => {
       const formatted = res.data.data.map(item => ({
@@ -129,7 +129,6 @@ const DashboardHome = () => {
     fetchUpcomingMeetings();
   }, []);
 
-  
   useEffect(() => {
     const fetchPullRequests = async () => {
       try {
@@ -142,7 +141,6 @@ const DashboardHome = () => {
         console.log("Pull requests fetch error:", error);
       }
     };
-
     fetchPullRequests();
   }, []);
 
@@ -182,6 +180,8 @@ const DashboardHome = () => {
 
   return (
     <div className="flex flex-col gap-6">
+
+      {/* ❌ NO CHANGE */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <TaskCompletionCard
           title="Total Pull Requests"
@@ -229,36 +229,53 @@ const DashboardHome = () => {
         />
       </div>
 
+      {/* 🔥 ONLY PERMISSION WRAPS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
         <div className="flex flex-col gap-6">
-          <AnnouncementsCard
-            title="Announcements"
-            announcements={announcementsData}
-            height="h-[320px]"
-          />
-          <AnnouncementsCard
-            title="New Employees (Last 15 Days)"
-            announcements={newEmployeesData}
-            height="h-[320px]"
-          />
+
+          {can("view_announcements") && (
+            <AnnouncementsCard
+              title="Announcements"
+              announcements={announcements}
+              height="h-[320px]"
+            />
+          )}
+
+          {can("view_employees") && (
+            <AnnouncementsCard
+              title="New Employees (Last 15 Days)"
+              announcements={newEmployeesData}
+              height="h-[320px]"
+            />
+          )}
+
         </div>
+
         <div className="flex flex-col gap-6">
+
           <AnnouncementsCard
             title="Upcoming Holidays"
             announcements={holidays}
             height="h-[320px]"
           />
-          <AnnouncementsCard
-            title="Scheduled Meetings"
-            announcements={scheduledMeetings}
-            height="h-[320px]"
-          />
+
+          {can("view_meetings") && (
+            <AnnouncementsCard
+              title="Scheduled Meetings"
+              announcements={scheduledMeetings}
+              height="h-[320px]"
+            />
+          )}
+
         </div>
       </div>
 
+      {/* ❌ NO CHANGE */}
       <div className="mt-6 w-full overflow-x-auto">
         <CommitGraph />
       </div>
+
     </div>
   );
 };
