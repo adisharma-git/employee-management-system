@@ -4,14 +4,16 @@ import {
   faPlus,
   faMagnifyingGlass,
   faDownload,
-  faPen,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons'
 import TimeLogForm from './TimeLogForm'
 import api from '../api/axios'
 import ToastContainer from '../Toaster/Toast'
+import { usePermission } from '../hooks/usePermission' // 🔥 ADD
 
 export default function TimeLogDashboard() {
+  const { can } = usePermission() // 🔥 ADD
+
   const [timeLogs, setTimeLogs] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingLog, setEditingLog] = useState(null)
@@ -29,7 +31,6 @@ export default function TimeLogDashboard() {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }
 
-
   const fetchLogs = async () => {
     try {
       const res = await api.get('/logs')
@@ -39,11 +40,9 @@ export default function TimeLogDashboard() {
         (dayLog?.workItems || []).map((item) => ({
           logId: dayLog?.id || '',
           taskId: item?.id || '',
-
           date: dayLog?.date
             ? new Date(dayLog.date).toISOString().split('T')[0]
             : '',
-
           workName: item?.title || '',
           description: item?.description || '',
           status: item?.status || '',
@@ -102,19 +101,24 @@ export default function TimeLogDashboard() {
           (l) => !(l.logId === log.logId && l.taskId === log.taskId)
         )
       )
+
       setPendingDeleteKey(null)
+
       const successMessage =
         res?.data?.message ||
         res?.data?.data?.message ||
         'Time log deleted'
+
       addToast('success', successMessage)
     } catch (error) {
       console.error('Delete failed:', error)
       setPendingDeleteKey(null)
+
       const backendMessage =
         error?.response?.data?.message ||
         error?.response?.data?.error ||
         'Failed to delete log'
+
       addToast('error', backendMessage)
     }
   }
@@ -138,6 +142,7 @@ export default function TimeLogDashboard() {
   // ================= EXPORT =================
   const handleExportToCSV = () => {
     const headers = ['Date', 'Work', 'Time', 'Status']
+
     const rows = filteredLogs.map((log) => [
       log.date,
       log.workName,
@@ -147,6 +152,7 @@ export default function TimeLogDashboard() {
 
     let csv = 'data:text/csv;charset=utf-8,'
     csv += headers.join(',') + '\n'
+
     rows.forEach((row) => {
       csv += row.map((col) => `"${col}"`).join(',') + '\n'
     })
@@ -163,10 +169,12 @@ export default function TimeLogDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+
       <h1 className="text-3xl font-bold mb-6">My Time Log</h1>
 
       <div className="bg-white p-4 rounded shadow mb-6">
         <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
+
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -183,6 +191,7 @@ export default function TimeLogDashboard() {
               icon={faMagnifyingGlass}
               className="absolute left-3 top-3 text-gray-400"
             />
+
             <input
               placeholder="Search by work or date"
               className="w-full pl-10 border rounded px-3 py-2"
@@ -191,16 +200,19 @@ export default function TimeLogDashboard() {
             />
           </div>
 
-          <button
-            onClick={() => {
-              setEditingLog(null)
-              setShowForm(true)
-            }}
-            className="bg-[#021f54] text-white px-4 py-2 rounded-md"
-          >
-            <FontAwesomeIcon icon={faPlus} className="mr-2" />
-            Add Time Log
-          </button>
+          {/* 🔥 RBAC BUTTON */}
+          {can("create_daily_log") && (
+            <button
+              onClick={() => {
+                setEditingLog(null)
+                setShowForm(true)
+              }}
+              className="bg-[#021f54] text-white px-4 py-2 rounded-md"
+            >
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              Add Time Log
+            </button>
+          )}
 
           <button
             onClick={handleExportToCSV}
@@ -209,6 +221,7 @@ export default function TimeLogDashboard() {
             <FontAwesomeIcon icon={faDownload} className="mr-2" />
             Export CSV
           </button>
+
         </div>
       </div>
 
@@ -217,7 +230,7 @@ export default function TimeLogDashboard() {
           <p className="p-4 text-gray-500">No records found</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-[#021f54] text-white uppercase text-xs font-semibold tracking-wider">
+            <thead className="bg-[#021f54] text-white uppercase text-xs font-semibold">
               <tr>
                 <th className="p-3 text-left">Date</th>
                 <th className="p-3 text-left">Work</th>
@@ -226,6 +239,7 @@ export default function TimeLogDashboard() {
                 <th className="p-3 text-left">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {filteredLogs.map((log, index) => (
                 <tr
@@ -236,17 +250,8 @@ export default function TimeLogDashboard() {
                   <td className="p-3">{log.workName}</td>
                   <td className="p-3">{log.timeTaken} hrs</td>
                   <td className="p-3">{log.status}</td>
-                  <td className="p-3 flex gap-3">
-                    {/* <button
-                      onClick={() => {
-                        setEditingLog(log)
-                        setShowForm(true)
-                      }}
-                      className="text-blue-600"
-                    >
-                      <FontAwesomeIcon icon={faPen} />
-                    </button> */}
 
+                  <td className="p-3 flex gap-3">
                     <button
                       onClick={() => handleDeleteLog(log)}
                       className="text-red-600"
@@ -254,6 +259,7 @@ export default function TimeLogDashboard() {
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>

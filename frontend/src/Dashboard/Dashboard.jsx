@@ -103,6 +103,9 @@ export default function Dashboard() {
       case "Attendance":
         return <Attendance />;
       case "performance":
+        if (!can("view_logs") && !can("view_daily_logs")) {
+          return <div>Access Denied</div>;
+        }
         return <TimeLogDashboard />;
       case "adminRegistration":
         return <EmployeeRegistration />;
@@ -126,10 +129,16 @@ export default function Dashboard() {
         }
         return <UpcomingMeetings  />
       case "Holidays":
+        if (!can("manage_holidays")) {
+          return <div>Access Denied</div>;
+        }
         return <Holidays  />;
       case "Payroll":
         return <Payroll  userRole={userRole} />;
       case "TaskManagement":
+        if (!can("view_tasks")) {
+          return <div>Access Denied</div>;
+        }
         return <TaskManagement />;
       case "role":
         return <RolesPage />;
