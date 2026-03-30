@@ -121,6 +121,9 @@ export default function Dashboard() {
       case "Pull Requests":
         return <PullRequests />;
       case "Meetings":
+        if (!can("view_meetings")) {
+          return <div>Access Denied</div>;
+        }
         return <UpcomingMeetings  />
       case "Holidays":
         return <Holidays  />;
