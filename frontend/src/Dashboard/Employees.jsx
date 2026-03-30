@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from "../api/axios";
 import Loader from '../Loader/Loader';
-import AccessRestricted from '../Components/AccessRestricted';
 import EmployeeTable from './EmployeeTable';
 
-const Attendance = ({ permission, highlightQuery = "", searchTrigger = 0 }) => {
+const Attendance = ({ highlightQuery = "", searchTrigger = 0 }) => {
   const [Employee, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 

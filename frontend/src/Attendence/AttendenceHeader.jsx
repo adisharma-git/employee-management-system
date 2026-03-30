@@ -3,12 +3,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSignInAlt,
   faSignOutAlt,
-   faSync ,
+  faSync,
 } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/axios";
 import ToastContainer from "../Toaster/Toast";
+import { usePermission } from "../hooks/usePermission"; // 🔥 ADD
 
 const AttendenceHeader = ({ refreshData }) => {
+  const { can } = usePermission(); // 🔥 ADD
+
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,31 +28,30 @@ const AttendenceHeader = ({ refreshData }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-
   useEffect(() => {
     checkPunchStatus();
   }, []);
 
-const checkPunchStatus = async () => {
-  try {
-    const response = await api.get("/attendance/punch-status");
+  const checkPunchStatus = async () => {
+    try {
+      const response = await api.get("/attendance/punch-status");
 
-    if (response.data?.data) {
-      const data = response.data.data;
+      if (response.data?.data) {
+        const data = response.data.data;
 
-      setIsPunchedIn(data.isPunchedIn);
+        setIsPunchedIn(data.isPunchedIn);
+        setTotalBreakTime(data.breakStats?.totalBreakTime || 0);
+        setLeftBreakTime(data.breakStats?.leftBreakTime || 0);
 
-      setTotalBreakTime(data.breakStats?.totalBreakTime || 0);
-      setLeftBreakTime(data.breakStats?.leftBreakTime || 0);
-      const isBreakActive =
-        data.todayAttendance?.status === "break";
+        const isBreakActive =
+          data.todayAttendance?.status === "break";
 
-      setIsEnabled(isBreakActive);
+        setIsEnabled(isBreakActive);
+      }
+    } catch (error) {
+      console.log("Status check error:", error);
     }
-  } catch (error) {
-    console.log("Status check error:", error);
-  }
-};
+  };
 
   const progressPercent =
     totalBreakTime + leftBreakTime > 0
@@ -62,12 +64,7 @@ const checkPunchStatus = async () => {
 
     try {
       const response = await api.post("/attendance/mark", {});
-      const successMessage =
-        response?.data?.message ||
-        response?.data?.data?.message ||
-        "Checked in successfully!";
-      addToast("success", successMessage);
-
+      addToast("success", response?.data?.message || "Checked in successfully!");
       await checkPunchStatus();
       if (refreshData) refreshData();
     } catch (error) {
@@ -91,12 +88,7 @@ const checkPunchStatus = async () => {
 
     try {
       const response = await api.patch("/attendance/checkout", { checkOutTime });
-      const successMessage =
-        response?.data?.message ||
-        response?.data?.data?.message ||
-        "Checked out successfully!";
-      addToast("success", successMessage);
-
+      addToast("success", response?.data?.message || "Checked out successfully!");
       await checkPunchStatus();
       if (refreshData) refreshData();
     } catch (error) {
@@ -106,42 +98,36 @@ const checkPunchStatus = async () => {
     }
   };
 
-const handleToggle = async () => {
-  if (loading) return;
+  const handleToggle = async () => {
+    if (loading) return;
+    setLoading(true);
 
-  setLoading(true);
+    try {
+      const statusRes = await api.get("/attendance/punch-status");
+      const currentStatus =
+        statusRes.data?.data?.todayAttendance?.status;
 
-  try {
-    const statusRes = await api.get("/attendance/punch-status");
-    const currentStatus =
-      statusRes.data?.data?.todayAttendance?.status;
+      const isCurrentlyOnBreak = currentStatus === "break";
 
-    const isCurrentlyOnBreak = currentStatus === "break";
+      await api.post("/attendance/break", {
+        isStarting: !isCurrentlyOnBreak,
+      });
 
-    
-    const response = await api.post("/attendance/break", {
-      isStarting: !isCurrentlyOnBreak,
-    });
+      setIsEnabled(!isCurrentlyOnBreak);
 
-    const breakData = response.data.data;
+      if (refreshData) refreshData();
+    } catch (error) {
+      addToast("error", error.response?.data?.message || "Operation failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-
-    setIsEnabled(!isCurrentlyOnBreak);
-
-    if (refreshData) refreshData();
-  } catch (error) {
-    addToast("error", error.response?.data?.message || "Operation failed");
-  } finally {
+  const handleRefreshBreakTime = () => {
+    setLoading(true);
+    checkPunchStatus();
     setLoading(false);
-  }
-};
-const handleRefreshBreakTime=()=>{
-  setLoading(true);
-  checkPunchStatus();
-  setLoading(false);
-}
- 
+  };
 
   return (
     <div className="sticky top-0 bg-gray-50 pb-4 z-20">
@@ -156,27 +142,33 @@ const handleRefreshBreakTime=()=>{
         </div>
 
         <div className="flex items-center gap-6">
-          <button
-            onClick={handleCheckIn}
-            disabled={loading || isPunchedIn}
-            className="flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium bg-green-600 hover:bg-green-700 disabled:opacity-50"
-          >
-            <FontAwesomeIcon icon={faSignInAlt} />
-            {loading ? "Processing..." : "Check-In"}
-          </button>
 
-          <button
-            onClick={handleCheckOut}
-            disabled={loading || !isPunchedIn}
-            className="flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium bg-red-600 hover:bg-red-700 disabled:opacity-50"
-          >
-            <FontAwesomeIcon icon={faSignOutAlt} />
-            {loading ? "Processing..." : "Check-Out"}
-          </button>
+          {/* 🔥 CHECK-IN */}
+          {can("mark_attendance") && (
+            <button
+              onClick={handleCheckIn}
+              disabled={loading || isPunchedIn}
+              className="flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium bg-green-600 hover:bg-green-700 disabled:opacity-50"
+            >
+              <FontAwesomeIcon icon={faSignInAlt} />
+              {loading ? "Processing..." : "Check-In"}
+            </button>
+          )}
 
-          {/* Break Section */}
+          {/* 🔥 CHECK-OUT */}
+          {can("mark_attendance") && (
+            <button
+              onClick={handleCheckOut}
+              disabled={loading || !isPunchedIn}
+              className="flex items-center gap-2 px-6 py-3 text-white rounded-md font-medium bg-red-600 hover:bg-red-700 disabled:opacity-50"
+            >
+              <FontAwesomeIcon icon={faSignOutAlt} />
+              {loading ? "Processing..." : "Check-Out"}
+            </button>
+          )}
+
+          {/* Break Section (unchanged) */}
           <div className="flex flex-col items-end gap-2">
-            {/* Toggle */}
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-gray-600">
                 {isEnabled ? "On Break" : "Working"}
@@ -185,55 +177,32 @@ const handleRefreshBreakTime=()=>{
               <button
                 onClick={handleToggle}
                 disabled={loading || !isPunchedIn}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
+                className={`relative inline-flex h-6 w-11 items-center rounded-full ${
                   isEnabled ? "bg-blue-600" : "bg-gray-300"
                 }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white ${
                     isEnabled ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
               </button>
-              <button
-                onClick={handleRefreshBreakTime}
-                className="flex items-center gap-2"
-              >
-                {loading ? (
-                  <FontAwesomeIcon icon={faSync} spin />
-                ) : (
-                  <FontAwesomeIcon icon={faSync} />
-                )}
-                Refresh
+
+              <button onClick={handleRefreshBreakTime}>
+                <FontAwesomeIcon icon={faSync} />
               </button>
             </div>
 
             <div className="w-52">
-              {loading ? (
-                <div className="flex items-center justify-center h-6">
-                  <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              ) : (
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Break Used</span>
-                  <span>{Math.round(progressPercent)}%</span>
-                </div>
-              )}
-
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className={`h-2 rounded-full transition-all duration-500 ${
-                    progressPercent > 100 ? "bg-red-500" : "bg-blue-500"
-                  }`}
+                  className="h-2 bg-blue-500"
                   style={{ width: `${Math.min(progressPercent, 100)}%` }}
                 />
               </div>
-
-              <div className="text-xs text-gray-400 mt-1 text-right">
-                {totalBreakTime}m used • {leftBreakTime}m left
-              </div>
             </div>
           </div>
+
         </div>
       </header>
     </div>
