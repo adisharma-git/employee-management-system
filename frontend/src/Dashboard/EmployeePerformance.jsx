@@ -1,104 +1,97 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import api from "../api/axios";
 
 const STATUS_STYLE_MAP = {
-  Completed: "bg-emerald-100 text-emerald-700 border border-emerald-200",
-  Pending: "bg-amber-100 text-amber-700 border border-amber-200",
-  Overdue: "bg-rose-100 text-rose-700 border border-rose-200",
-  "In Progress": "bg-sky-100 text-sky-700 border border-sky-200",
+  done: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  pending: "bg-amber-100 text-amber-700 border border-amber-200",
+  overdue: "bg-rose-100 text-rose-700 border border-rose-200",
+  "in-progress": "bg-sky-100 text-sky-700 border border-sky-200",
+  todo: "bg-slate-100 text-slate-700 border border-slate-200",
+  "code-review": "bg-indigo-100 text-indigo-700 border border-indigo-200",
+  "qa-testing": "bg-cyan-100 text-cyan-700 border border-cyan-200",
 };
 
-const EmployeePerformance = ({
-  employee = {},
-  tasks = [],
-  summary = {},
-  loading = false,
-}) => {
-  const {
-    name = "Employee",
-    employeeCode = "--",
-    role = "Role not available",
-    avatar,
-  } = employee;
+const EmployeePerformance = () => {
+  const [tasks, setTasks] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [taskError, setTaskError] = useState("");
+  const [projectError, setProjectError] = useState("");
 
-  const assignedCount =
-    summary.assigned ?? (Array.isArray(tasks) ? tasks.length : 0);
-  const completedCount =
-    summary.completed ??
-    (Array.isArray(tasks)
-      ? tasks.filter((task) => task.status === "Completed").length
-      : 0);
-  const pendingCount =
-    summary.pending ??
-    (Array.isArray(tasks)
-      ? tasks.filter((task) => ["Pending", "In Progress"].includes(task.status))
-          .length
-      : 0);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setLoadingTasks(true);
+      setTaskError("");
+      try {
+        const response = await api.get("/tasks/my-tasks");
+        setTasks(response.data?.data || []);
+      } catch (error) {
+        if (error?.response?.status === 404) {
+          setTasks([]);
+          setTaskError("");
+        } else {
+          setTaskError("Failed to load assigned tasks.");
+        }
+      } finally {
+        setLoadingTasks(false);
+      }
+    };
+
+    const fetchProjects = async () => {
+      setLoadingProjects(true);
+      setProjectError("");
+      try {
+        const response = await api.get("/projects");
+        setProjects(response.data?.data || []);
+      } catch {
+        setProjectError("Failed to load project list.");
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+
+    fetchTasks();
+    fetchProjects();
+  }, []);
+
+  const formatStatus = (status) => {
+    if (!status) return "Unknown";
+    return status
+      .toString()
+      .replace(/-/g, " ")
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
+  const formatDate = (dateValue) => {
+    if (!dateValue) return "-";
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString();
+  };
 
   const getStatusStyles = (status) => {
+    const statusKey = (status || "").toLowerCase();
     return (
-      STATUS_STYLE_MAP[status] ||
+      STATUS_STYLE_MAP[statusKey] ||
       "bg-slate-100 text-slate-700 border border-slate-200"
     );
   };
 
   return (
     <section className="w-full bg-white">
-      <div className="p-5 sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-blue-900 text-lg font-semibold text-white">
-              {avatar ? (
-                <img src={avatar} alt={name} className="h-full w-full object-cover" />
-              ) : (
-                name
-                  .split(" ")
-                  .slice(0, 2)
-                  .map((item) => item[0])
-                  .join("")
-                  .toUpperCase()
-              )}
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                Performance Overview
-              </p>
-              <h2 className="text-2xl font-semibold text-slate-900">{name}</h2>
-              <p className="text-sm text-slate-600">
-                {employeeCode} | {role}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid w-full max-w-[420px] grid-cols-3 gap-6 text-center">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Assigned
-              </p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">{assignedCount}</p>
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Completed
-              </p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">{completedCount}</p>
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Open
-              </p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">{pendingCount}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="overflow-hidden rounded-xl border border-slate-200">
         <div className="overflow-x-auto">
           <table className="w-full table-fixed text-left">
             <colgroup>
-              <col className="w-[55%]" />
-              <col className="w-[25%]" />
-              <col className="w-[20%]" />
+              <col className="w-[26%]" />
+              <col className="w-[16%]" />
+              <col className="w-[12%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
+              <col className="w-[18%]" />
             </colgroup>
           <thead>
             <tr className="bg-blue-900 text-white">
@@ -106,27 +99,45 @@ const EmployeePerformance = ({
                 Task
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
-                Due Date
+                Project
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                Priority
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
                 Status
               </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                Due Date
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                Assigned By
+              </th>
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {loadingTasks ? (
               <tr>
                 <td
-                  colSpan={3}
+                  colSpan={6}
                   className="px-6 py-14 text-center text-sm font-medium text-slate-600"
                 >
                   Loading performance tasks...
                 </td>
               </tr>
+            ) : taskError ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-6 py-14 text-center text-sm font-medium text-rose-600"
+                >
+                  {taskError}
+                </td>
+              </tr>
             ) : tasks.length === 0 ? (
               <tr>
                 <td
-                  colSpan={3}
+                  colSpan={6}
                   className="px-6 py-14 text-center text-sm font-medium text-slate-600"
                 >
                   No task records available yet.
@@ -139,10 +150,16 @@ const EmployeePerformance = ({
                   className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
                 >
                   <td className="px-6 py-4 text-sm font-medium text-slate-800">
-                    {task.title || "Untitled task"}
+                    <p>{task.title || "Untitled task"}</p>
+                    <p className="mt-1 line-clamp-1 text-xs font-normal text-slate-500">
+                      {task.description || "No description"}
+                    </p>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">
-                    {task.dueDate || "-"}
+                    {task.project?.name || "-"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {formatStatus(task.priority || "medium")}
                   </td>
                   <td className="px-6 py-4">
                     <span
@@ -150,8 +167,14 @@ const EmployeePerformance = ({
                         task.status
                       )}`}
                     >
-                      {task.status || "Unknown"}
+                      {formatStatus(task.status)}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {formatDate(task.dueDate)}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {task.assigner?.email || "-"}
                   </td>
                 </tr>
               ))
@@ -161,8 +184,89 @@ const EmployeePerformance = ({
         </div>
       </div>
 
-      <div className="px-6 py-3 text-xs font-medium text-slate-500">
-        Showing {tasks.length} task{tasks.length === 1 ? "" : "s"}
+      <div className="mt-5 overflow-hidden rounded-xl border border-slate-200">
+        <div className="border-b border-slate-200 bg-slate-50 px-6 py-3">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-700">
+            Project List
+          </h3>
+          <p className="text-xs text-slate-500">Source: /projects</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full table-fixed text-left">
+            <colgroup>
+              <col className="w-[30%]" />
+              <col className="w-[42%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
+            </colgroup>
+            <thead>
+              <tr className="bg-white text-slate-700">
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                  Project
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                  Description
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                  Tasks
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]">
+                  Created
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {loadingProjects ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-10 text-center text-sm font-medium text-slate-600"
+                  >
+                    Loading projects...
+                  </td>
+                </tr>
+              ) : projectError ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-10 text-center text-sm font-medium text-rose-600"
+                  >
+                    {projectError}
+                  </td>
+                </tr>
+              ) : projects.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-10 text-center text-sm font-medium text-slate-600"
+                  >
+                    No projects found.
+                  </td>
+                </tr>
+              ) : (
+                projects.map((project) => (
+                  <tr
+                    key={project.id}
+                    className="border-t border-slate-100 hover:bg-slate-50"
+                  >
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-800">
+                      {project.name || "Untitled project"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {project.description || "-"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {project._count?.tasks ?? 0}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {formatDate(project.createdAt)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
