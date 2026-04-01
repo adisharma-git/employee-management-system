@@ -1,13 +1,24 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 export default function Sidebar({ selectedTab, setSelectedTab }) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleLogout = () => {
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout API error:", error);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("permissions");
+      localStorage.removeItem("isSuperAdmin");
+      navigate("/login");
+    }
   };
 
   const menuItems = [
@@ -79,7 +90,7 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
         <div className="p-3">
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center md:justify-start gap-3 p-3 rounded-lg hover:bg-white hover:text-black transition-colors duration-200"
+            className="w-full flex items-center justify-center md:justify-start gap-3 p-3 rounded-lg hover:bg-white hover:text-black transition-colors duration-200"
           >
             <i className="fas fa-sign-out-alt min-w-[20px] text-lg"></i>
             {(isOpen || mobileOpen) && <span className="whitespace-nowrap">Logout</span>}
