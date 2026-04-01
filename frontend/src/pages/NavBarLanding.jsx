@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar() {
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -154,18 +156,19 @@ export default function Navbar() {
               </div> */}
 
               <div className="hidden sm:flex gap-3 lg:gap-4 z-50">
-                <button
-                  className="border border-white/40 px-6 py-1.5 rounded-lg font-semibold hover:bg-white hover:text-[#021f54] transition-all duration-200"
-                  onClick={handleLogin}
-                >
-                  Log In
-                </button>
-                <button
+              <button
+  className="border border-white/40 px-4 py-2 rounded-lg hover:bg-white hover:text-[#021f54] transition-all duration-200 flex items-center justify-center"
+  onClick={handleLogin}
+  title="Login"
+>
+<FontAwesomeIcon icon={faRightToBracket} size="lg" />
+</button>
+                {/* <button
                   className="bg-orange-500 px-6 py-2 rounded-lg font-semibold hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-orange-500/20"
                   onClick={handleSignup}
                 >
                   Sign Up
-                </button>
+                </button> */}
               </div>
 
               <div className="flex sm:hidden items-center gap-2 z-50">

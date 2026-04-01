@@ -134,7 +134,7 @@ export default function MainPageLanding() {
               onClick={handleSubmit}
               className="w-full sm:w-auto sm:px-8 bg-[#021f54] text-white py-3.5 sm:py-4 rounded-xl font-semibold hover:bg-[#032a70] transition-all transform hover:scale-105 active:scale-95 shadow-xl"
             >
-              {loading ? "Sending..." : "Get a Quote!"}
+              {loading ? "Sending..." : "Get Quote!"}
             </button>
           </div>
         </div>
