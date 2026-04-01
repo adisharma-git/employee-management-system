@@ -232,56 +232,95 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
             </button>
 
             {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-[340px] max-w-[92vw] bg-white rounded-md shadow-lg z-[70] border border-gray-200 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">Notifications</p>
-                    <p className="text-xs text-gray-500">{unreadCount} unread</p>
-                  </div>
-                  <button
-                    onClick={handleMarkAllAsRead}
-                    disabled={!unreadCount || markingAll}
-                    className="text-xs font-medium text-blue-700 hover:text-blue-900 disabled:text-gray-300 disabled:cursor-not-allowed"
-                  >
-                    {markingAll ? 'Marking...' : 'Mark all as read'}
-                  </button>
-                </div>
+  <div className="absolute right-0 mt-3 w-[360px] max-w-[95vw] 
+  bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl 
+  border border-gray-200 overflow-hidden z-[100] 
+  animate-in fade-in slide-in-from-top-2 duration-200">
 
-                {notificationsLoading ? (
-                  <div className="px-4 py-6 text-sm text-gray-500 text-center">Loading notifications...</div>
-                ) : notificationsError ? (
-                  <div className="px-4 py-6 text-sm text-red-600 text-center">{notificationsError}</div>
-                ) : notifications.length === 0 ? (
-                  <div className="px-4 py-6 text-sm text-gray-500 text-center">No notifications yet.</div>
-                ) : (
-                  <div className="max-h-[360px] overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <button
-                        key={notification.id}
-                        onClick={() => handleNotificationClick(notification)}
-                        className={`w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-blue-50 transition-colors ${
-                          notification.isRead ? 'bg-white' : 'bg-blue-50/60'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-sm font-semibold text-gray-900 line-clamp-1">{notification.title}</p>
-                          {!notification.isRead && (
-                            <span className="mt-1 w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                          )}
-                        </div>
-                        <p className="mt-1 text-xs text-gray-600 line-clamp-2">{notification.message}</p>
-                        <div className="mt-2 flex items-center justify-between">
-                          <span className="text-[11px] text-blue-700 font-medium uppercase tracking-wide">
-                            {getTypeLabel(notification.type)}
-                          </span>
-                          <span className="text-[11px] text-gray-500">{formatDate(notification.createdAt)}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+    {/* Header */}
+    <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div>
+        <p className="text-sm font-semibold text-gray-800">Notifications</p>
+        <p className="text-xs text-gray-500">{unreadCount} unread</p>
+      </div>
+
+      <button
+        onClick={handleMarkAllAsRead}
+        disabled={!unreadCount || markingAll}
+        className="text-xs font-medium text-blue-600 hover:text-blue-800 
+        disabled:text-gray-300 transition"
+      >
+        {markingAll ? 'Marking...' : 'Mark all'}
+      </button>
+    </div>
+
+    {/* Body */}
+    {notificationsLoading ? (
+      <div className="px-4 py-8 text-sm text-gray-500 text-center">
+        Loading notifications...
+      </div>
+    ) : notificationsError ? (
+      <div className="px-4 py-8 text-sm text-red-500 text-center">
+        {notificationsError}
+      </div>
+    ) : notifications.length === 0 ? (
+      <div className="px-4 py-8 text-sm text-gray-400 text-center">
+        No notifications yet 🚀
+      </div>
+    ) : (
+      <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+        {notifications.map((notification) => (
+          <button
+            key={notification.id}
+            onClick={() => handleNotificationClick(notification)}
+            className={`w-full text-left px-5 py-4 transition-all duration-200
+            flex gap-3 items-start
+            ${
+              notification.isRead
+                ? "bg-white hover:bg-gray-50"
+                : "bg-blue-50/70 hover:bg-blue-100"
+            }`}
+          >
+
+            {/* Icon */}
+            <div className="mt-1">
+              <div className={`w-9 h-9 flex items-center justify-center rounded-full
+              ${notification.isRead ? "bg-gray-200" : "bg-blue-500 text-white"}`}>
+                <i className="fas fa-bell text-xs"></i>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-semibold text-gray-900 line-clamp-1">
+                  {notification.title}
+                </p>
+
+                {!notification.isRead && (
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mt-2"></span>
                 )}
               </div>
-            )}
+
+              <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                {notification.message}
+              </p>
+
+              <div className="flex justify-between items-center mt-2 text-[11px]">
+                <span className="text-blue-600 font-medium uppercase">
+                  {getTypeLabel(notification.type)}
+                </span>
+                <span className="text-gray-400">
+                  {formatDate(notification.createdAt)}
+                </span>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+)}
           </div>
 
           {/* Profile Dropdown Container */}
