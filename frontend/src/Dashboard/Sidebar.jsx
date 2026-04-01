@@ -29,6 +29,7 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
     { key: "Pull Requests", icon: "fab fa-github", label: "Pull Requests" },
     { key: "Meetings", icon: "fa-solid fa-calendar-check", label: "Meetings" },
     { key: "Holidays", icon: "fa-solid fa-calendar-days", label: "Holidays" },
+    {key: "Permissions", icon: "fas fa-shield-alt", label: "Permissions"},
   ];
 
   return (
