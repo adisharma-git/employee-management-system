@@ -1,6 +1,25 @@
 const prisma = require('../utils/prisma');
 const { PERMISSION_CATALOG } = require('../constants/permissions');
 
+const LEGACY_PERMISSION_MAP = {
+  manage_holidays: ['create_holidays', 'view_holidays'],
+  manage_roles: ['view_roles', 'create_role', 'edit_role', 'delete_role']
+};
+
+const normalizePermissions = (permissions = []) => {
+  const normalized = new Set();
+
+  for (const permission of permissions) {
+    if (LEGACY_PERMISSION_MAP[permission]) {
+      LEGACY_PERMISSION_MAP[permission].forEach((mappedPermission) => normalized.add(mappedPermission));
+    } else {
+      normalized.add(permission);
+    }
+  }
+
+  return Array.from(normalized);
+};
+
 // ==========================================
 // GET ALL ROLES
 // ==========================================
@@ -85,6 +104,7 @@ exports.createRole = async (req, res) => {
     }
 
     const { name, description, permissions } = req.body;
+    const normalizedPermissions = normalizePermissions(permissions || []);
 
     // Validate required fields
     if (!name) {
@@ -111,7 +131,7 @@ exports.createRole = async (req, res) => {
       data: {
         name,
         description: description || null,
-        permissions: permissions || []
+        permissions: normalizedPermissions
       }
     });
 
@@ -144,6 +164,9 @@ exports.updateRole = async (req, res) => {
 
     const { roleId } = req.params;
     const { name, description, permissions } = req.body;
+    const normalizedPermissions = permissions !== undefined
+      ? normalizePermissions(permissions)
+      : undefined;
 
     // Check if role exists
     const existingRole = await prisma.role.findUnique({
@@ -177,7 +200,7 @@ exports.updateRole = async (req, res) => {
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
-        ...(permissions !== undefined && { permissions })
+        ...(normalizedPermissions !== undefined && { permissions: normalizedPermissions })
       }
     });
 

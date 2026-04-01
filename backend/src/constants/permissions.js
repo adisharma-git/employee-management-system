@@ -39,10 +39,14 @@ const PERMISSIONS = {
   GENERATE_PAYROLL: 'generate_payroll',
   UPDATE_PAYROLL: 'update_payroll',
 
-  MANAGE_HOLIDAYS: 'manage_holidays',
+  CREATE_HOLIDAYS: 'create_holidays',
+  VIEW_HOLIDAYS: 'view_holidays',
   MANAGE_LEAVE_TYPES: 'manage_leave_types',
 
-  MANAGE_ROLES: 'manage_roles',
+  VIEW_ROLES: 'view_roles',
+  CREATE_ROLE: 'create_role',
+  EDIT_ROLE: 'edit_role',
+  DELETE_ROLE: 'delete_role',
   MANAGE_PERMISSIONS: 'manage_permissions',
 
   VIEW_LOGS: 'view_logs',

@@ -27,8 +27,7 @@ exports.getUpcomingHolidays = async (req, res) => {
 
     const holidays = await prisma.holiday.findMany({
       where: { date: { gte: today } }, 
-      orderBy: { date: 'asc' },        
-      take: 10                         
+      orderBy: { date: 'asc' }                    
     });
 
     res.json({ success: true, count: holidays.length, data: holidays });
