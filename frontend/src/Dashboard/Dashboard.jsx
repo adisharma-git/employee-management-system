@@ -21,6 +21,7 @@ import TaskManagement from "../TaskManagement/TaskManagement";
 import RolesPage from "../Admin/RolesPage";
 import { useAuth } from "../../Context/AuthContext";
 import { usePermission } from "../hooks/usePermission";
+import PermissionsPage from "../Permission/Permission";
 
 const DASHBOARD_TAB_STORAGE_KEY = "dashboardSelectedTab";
 
@@ -192,6 +193,13 @@ export default function Dashboard() {
           return <div>Access Denied</div>;
         }
         return <RolesPage />;
+      
+      case "Permissions":
+        if (!can("manage_roles")) {
+          return <div>Access Denied</div>;
+        }
+        return <PermissionsPage/>
+      
       default:
         return <DashboardHome />;
     }
