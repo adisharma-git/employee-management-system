@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import MeetingModal from "./MeetingModal";
 import api from "../src/api/axios";
 import { usePermission } from "../src/hooks/usePermission";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faVideo, faClock } from "@fortawesome/free-solid-svg-icons";
 
 const UpcomingMeetings = () => {
-  const { can } = usePermission(); 
+  const { can } = usePermission();
 
   const [meetings, setMeetings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,87 +37,112 @@ const UpcomingMeetings = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 bg-gray-50 min-h-screen">
+    <div className="p-6 md:p-8 bg-gray-50 min-h-screen">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-3 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+          <h1 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+            <FontAwesomeIcon icon={faVideo} className="text-[#021f54]" />
             Meetings
           </h1>
-          <p className="text-gray-500 text-sm sm:text-base">
+          <p className="text-gray-500 text-sm">
             Upcoming company meetings
           </p>
         </div>
 
-        {/* 🔥 ONLY THIS PART CONTROLLED */}
         {can("create_meeting") && (
           <button
             onClick={() => setShowModal(true)}
-            className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black text-sm font-medium px-3 py-1.5 rounded-md transition-colors duration-200 flex items-center gap-1"
+            className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black px-4 py-2 rounded-lg transition flex items-center gap-2 shadow"
           >
-            <span className="text-base">+</span> Meeting
+            <span className="text-lg">+</span> Add Meeting
           </button>
         )}
-
       </div>
 
-      {/* Meetings Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-        {isLoading && (
-          <div className="bg-white p-4 rounded-xl shadow text-gray-500 col-span-full">
-            Loading upcoming meetings...
-          </div>
-        )}
-
-        {!isLoading && meetings.length === 0 && (
-          <div className="bg-white p-4 rounded-xl shadow text-gray-500 col-span-full">
-            No upcoming meetings scheduled.
-          </div>
-        )}
-
-        {!isLoading &&
-          meetings.map((item) => (
+        {/* 🔥 Skeleton Loader */}
+        {isLoading &&
+          [1, 2, 3, 4, 5, 6].map((_, i) => (
             <div
-              key={item.id}
-              className="bg-white p-4 sm:p-5 rounded-xl shadow hover:shadow-md transition flex flex-col md:flex-row justify-between items-start md:items-center"
+              key={i}
+              className="bg-white rounded-xl shadow p-5 animate-pulse space-y-4"
             >
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-800 text-base sm:text-lg">
-                  {item.title}
-                </h3>
+              <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+              <div className="h-3 bg-gray-200 rounded w-full"></div>
+              <div className="h-3 bg-gray-200 rounded w-5/6"></div>
 
-                {item.description && (
-                  <p className="text-gray-500 mt-1 text-sm break-words">
-                    {item.description}
-                  </p>
-                )}
-
-                {item.meetLink && (
-                  <a
-                    href={item.meetLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sm text-blue-600 hover:underline mt-2 inline-block"
-                  >
-                    Join Meeting →
-                  </a>
-                )}
-              </div>
-
-              <div className="mt-3 md:mt-0 text-right flex-shrink-0 md:ml-4">
-                <span className="text-xs text-gray-400 block">
-                  {new Date(item.date).toLocaleString()}
-                </span>
-
-                <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full mt-2 inline-block">
-                  Upcoming
-                </span>
+              <div className="flex justify-between items-center mt-4">
+                <div className="h-6 w-20 bg-gray-200 rounded-full"></div>
+                <div className="h-8 w-24 bg-gray-300 rounded"></div>
               </div>
             </div>
           ))}
 
+        {/* Empty */}
+        {!isLoading && meetings.length === 0 && (
+          <div className="col-span-full text-center text-gray-400">
+            No upcoming meetings scheduled.
+          </div>
+        )}
+
+        {/* Cards */}
+        {!isLoading &&
+          meetings.map((item) => {
+            const date = new Date(item.date);
+
+            return (
+              <div
+                key={item.id}
+                className="bg-white rounded-xl shadow hover:shadow-lg transition p-5 flex flex-col justify-between"
+              >
+                {/* Top */}
+                <div>
+                  <h3 className="text-gray-800 font-semibold text-lg">
+                    {item.title}
+                  </h3>
+
+                  {item.description && (
+                    <p className="text-gray-500 mt-2 text-sm line-clamp-2">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Bottom */}
+                <div className="mt-5 flex items-center justify-between">
+
+                  {/* Time */}
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <FontAwesomeIcon icon={faClock} />
+                    {date.toLocaleString()}
+                  </div>
+
+                  {/* Join Button */}
+                  {item.meetLink && (
+                    <a
+                      href={item.meetLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-[#021f54] text-white text-sm px-3 py-1.5 rounded-md hover:bg-orange-400 hover:text-black transition"
+                    >
+                      Join
+                    </a>
+                  )}
+                </div>
+
+                {/* Status */}
+                <div className="mt-3">
+                  <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                    Upcoming
+                  </span>
+                </div>
+              </div>
+            );
+          })}
       </div>
 
       {/* Modal */}
@@ -126,7 +152,6 @@ const UpcomingMeetings = () => {
           onSuccess={handleSuccess}
         />
       )}
-
     </div>
   );
 };
