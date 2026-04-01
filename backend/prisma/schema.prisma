@@ -34,6 +34,7 @@ model User {
   meetings       Meeting[]      
 
   notifications  Notification[]
+  revokedTokens  RevokedToken[]
 
   @@map("users")
   @@index([email])
@@ -404,4 +405,18 @@ model Role {
   users       User[]
 
   @@map("roles")
+}
+
+model RevokedToken {
+  id        String   @id @default(uuid())
+  jti       String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  revokedAt DateTime @default(now()) @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("revoked_tokens")
+  @@index([userId])
+  @@index([expiresAt])
 }

@@ -22,10 +22,13 @@ import RolesPage from "../Admin/RolesPage";
 import { useAuth } from "../../Context/AuthContext";
 import { usePermission } from "../hooks/usePermission";
 
+const DASHBOARD_TAB_STORAGE_KEY = "dashboardSelectedTab";
 
 
 export default function Dashboard() {
-  const [selectedTab, setSelectedTab] = useState("dashboard");
+  const [selectedTab, setSelectedTabState] = useState(() => {
+    return localStorage.getItem(DASHBOARD_TAB_STORAGE_KEY) || "dashboard";
+  });
   const [userName, setUserName] = useState("Login");
   const [permission, setPermission] = useState(false);
   const [userRole, setUserRole] = useState("");
@@ -44,6 +47,16 @@ export default function Dashboard() {
     setEmployeeSearchQuery(searchTerm.trim());
     setSelectedTab("employees");
     setSearchTrigger((prev) => prev + 1);
+  };
+
+  const setSelectedTab = (tab) => {
+    if (tab === selectedTab) return;
+
+    setSelectedTabState(tab);
+    window.history.pushState(
+      { ...(window.history.state || {}), dashboardTab: tab },
+      ""
+    );
   };
 
   useEffect(() => {
@@ -76,6 +89,31 @@ export default function Dashboard() {
 
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    const initialTab = localStorage.getItem(DASHBOARD_TAB_STORAGE_KEY) || "dashboard";
+
+    if (!window.history.state?.dashboardTab) {
+      window.history.replaceState(
+        { ...(window.history.state || {}), dashboardTab: initialTab },
+        ""
+      );
+    }
+
+    const handlePopState = (event) => {
+      const previousTab = event.state?.dashboardTab;
+      if (previousTab) {
+        setSelectedTabState(previousTab);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(DASHBOARD_TAB_STORAGE_KEY, selectedTab);
+  }, [selectedTab]);
 
 
   const getGreeting = () => {

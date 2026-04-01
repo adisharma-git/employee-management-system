@@ -120,3 +120,41 @@ exports.login = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error during login" });
   }
 };
+
+// 3. LOGOUT LOGIC (Token Revocation)
+exports.logout = async (req, res) => {
+  try {
+    const { jti, exp, id: userId } = req.tokenPayload || {};
+
+    if (!jti || !exp || !userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid token payload for logout.'
+      });
+    }
+
+    await prisma.revokedToken.upsert({
+      where: { jti },
+      update: {
+        revokedAt: new Date(),
+        expiresAt: new Date(exp * 1000)
+      },
+      create: {
+        jti,
+        userId,
+        expiresAt: new Date(exp * 1000)
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Logged out successfully. Token revoked.'
+    });
+  } catch (error) {
+    console.error('Logout Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error during logout'
+    });
+  }
+};

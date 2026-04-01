@@ -23,6 +23,27 @@ const authenticate = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // Old tokens without JTI cannot be revoked safely.
+    if (!decoded.jti) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token format outdated. Please login again.'
+      });
+    }
+
+    // Check if token was revoked on logout.
+    const revokedToken = await prisma.revokedToken.findUnique({
+      where: { jti: decoded.jti },
+      select: { id: true }
+    });
+
+    if (revokedToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token has been revoked. Please login again.'
+      });
+    }
+
     // Check if user still exists
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
@@ -49,6 +70,8 @@ const authenticate = async (req, res, next) => {
 
     // Attach user to request object
     req.user = user;
+    req.token = token;
+    req.tokenPayload = decoded;
     next();
 
   } catch (error) {
