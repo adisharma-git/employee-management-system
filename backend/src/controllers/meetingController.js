@@ -50,8 +50,7 @@ exports.getUpcomingMeetings = async (req, res) => {
     const now = new Date();
     const meetings = await prisma.meeting.findMany({
       where: { date: { gte: now } }, 
-      orderBy: { date: 'asc' },
-      take: 5 
+      orderBy: { date: 'asc' }
     });
     res.json({ success: true, count: meetings.length, data: meetings });
   } catch (error) {
