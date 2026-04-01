@@ -82,7 +82,7 @@ const LeavesHeader = () => {
 
         {activeSection === "createLeave" &&
          
-            <CreateLeave />
+            <CreateLeave onClose={() => setActiveSection("menu")} />
           }
       </div>
     </div>
