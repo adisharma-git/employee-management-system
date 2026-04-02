@@ -5,7 +5,7 @@ import api from "../api/axios";
 import CommitGraph from "../../ProjectActivity/CommitGraph";
 import { usePermission } from "../hooks/usePermission"; // 🔥 ADD
 
-const DashboardHome = () => {
+const DashboardHome = ({ onNavigateToItem }) => {
   const { can } = usePermission(); // 🔥 ADD
 
   const [punchedIn, setPunchedIn] = useState(false);
@@ -17,24 +17,6 @@ const DashboardHome = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [scheduledMeetings, setScheduledMeetings] = useState([]);
-
-  const announcementsData = [
-    {
-      title: "Workalingr Support Process Update – Important Announcement",
-      time: "13 January 10:53 AM",
-      avatar: "https://i.pravatar.cc/40?img=12",
-    },
-    {
-      title: "Special Festival Permission – Lohri & Makar Sankranti",
-      time: "13 January 10:41 AM",
-      avatar: "https://i.pravatar.cc/40?img=32",
-    },
-    {
-      title: "Update on Leave Policy",
-      time: "12 January 4:34 PM",
-      avatar: "https://i.pravatar.cc/40?img=22",
-    },
-  ];
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -54,6 +36,7 @@ const DashboardHome = () => {
         const res = await api.get("/holidays/upcoming-holidays");
         if (res.data.success) {
           const formatted = res.data.data.map(item => ({
+            id: item.id,
             title: item.name,
             time: new Date(item.date).toLocaleDateString(),
             avatar: "https://ui-avatars.com/api/?name=" + item.name
@@ -102,6 +85,7 @@ const DashboardHome = () => {
   useEffect(() => {
     api.get("/announcements?page=1&limit=10").then(res => {
       const formatted = res.data.data.map(item => ({
+        id: item.id,
         title: item.title,
         time: new Date(item.createdAt).toLocaleString(),
         avatar: "https://ui-avatars.com/api/?name=" + item.author.email.split("@")[0]
@@ -116,6 +100,7 @@ const DashboardHome = () => {
         const res = await api.get("/meetings/upcoming-meetings");
         if (res.data.success) {
           const formatted = res.data.data.map(item => ({
+            id: item.id,
             title: item.title,
             time: new Date(item.date).toLocaleString(),
             avatar: "https://ui-avatars.com/api/?name=" + encodeURIComponent(item.title),
@@ -239,6 +224,11 @@ const DashboardHome = () => {
               title="Announcements"
               announcements={announcements}
               height="h-[320px]"
+              isRowClickable={can("view_announcements")}
+              onRowClick={(item) => {
+                if (!item?.id || !onNavigateToItem) return;
+                onNavigateToItem({ type: "announcement", id: item.id });
+              }}
             />
           )}
 
@@ -258,6 +248,11 @@ const DashboardHome = () => {
             title="Upcoming Holidays"
             announcements={holidays}
             height="h-[320px]"
+            isRowClickable={can("manage_holidays")}
+            onRowClick={(item) => {
+              if (!item?.id || !onNavigateToItem) return;
+              onNavigateToItem({ type: "holiday", id: item.id });
+            }}
           />
 
           {can("view_meetings") && (
@@ -265,6 +260,11 @@ const DashboardHome = () => {
               title="Scheduled Meetings"
               announcements={scheduledMeetings}
               height="h-[320px]"
+              isRowClickable={can("view_meetings")}
+              onRowClick={(item) => {
+                if (!item?.id || !onNavigateToItem) return;
+                onNavigateToItem({ type: "meeting", id: item.id });
+              }}
             />
           )}
 
