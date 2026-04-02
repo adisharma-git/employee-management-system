@@ -31,11 +31,11 @@ export default function Dashboard() {
     return localStorage.getItem(DASHBOARD_TAB_STORAGE_KEY) || "dashboard";
   });
   const [userName, setUserName] = useState("Login");
-  const [permission, setPermission] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeSearchQuery, setEmployeeSearchQuery] = useState("");
   const [searchTrigger, setSearchTrigger] = useState(0);
+  const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
   const { permissions, setUserPermissions } = useAuth();
   const { can } = usePermission();
   console.log("Dashboard permissions:", permissions);
@@ -58,6 +58,24 @@ export default function Dashboard() {
       { ...(window.history.state || {}), dashboardTab: tab },
       ""
     );
+  };
+
+  const handleDashboardItemNavigate = ({ type, id }) => {
+    if (!type || !id) return;
+
+    if (type === "holiday") {
+      setSelectedTab("Holidays");
+      return;
+    }
+
+    if (type === "meeting") {
+      setSelectedTab("Meetings");
+      return;
+    }
+
+    if (type === "announcement") {
+      setSelectedTab("Announcement");
+    }
   };
 
   useEffect(() => {
@@ -89,7 +107,7 @@ export default function Dashboard() {
     };
 
     fetchUser();
-  }, []);
+  }, [setUserPermissions]);
 
   useEffect(() => {
     const initialTab = localStorage.getItem(DASHBOARD_TAB_STORAGE_KEY) || "dashboard";
@@ -175,12 +193,12 @@ export default function Dashboard() {
         if (!can("view_meetings")) {
           return <div>Access Denied</div>;
         }
-        return <UpcomingMeetings  />
+        return <UpcomingMeetings />
       case "Holidays":
         if (!can("manage_holidays")) {
           return <div>Access Denied</div>;
         }
-        return <Holidays  />;
+        return <Holidays />;
       case "Payroll":
         return <Payroll  userRole={userRole} />;
       case "TaskManagement":
@@ -201,7 +219,7 @@ export default function Dashboard() {
         return <PermissionsPage/>
       
       default:
-        return <DashboardHome />;
+        return <DashboardHome onNavigateToItem={handleDashboardItemNavigate} />;
     }
   };
 
@@ -210,9 +228,11 @@ export default function Dashboard() {
       <HorizontalNavbar
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
+        sidebarMobileOpen={sidebarMobileOpen}
+        setSidebarMobileOpen={setSidebarMobileOpen}
       />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+        <Sidebar selectedTab={selectedTab} setSelectedTab={setSelectedTab} mobileOpen={sidebarMobileOpen} setMobileOpen={setSidebarMobileOpen} />
         <div className="flex-1 flex flex-col overflow-hidden">
           <main className="flex-1 overflow-auto bg-gray-50 p-8">
             <div className="flex items-center justify-between mb-4">

@@ -2,6 +2,8 @@ export default function AnnouncementsCard({
   title = "Announcements",
   announcements = [],
   height = "h-[420px]",
+  isRowClickable = false,
+  onRowClick,
 }) {
   return (
     <div
@@ -29,8 +31,15 @@ export default function AnnouncementsCard({
         ) : (
           announcements.map((item, index) => (
             <div
-              key={index}
-              className="flex items-center gap-4 px-5 py-3 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
+              key={item.id ?? index}
+              className={`flex items-center gap-4 px-5 py-3 border-b last:border-b-0 hover:bg-gray-50 transition-colors ${
+                isRowClickable ? "cursor-pointer" : ""
+              }`}
+              onClick={() => {
+                if (isRowClickable && onRowClick) {
+                  onRowClick(item);
+                }
+              }}
             >
               {/* Avatar */}
               {item.avatar && (
@@ -48,7 +57,10 @@ export default function AnnouncementsCard({
               </div>
 
               {/* Optional action icon */}
-              <button className="text-gray-400 hover:text-gray-600 text-sm">
+              <button
+                className="text-gray-400 hover:text-gray-600 text-sm"
+                onClick={(event) => event.stopPropagation()}
+              >
                 ➔
               </button>
             </div>
