@@ -32,6 +32,23 @@ router.get('/punch-status', authenticate, checkPermission(PERMISSIONS.VIEW_ATTEN
 // New: Break Handling
 router.post('/break', authenticate, checkPermission(PERMISSIONS.MARK_ATTENDANCE), toggleBreak); 
 
+/*
+# Page 1 (Last 7 days) - Default
+GET /api/attendance/my-attendance-history
+
+# Page 2 (7-13 days ago)
+GET /api/attendance/my-attendance-history?page=2
+
+# Custom: 14 days per page
+GET /api/attendance/my-attendance-history?page=1&pageSize=14
+
+# Old method still works: Single date
+GET /api/attendance/my-attendance-history?date=2026-04-01
+
+# Old method still works: Date range
+GET /api/attendance/my-attendance-history?fromDate=2026-04-01&toDate=2026-04-15
+*/
+
 // New: Employee History
 router.get('/my-attendance-history', authenticate, checkPermission(PERMISSIONS.VIEW_ATTENDANCE), getMyAttendance);
 
