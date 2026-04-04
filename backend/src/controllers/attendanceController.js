@@ -48,9 +48,25 @@ const serializeAttendance = (attendance) => {
   };
 };
 
+const calculateTotalHoursWorked = (checkInTime, checkOutTime, totalBreakMinutes) => {
+  if (!checkInTime || !checkOutTime) return 0;
+  
+  const durationMs = new Date(checkOutTime) - new Date(checkInTime);
+  const durationHours = durationMs / (1000 * 60 * 60);
+  const breakTimeHours = (totalBreakMinutes || 0) / 60;
+  const totalHours = Math.max(0, durationHours - breakTimeHours);
+  
+  return parseFloat(totalHours.toFixed(2));
+};
+
 const mapAttendanceHistoryEntry = (attendance) => {
   const normalized = serializeAttendance(attendance);
   const totalBreakTime = normalized.totalBreakMinutes || 0;
+  const totalHoursWorked = calculateTotalHoursWorked(
+    normalized.checkInTime,
+    normalized.checkOutTime,
+    totalBreakTime
+  );
 
   return {
     ...normalized,
@@ -61,7 +77,8 @@ const mapAttendanceHistoryEntry = (attendance) => {
     breakStats: {
       totalBreakTime,
       leftBreakTime: Math.max(0, 40 - totalBreakTime)
-    }
+    },
+    totalHoursWorked
   };
 };
 
@@ -255,7 +272,17 @@ exports.getPunchStatus = async (req, res) => {
     // Get employee
     const employee = await prisma.employee.findUnique({
       where: { userId: userId },
-      select: { id: true, name: true, department: true, designation: true }
+      select: {
+        id: true,
+        name: true,
+        department: true,
+        designation: true,
+        user: {
+          select: {
+            email: true
+          }
+        }
+      }
     });
 
     if (!employee) {
@@ -280,11 +307,19 @@ exports.getPunchStatus = async (req, res) => {
     const totalBreakTime = attendance ? attendance.totalBreakMinutes : 0;
     const leftBreakTime = Math.max(0, 40 - totalBreakTime); // Math.max prevents negative numbers
 
+    const employeeData = {
+      id: employee.id,
+      name: employee.name,
+      department: employee.department,
+      designation: employee.designation,
+      email: employee.user?.email || null
+    };
+
     res.json({
       success: true,
       data: {
         isPunchedIn: isPunchedIn,
-        employee: employee,
+        employee: employeeData,
         todayAttendance: attendance ? serializeAttendance(attendance) : null,
         breakStats: {
           totalBreakTime: totalBreakTime,
@@ -394,11 +429,11 @@ exports.toggleBreak = async (req, res) => {
   }
 };
 
-// 4. GET MY ATTENDANCE (Employee View)
+// 4. GET MY ATTENDANCE (Employee View) - With Pagination for 7-day intervals
 exports.getMyAttendance = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { date, fromDate, toDate } = req.query;
+    const { date, fromDate, toDate, page, pageSize } = req.query;
     const employee = await prisma.employee.findUnique({ where: { userId } });
 
     if (!employee) {
@@ -406,8 +441,44 @@ exports.getMyAttendance = async (req, res) => {
     }
 
     const whereClause = { employeeId: employee.id };
+    let paginationInfo = null;
 
-    if (date) {
+    // Handle pagination with configurable interval (default 7 days)
+    if (page) {
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const pageSizeNum = Math.max(1, parseInt(pageSize) || 7);
+
+      // Calculate which days this page covers
+      const today = new Date();
+      const newestDayOffset = (pageNum - 1) * pageSizeNum; // How many days back is the newest day
+      const oldestDayOffset = newestDayOffset + pageSizeNum - 1; // How many days back is the oldest day
+
+      const newestDay = new Date(today);
+      newestDay.setUTCDate(newestDay.getUTCDate() - newestDayOffset);
+
+      const oldestDay = new Date(today);
+      oldestDay.setUTCDate(oldestDay.getUTCDate() - oldestDayOffset);
+
+      const startOfPage = getUtcDayStart(oldestDay);
+      const endOfPage = new Date(getUtcDayStart(newestDay));
+      endOfPage.setUTCDate(endOfPage.getUTCDate() + 1);
+
+      whereClause.date = {
+        gte: startOfPage,
+        lt: endOfPage
+      };
+
+      // Get total count for pagination metadata
+      const totalCount = await prisma.attendance.count({ where: { employeeId: employee.id } });
+      const totalPages = Math.ceil(totalCount / pageSizeNum);
+
+      paginationInfo = {
+        currentPage: pageNum,
+        pageSize: pageSizeNum,
+        totalRecords: totalCount,
+        totalPages: totalPages
+      };
+    } else if (date) {
       const parsedDate = new Date(date);
       if (Number.isNaN(parsedDate.getTime())) {
         return res.status(400).json({ success: false, message: 'Invalid date. Use YYYY-MM-DD format.' });
@@ -442,6 +513,32 @@ exports.getMyAttendance = async (req, res) => {
       }
 
       whereClause.date = dateFilter;
+    } else {
+      // Default: No filters provided, return last 7 days (page 1 of pagination)
+      const pageNum = 1;
+      const pageSizeNum = 7;
+
+      const today = new Date();
+      const rangeStart = new Date(today);
+      rangeStart.setUTCDate(rangeStart.getUTCDate() - 6);
+
+      const { start: startOfRangeStart } = getUtcDayRange(rangeStart);
+      const { end: endOfToday } = getUtcDayRange(today);
+
+      whereClause.date = {
+        gte: startOfRangeStart,
+        lt: endOfToday
+      };
+
+      const totalCount = await prisma.attendance.count({ where: { employeeId: employee.id } });
+      const totalPages = Math.ceil(totalCount / pageSizeNum);
+
+      paginationInfo = {
+        currentPage: pageNum,
+        pageSize: pageSizeNum,
+        totalRecords: totalCount,
+        totalPages: totalPages
+      };
     }
 
     const history = await prisma.attendance.findMany({
@@ -452,9 +549,20 @@ exports.getMyAttendance = async (req, res) => {
       ]
     });
 
-    res.json({ success: true, count: history.length, data: history.map(mapAttendanceHistoryEntry) });
+    const response = {
+      success: true,
+      count: history.length,
+      data: history.map(mapAttendanceHistoryEntry)
+    };
+
+    if (paginationInfo) {
+      response.pagination = paginationInfo;
+    }
+
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    console.error('Get My Attendance Error:', error);
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 };
 
