@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs'); 
+const { DEFAULT_EMPLOYEE_PERMISSIONS } = require('../src/utils/defaultRolePermissions');
 
 const prisma = new PrismaClient();
 
@@ -34,8 +35,8 @@ async function main() {
     data: {
       name: 'Employee',
       description: 'Standard employee access',
-      // Employee role starts with empty permissions - will be assigned manually later
-      permissions: [] 
+      // Default employee access mirrors the current employee-facing modules.
+      permissions: DEFAULT_EMPLOYEE_PERMISSIONS
     }
   });
 

@@ -19,6 +19,7 @@ const payrollRoutes = require('./src/routes/payrollRoutes');
 const projectRoutes = require('./src/routes/projectRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 const roleRoutes = require('./src/routes/roleRoutes');
+const { ensureDefaultEmployeePermissions } = require('./src/utils/defaultRolePermissions');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -78,6 +79,16 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+async function startServer() {
+  try {
+    await ensureDefaultEmployeePermissions(prisma);
+  } catch (error) {
+    console.error('Failed to ensure default employee permissions:', error);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+startServer();

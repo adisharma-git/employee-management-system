@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { DEFAULT_EMPLOYEE_PERMISSIONS } = require('./src/utils/defaultRolePermissions');
 
 const LEGACY_PERMISSION_MAP = {
   manage_holidays: ['create_holidays', 'view_holidays'],
@@ -41,7 +42,11 @@ async function syncRolePermissions() {
 
     for (const role of roles) {
       const before = role.permissions || [];
-      const after = normalizePermissions(before);
+      let after = normalizePermissions(before);
+
+      if (role.name === 'Employee' && after.length === 0) {
+        after = DEFAULT_EMPLOYEE_PERMISSIONS;
+      }
 
       const isDifferent = before.length !== after.length || before.some((p, idx) => p !== after[idx]);
 
