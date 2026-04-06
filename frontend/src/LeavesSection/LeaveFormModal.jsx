@@ -3,17 +3,19 @@ import { format } from "date-fns";
 import api from "../api/axios";
 import ToastContainer from "../Toaster/Toast";
 
-const LeaveFormModal = ({ onSubmit, onClose }) => {
+const LeaveFormModal = ({ date, onSubmit, onClose }) => {
+
+  const initialFormData = {
+    leaveTypeId: "",
+    startDate: date ? format(new Date(date), "yyyy-MM-dd") : "",
+    endDate: date ? format(new Date(date), "yyyy-MM-dd") : "",
+    description: "",
+    isHalfDay: false
+  };
 
   const [leaveTypes, setLeaveTypes] = useState([]);
 
-  const [formData, setFormData] = useState({
-    leaveTypeId: "",
-    startDate: "",
-    endDate: "",
-    description: "",
-    isHalfDay: false
-  });
+  const [formData, setFormData] = useState(initialFormData);
 
   const [errors, setErrors] = useState({});
   const [toasts, setToasts] = useState([]);
@@ -27,24 +29,27 @@ const LeaveFormModal = ({ onSubmit, onClose }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Fetch Leave Types
   useEffect(() => {
-    fetchLeaveTypes();
-  }, []);
+    let isMounted = true;
 
-  const fetchLeaveTypes = async () => {
-    try {
+    const loadLeaveTypes = async () => {
+      try {
+        const res = await api.get("/leave-types");
 
-      const res = await api.get("/leave-types");
-
-      if (res.data.success) {
-        setLeaveTypes(res.data.data);
+        if (isMounted && res.data.success) {
+          setLeaveTypes(res.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching leave types", error);
       }
+    };
 
-    } catch (error) {
-      console.error("Error fetching leave types", error);
-    }
-  };
+    void loadLeaveTypes();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Input Change
   const handleChange = (e) => {
@@ -121,11 +126,8 @@ const LeaveFormModal = ({ onSubmit, onClose }) => {
         addToast("success", successMessage);
 
         setFormData({
-          leaveTypeId: "",
-          startDate: "",
-          endDate: "",
-          description: "",
-          isHalfDay: false
+          ...initialFormData,
+          leaveTypeId: ""
         });
 
         if (onSubmit) onSubmit(res.data);

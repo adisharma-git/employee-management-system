@@ -37,9 +37,23 @@ const TotalLeaves = ({ leaves }) => {
 
             <div className="border-t pt-3 space-y-2 text-sm">
               <div className="flex justify-between items-center">
-                <span className="text-gray-500">Available</span>
+                <span className="text-gray-500">Remaining</span>
                 <span className="text-green-600 font-semibold">
-                  {leave.defaultDays}
+                  {leave.remaining}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">Allocated</span>
+                <span className="text-gray-800 font-semibold">
+                  {leave.allocated}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">Used</span>
+                <span className="text-gray-800 font-semibold">
+                  {leave.used}
                 </span>
               </div>
 
@@ -51,7 +65,7 @@ const TotalLeaves = ({ leaves }) => {
                   </span>
                 </span>
 
-                <span className="text-gray-800 font-semibold">0</span>
+                <span className="text-gray-800 font-semibold">{leave.remaining}</span>
 
                 <div
                   className="absolute bottom-8 left-0 hidden group-hover:block 
@@ -67,7 +81,9 @@ const TotalLeaves = ({ leaves }) => {
               <div className="w-full bg-gray-200 rounded-full h-1.5">
                 <div
                   className="bg-orange-500 h-1.5 rounded-full"
-                  style={{ width: "30%" }}
+                  style={{
+                    width: `${leave.allocated > 0 ? Math.min(100, (leave.used / leave.allocated) * 100) : 0}%`
+                  }}
                 ></div>
               </div>
             </div>

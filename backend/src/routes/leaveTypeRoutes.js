@@ -9,7 +9,7 @@ const router = express.Router();
 // Admin creates policies
 router.post('/', authenticate, checkPermission(PERMISSIONS.MANAGE_LEAVE_TYPES), createLeaveType);
 
-// Everyone (Employees/Admins) can view policies to populate dropdowns
-router.get('/', authenticate, checkPermission(PERMISSIONS.MANAGE_LEAVE_TYPES), getActiveLeaveTypes);
+// Any authenticated user can view active leave types for dropdowns
+router.get('/', authenticate, getActiveLeaveTypes);
 
 module.exports = router;

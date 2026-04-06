@@ -5,15 +5,17 @@ import ToastContainer from "../Toaster/Toast";
 
 const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
 
-  const [leaveTypes, setLeaveTypes] = useState([]);
-
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     leaveTypeId: "",
-    startDate: "",
-    endDate: "",
+    startDate: date ? format(new Date(date), "yyyy-MM-dd") : "",
+    endDate: date ? format(new Date(date), "yyyy-MM-dd") : "",
     reason: "",
     isHalfDay: false
-  });
+  };
+
+  const [leaveTypes, setLeaveTypes] = useState([]);
+
+  const [formData, setFormData] = useState(initialFormData);
 
   const [errors, setErrors] = useState({});
   const [toasts, setToasts] = useState([]);
@@ -28,22 +30,26 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
   };
 
   useEffect(() => {
-    fetchLeaveTypes();
-  }, []);
+    let isMounted = true;
 
-  const fetchLeaveTypes = async () => {
-    try {
+    const loadLeaveTypes = async () => {
+      try {
+        const res = await api.get("/leave-types");
 
-      const res = await api.get("/leave-types");
-
-      if (res.data.success) {
-        setLeaveTypes(res.data.data);
+        if (isMounted && res.data.success) {
+          setLeaveTypes(res.data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching leave types", err);
       }
+    };
 
-    } catch (err) {
-      console.error("Error fetching leave types", err);
-    }
-  };
+    void loadLeaveTypes();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleChange = (e) => {
 
@@ -117,11 +123,8 @@ const ApplyLeaveForm = ({ date, onSubmit, onClose }) => {
         addToast("success", successMessage);
 
         setFormData({
-          leaveTypeId: "",
-          startDate: "",
-          endDate: "",
-          reason: "",
-          isHalfDay: false
+          ...initialFormData,
+          leaveTypeId: ""
         });
 
         if (onSubmit) {
