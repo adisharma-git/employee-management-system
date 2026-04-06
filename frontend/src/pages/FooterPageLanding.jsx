@@ -1,21 +1,21 @@
 const FooterPageLanding = () => {
     const handleNavigate = () => {
-        window.open('landingPage/privacy');
+        window.location.href = '/landingPage/privacy';
     }
     const handleTermsService = () => {
-        window.open('/termsofservice');
+        window.location.href = '/termsofservice';
     }
     const handleSecurity = () => {
-        window.open('/SecurityPolicy');
+        window.location.href = '/SecurityPolicy';
     }
     const handleUpdate = () => {
-        window.open('/updates');
+        window.location.href = '/updates';
     }
     const handleAboutUs = () => {
-        window.open('/landingPage');
+        window.location.href = '/landingPage';
     }
     const handleContact = () => {
-        window.open('/dashboardNew/help');
+        window.location.href = 'mailto:hp4758646@gmail.com?subject=WorkAlignr%20Contact%20Request';
     }
     return (
         <footer className="bg-[#021f54] text-gray-300 pt-16 pb-8 px-6">
@@ -27,10 +27,10 @@ const FooterPageLanding = () => {
 
                     <div>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Workalignr
+                            WorkAlignr
                         </h2>
                         <p className="text-sm leading-relaxed text-gray-400">
-                            A modern employee & payment management platform built to help
+                            A modern employee management platform built to help
                             businesses grow faster, smarter, and more securely.
                         </p>
                     </div>
@@ -41,7 +41,7 @@ const FooterPageLanding = () => {
                         <ul className="space-y-3 text-sm">
                             <li className="hover:text-orange-400 cursor-pointer">Features</li>
                             <li className="hover:text-orange-400 cursor-pointer">Pricing</li>
-                            <li className="hover:text-orange-400 cursor-pointer"onClick={handleUpdate}>Updates</li>
+                            <li className="hover:text-orange-400 cursor-pointer" onClick={handleUpdate}>Updates</li>
                             <li className="hover:text-orange-400 cursor-pointer" onClick={handleNavigate}>Privacy Policy</li>
                         </ul>
                     </div>
@@ -50,8 +50,8 @@ const FooterPageLanding = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-4">Company</h3>
                         <ul className="space-y-3 text-sm">
-                            <li className="hover:text-orange-400 cursor-pointer"onClick={handleAboutUs}>About Us</li>
-                            <li className="hover:text-orange-400 cursor-pointer"onClick={handleContact}>Contact</li>
+                            <li className="hover:text-orange-400 cursor-pointer" onClick={handleAboutUs}>About Us</li>
+                            <li className="hover:text-orange-400 cursor-pointer" onClick={handleContact}>Contact</li>
                         </ul>
                     </div>
 
@@ -80,14 +80,14 @@ const FooterPageLanding = () => {
 
 
                     <p className="text-xs text-gray-400">
-                        © {new Date().getFullYear()} Workalignr. All rights reserved.
+                        © {new Date().getFullYear()} WorkAlignr. All rights reserved.
                     </p>
 
 
                     <div className="flex gap-6 text-xs">
-                        <span className="hover:text-orange-400 cursor-pointer"onClick={handleNavigate}>Privacy Policy</span>
-                        <span className="hover:text-orange-400 cursor-pointer"onClick={handleTermsService}>Terms of Service</span>
-                        <span className="hover:text-orange-400 cursor-pointer"onClick={handleSecurity}>Security</span>
+                        <span className="hover:text-orange-400 cursor-pointer" onClick={handleNavigate}>Privacy Policy</span>
+                        <span className="hover:text-orange-400 cursor-pointer" onClick={handleTermsService}>Terms of Service</span>
+                        <span className="hover:text-orange-400 cursor-pointer" onClick={handleSecurity}>Security</span>
                     </div>
                 </div>
 

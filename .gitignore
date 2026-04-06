@@ -74,3 +74,6 @@ pnpm-lock.yaml
 # Production
 /build
 /dist
+
+COPILOT_CONTEXT.MD
+
