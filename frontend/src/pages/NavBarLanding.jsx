@@ -6,6 +6,10 @@ export default function Navbar() {
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const handleContact = (subject) => {
+    window.location.href = `mailto:hp4758646@gmail.com?subject=${encodeURIComponent(subject)}`;
+  };
+
   const handleLogin = () => {
     window.location.href = "/login";
   };
@@ -32,7 +36,7 @@ export default function Navbar() {
               >
                 <img
                   src="/logo.png"
-                  alt="Worlaligner Logo"
+                  alt="WorkAlignr logo"
                   className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded-lg shadow-inner"
                 />
                 <span className="text-sm sm:text-base font-semibold tracking-wide px-0 truncate">
@@ -59,19 +63,19 @@ export default function Navbar() {
                   >
                     <MegaDropdown>
                       <DropdownItem
-                        title="Employee"
-                        desc="Manage employee profiles & roles"
+                        title="Employee Profiles"
+                        desc="Manage employee records, departments, and reporting structure"
                         onClick={() =>
-                          window.open("/EmployeeInfoPage", "_blank")
+                          (window.location.href = "/employeeInfoPage")
                         }
                       />
                       <DropdownItem
                         title="Attendance & Leave"
-                        desc="Track daily attendance, leave requests & approvals"
+                        desc="Track attendance, leave requests, approvals, and break history"
                       />
                       <DropdownItem
-                        title="Performance & Reports"
-                        desc="Attendance & performance summaries"
+                        title="Payroll & Reports"
+                        desc="Review payroll, notifications, tasks, and operational reports"
                       />
                     </MegaDropdown>
                   </div>
@@ -95,8 +99,8 @@ export default function Navbar() {
                     <MegaDropdown width="420px">
                       <DropdownItem
                         title="About Us"
-                        desc="Who we are & what we do"
-                        onClick={() => window.open("/landingPage", "_blank")}
+                        desc="Who we are and how WorkAlignr fits your team"
+                        onClick={() => (window.location.href = "/landingPage")}
                       />
                       <DropdownItem
                         title="Team"
@@ -127,21 +131,18 @@ export default function Navbar() {
                     <MegaDropdown width="420px">
                       <DropdownItem
                         title="Help Center"
-                        desc="FAQs & common issues"
-                        onClick={() =>
-                          window.open("/dashboardNew/help", "_blank")
-                        }
+                        desc="Frequently asked questions and support email"
+                        onClick={() => handleContact("WorkAlignr Help Center")}
                       />
                       <DropdownItem
                         title="Contact"
-                        desc="Reach out for support"
-                        onClick={() =>
-                          window.open("/dashboardNew/help", "_blank")
-                        }
+                        desc="Reach out for onboarding or product questions"
+                        onClick={() => handleContact("WorkAlignr Contact Request")}
                       />
                       <DropdownItem
                         title="System Status"
-                        desc="Live service status"
+                        desc="Public product updates"
+                        onClick={() => (window.location.href = "/updates")}
                       />
                     </MegaDropdown>
                   </div>
@@ -205,7 +206,7 @@ export default function Navbar() {
               <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-2 space-y-1">
                 <button
                   onClick={() => {
-                    window.open("/EmployeeInfoPage", "_blank");
+                    window.location.href = "/employeeInfoPage";
                     setIsMobileMenuOpen(false);
                   }}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10"
@@ -214,7 +215,7 @@ export default function Navbar() {
                 </button>
                 <button
                   onClick={() => {
-                    window.open("/landingPage", "_blank");
+                    window.location.href = "/landingPage";
                     setIsMobileMenuOpen(false);
                   }}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10"
@@ -223,7 +224,7 @@ export default function Navbar() {
                 </button>
                 <button
                   onClick={() => {
-                    window.open("/dashboardNew/help", "_blank");
+                    handleContact("WorkAlignr Support");
                     setIsMobileMenuOpen(false);
                   }}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10"

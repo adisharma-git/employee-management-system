@@ -4,26 +4,26 @@ export default function FeaturePageLanding() {
       icon: "fa-clock",
       title: "Attendance",
       description:
-        "Track employee attendance with real-time clock-in/out capabilities and automated attendance reports.",
+        "Track daily attendance, breaks, and check-in/check-out activity with clean employee records.",
     },
     {
-      icon: "fa-money-bill-wave",
-      title: "Payroll",
-      description: "Streamlined payroll processing with automatic calculations, tax compliance, and secure payments.",
+      icon: "fa-calendar-check",
+      title: "Leave Management",
+      description: "Handle leave requests, approvals, balances, and holiday-aware day calculations in one flow.",
     },
     {
       icon: "fa-shield",
       title: "Role Settings",
-      description: "Define and manage user roles and permissions with granular access control for your team.",
+      description: "Define user roles and permission sets so admins, managers, and employees see only what they need.",
     },
     {
-      icon: "fa-receipt",
-      title: "Billings",
-      description: "Complete billing management system with invoicing, payment tracking, and financial reports.",
+      icon: "fa-money-bill-wave",
+      title: "Payroll",
+      description: "Manage salary structure, payroll records, deductions, and monthly payouts with audit history.",
     },
   ]
-  const handleLogin = () => {
-    window.location.href = '/login';
+  const handleContact = () => {
+    window.location.href = 'mailto:hp4758646@gmail.com?subject=WorkAlignr%20Product%20Enquiry';
   }
 
   return (
@@ -38,17 +38,16 @@ export default function FeaturePageLanding() {
               </p>
               <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
                 <span className="text-orange-500">All of the features</span>
-                <span className="text-white"> that your practice needs</span>
+                <span className="text-white"> your team needs</span>
               </h2>
             </div>
 
             <p className="text-gray-300 text-lg leading-relaxed">
-              The complete solution for managing employees, documentation, billing and reconciliation all in one unified
-              platform.
+              WorkAlignr brings employee profiles, attendance, leave, payroll, roles, meetings, tasks, and notifications into one unified platform.
             </p>
 
-            <button className="bg-white text-orange-500 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 group" onClick={handleLogin}>
-              See all features
+            <button className="bg-white text-orange-500 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 group" onClick={handleContact}>
+              Contact Us
               <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
             </button>
           </div>
