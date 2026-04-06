@@ -3,49 +3,86 @@ import TotalLeaves from "./totalLeaves";
 import api from "../api/axios";
 import LeavesHistory from "./LeavesHistory";
 import ApproveLeaves from "./ApproveLeaves";
+import { usePermission } from "../hooks/usePermission";
 
 const AttendanceNav = () => {
-  const [activeTab, setActiveTab] = useState("leaves");
-   const [leaves, setLeaves] = useState([]);
-  const isAdmin = false; 
+  const [activeTab, setActiveTab] = useState("leave-types");
+  const [leaves, setLeaves] = useState([]);
+  const { can } = usePermission();
 
   const tabs = [
-    { key: "ActiveLeaves", label: "ActiveLeaves", adminOnly: false },
-    { key: "leaves", label: "Leaves", adminOnly: false },
-    { key: "reports", label: "Reports", adminOnly: true },
-    { key: "Leaves History", label: "Leaves History", adminOnly: false }
+    { key: "leave-types", label: "Leave Types", visible: true },
+    { key: "requests", label: "Leave Requests", visible: can("view_all_leaves") },
+    { key: "history", label: "Leave History", visible: can("apply_leave") }
   ];
 
-  const visibleTabs = tabs.filter(
-    (tab) => !tab.adminOnly || isAdmin
-  );
-  const fetchLeaves = async () => {
-    try {
-      const response = await api.get("/leave-types");
-      console.log("Fetched Leaves:", response.data.data);
-      setLeaves(response.data.data);
-    } catch (error) {
-      console.error("Error fetching leaves", error);
-    }
-  };
+  const visibleTabs = tabs.filter((tab) => tab.visible);
+  const effectiveActiveTab = visibleTabs.some((tab) => tab.key === activeTab)
+    ? activeTab
+    : visibleTabs[0]?.key ?? "leave-types";
+
   useEffect(() => {
-    fetchLeaves();
+    let isMounted = true;
+
+    const loadLeaves = async () => {
+      try {
+        const [typesResult, balancesResult] = await Promise.allSettled([
+          api.get("/leave-types"),
+          api.get("/leaves/my-balances")
+        ]);
+
+        const leaveTypes =
+          typesResult.status === "fulfilled"
+            ? typesResult.value.data?.data || []
+            : [];
+
+        const balances =
+          balancesResult.status === "fulfilled"
+            ? balancesResult.value.data?.data || []
+            : [];
+
+        const balanceMap = new Map(
+          balances.map((balance) => [String(balance.leaveTypeId), balance])
+        );
+
+        const mergedLeaves = leaveTypes.map((leaveType) => {
+          const balance = balanceMap.get(String(leaveType.id));
+
+          return {
+            ...leaveType,
+            allocated: balance?.allocated ?? leaveType.defaultDays ?? 0,
+            used: balance?.used ?? 0,
+            remaining:
+              balance?.remaining ??
+              (balance ? balance.allocated - balance.used : leaveType.defaultDays ?? 0)
+          };
+        });
+
+        if (isMounted) {
+          setLeaves(mergedLeaves);
+        }
+      } catch (error) {
+        console.error("Error fetching leaves", error);
+      }
+    };
+
+    void loadLeaves();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const renderComponent = () => {
-    switch (activeTab) {
-      case "ActiveLeaves":
+    switch (effectiveActiveTab) {
+      case "requests":
         return <ApproveLeaves />;
-      case "attendance":
-        return <ActiveLeaves />;
-      case "leaves":
+      case "leave-types":
         return <TotalLeaves leaves={leaves}/>;
-      case "reports":
-        return <Reports />;
-        case "Leaves History":
+      case "history":
         return <LeavesHistory/>;
       default:
-        return <Reports />;
+        return <LeavesHistory />;
     }
   };
 
@@ -62,7 +99,7 @@ const AttendanceNav = () => {
             >
               <span
                 className={`font-medium ${
-                  activeTab === tab.key
+                  effectiveActiveTab === tab.key
                     ? "text-orange-500"
                     : "text-gray-700 hover:text-orange-500"
                 }`}
@@ -72,7 +109,7 @@ const AttendanceNav = () => {
 
               <span
                 className={`absolute left-0 bottom-0 h-[2px] bg-orange-500 transition-all duration-300 ${
-                  activeTab === tab.key ? "w-full" : "w-0"
+                  effectiveActiveTab === tab.key ? "w-full" : "w-0"
                 }`}
               />
             </button>
@@ -80,14 +117,9 @@ const AttendanceNav = () => {
         </div>
       </div>
 
-      <div className="p-6">
-        {renderComponent()}
-      </div>
+      <div className="p-6">{renderComponent()}</div>
     </div>
   );
 };
 
 export default AttendanceNav;
-const PendingLeaves = () => <div>Pending Leaves</div>;
-const ActiveLeaves = () => <div>ActiveLeaves</div>;
-const Reports = () => <div>Reports Component</div>;

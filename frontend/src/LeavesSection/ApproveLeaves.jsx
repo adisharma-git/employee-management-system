@@ -1,34 +1,49 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import api from "../api/axios";
+import { usePermission } from "../hooks/usePermission";
 
 const ApproveLeaves = () => {
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
-
-  const fetchLeaves = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get(
-        `/all${filter ? `?status=${filter}` : ""}`
-      );
-      setLeaves(res.data.data);
-    } catch (error) {
-      console.error("Error fetching leaves:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { can } = usePermission();
+  const canReviewLeaves = can("approve_leave") || can("reject_leave");
 
   useEffect(() => {
-    fetchLeaves();
+    let isMounted = true;
+
+    const loadLeaves = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(
+          `/leaves/all${filter ? `?status=${filter}` : ""}`
+        );
+        if (isMounted) {
+          setLeaves(res.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching leaves:", error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadLeaves();
+
+    return () => {
+      isMounted = false;
+    };
   }, [filter]);
 
   const handleStatusUpdate = async (id, status) => {
     try {
-      await api.patch(`/${id}/status`, { status });
-      fetchLeaves();
+      await api.patch(`/leaves/${id}/status`, { status });
+      const res = await api.get(
+        `/leaves/all${filter ? `?status=${filter}` : ""}`
+      );
+      setLeaves(res.data.data);
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -70,20 +85,20 @@ const ApproveLeaves = () => {
                 <th className="p-3 text-left">Days</th>
                 <th className="p-3 text-left">Reason</th>
                 <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-center">Action</th>
+                {canReviewLeaves && <th className="p-3 text-center">Action</th>}
               </tr>
             </thead>
 
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="text-center p-5">
+                  <td colSpan={canReviewLeaves ? 9 : 8} className="text-center p-5">
                     Loading...
                   </td>
                 </tr>
               ) : leaves.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="text-center p-5 text-gray-500">
+                  <td colSpan={canReviewLeaves ? 9 : 8} className="text-center p-5 text-gray-500">
                     No leave requests found
                   </td>
                 </tr>
@@ -104,7 +119,9 @@ const ApproveLeaves = () => {
                       {leave.employee.department}
                     </td>
 
-                    <td className="p-3">{leave.leaveType}</td>
+                    <td className="p-3">
+                      {leave.leaveType?.name || leave.leaveType || "-"}
+                    </td>
 
                     <td className="p-3">
                       {new Date(leave.fromDate).toLocaleDateString()}
@@ -136,33 +153,37 @@ const ApproveLeaves = () => {
                     </td>
 
                     {/* Actions */}
-                    <td className="p-3 text-center">
-                      {leave.status === "pending" ? (
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() =>
-                              handleStatusUpdate(leave.id, "approved")
-                            }
-                            className="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
-                          >
-                            Approve
-                          </button>
+                    {canReviewLeaves && (
+                      <td className="p-3 text-center">
+                        {leave.status === "pending" ? (
+                          <div className="flex justify-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleStatusUpdate(leave.id, "approved")
+                              }
+                              className="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600"
+                            >
+                              Approve
+                            </button>
 
-                          <button
-                            onClick={() =>
-                              handleStatusUpdate(leave.id, "rejected")
-                            }
-                            className="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-sm">
-                          No Action
-                        </span>
-                      )}
-                    </td>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleStatusUpdate(leave.id, "rejected")
+                              }
+                              className="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-sm">
+                            No Action
+                          </span>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

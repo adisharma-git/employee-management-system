@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
 const CreateLeave = ({ onSubmit, onClose }) => {
-  const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     name: "",
     defaultDays: "",
@@ -16,7 +13,7 @@ const CreateLeave = ({ onSubmit, onClose }) => {
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") {
-        onClose();
+        onClose?.();
       }
     };
 
@@ -45,6 +42,10 @@ const CreateLeave = ({ onSubmit, onClose }) => {
       newErrors.name = "Leave name is required";
     }
 
+    if (formData.defaultDays === "" || Number.isNaN(Number(formData.defaultDays)) || Number(formData.defaultDays) <= 0) {
+      newErrors.defaultDays = "Default days must be greater than 0";
+    }
+
     if (!formData.description.trim()) {
       newErrors.description = "Reason is required";
     } else if (formData.description.length < 10) {
@@ -60,7 +61,7 @@ const CreateLeave = ({ onSubmit, onClose }) => {
       console.log('Fetched Leaves:', response.data.data);
     }
     catch(error){
-      
+      console.error('Error fetching leave types:', error);
     }
   }
 
@@ -68,15 +69,17 @@ const CreateLeave = ({ onSubmit, onClose }) => {
     e.preventDefault();
 
     if (validate()) {
-      if (onSubmit) onSubmit(formData);
       try {
-      await api.post('/leave-types', formData)
-      fetchLeaves();
-      // onSubmit()
-    } catch (error) {
-      console.error('Error saving log:', error)
-    }
-      
+        await api.post('/leave-types', {
+          ...formData,
+          defaultDays: Number(formData.defaultDays)
+        });
+        await fetchLeaves();
+        if (onSubmit) onSubmit(formData);
+        onClose?.();
+      } catch (error) {
+        console.error('Error saving leave type:', error);
+      }
     }
   };
 
@@ -84,12 +87,12 @@ const CreateLeave = ({ onSubmit, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={() => onClose?.()}
       />
 
       <div className="relative bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl p-6">
         <button
-          onClick={onClose}
+          onClick={() => onClose?.()}
           className="absolute top-3 right-4 text-gray-500 hover:text-black text-lg"
         >
           ✕
@@ -99,7 +102,7 @@ const CreateLeave = ({ onSubmit, onClose }) => {
           Create Leave
         </h2>
 
-        <form  className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
             <label className="block text-gray-600 font-medium mb-2">
               Leave Name <span className="text-red-500">*</span>
@@ -164,7 +167,7 @@ const CreateLeave = ({ onSubmit, onClose }) => {
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => onClose?.()}
               className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
             >
               Cancel
@@ -172,7 +175,7 @@ const CreateLeave = ({ onSubmit, onClose }) => {
 
             <button
               type="submit"
-              className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black px-4 py-2 rounded-lg transition"onClick={handleSubmit}
+              className="bg-[#021f54] text-white hover:bg-orange-400 hover:text-black px-4 py-2 rounded-lg transition"
             >
               Submit
             </button>

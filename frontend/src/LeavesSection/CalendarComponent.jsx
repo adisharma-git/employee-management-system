@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ApplyLeaveForm from "./LeaveForm";
 import LeaveFormModal from "./LeaveFormModal";
 
 const CalendarComponent = () => {
@@ -88,6 +87,7 @@ const CalendarComponent = () => {
 
       {showForm && (
         <LeaveFormModal
+          date={selectedDate}
           onClose={() => setShowForm(false)}
         />
       )}

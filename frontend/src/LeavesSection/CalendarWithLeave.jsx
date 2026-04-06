@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LeaveFormModal from "./LeaveFormModal";
 
 const CalendarWithLeave = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -91,7 +92,7 @@ const CalendarWithLeave = () => {
 
 
             {showForm && (
-                <LeaveModal
+                <LeaveFormModal
                     date={selectedDate}
                     onClose={() => setShowForm(false)}
                 />
