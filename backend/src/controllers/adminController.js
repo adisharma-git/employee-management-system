@@ -4,41 +4,54 @@ const bcrypt = require('bcryptjs');
 // 1. GET ALL EMPLOYEES (The Directory)
 exports.getAllEmployees = async (req, res) => {
   try {
-    // Fetch users who have the 'Employee' role (RBAC-based filtering)
-    // We include the 'employee' profile data too
-    const employees = await prisma.user.findMany({
-      where: { role: { name: 'Employee' } },
-      select: {
-        id: true,
-        email: true,
-        role: {
-          select: {
-            id: true,
-            name: true,
-            permissions: true
-          }
-        },
-        employee: {
-          select: {
-            id: true,
-            name: true,
-            designation: true,
-            department: true,
-            dateOfJoining: true,
-            salaryStructure: {
-              select: {
-                baseSalary: true,
-                allowances: true,
-                taxRate: true,
-                updatedAt: true
+    // Fetch every user with their assigned role and profile data.
+    // The frontend uses this for the employee directory, so we keep the
+    // employee profile optional and let the UI render the actual role name.
+    const [employees, roles] = await Promise.all([
+      prisma.user.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          email: true,
+          role: {
+            select: {
+              id: true,
+              name: true,
+              permissions: true
+            }
+          },
+          employee: {
+            select: {
+              id: true,
+              name: true,
+              designation: true,
+              department: true,
+              dateOfJoining: true,
+              salaryStructure: {
+                select: {
+                  baseSalary: true,
+                  allowances: true,
+                  taxRate: true,
+                  updatedAt: true
+                }
               }
             }
           }
         }
-      }
-    });
+      }),
+      prisma.role.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          permissions: true,
+          createdAt: true
+        }
+      })
+    ]);
 
-    res.status(200).json({ success: true, count: employees.length, data: employees });
+    res.status(200).json({ success: true, count: employees.length, data: employees, roles });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
