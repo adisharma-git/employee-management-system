@@ -43,7 +43,12 @@ const EmployeeTableRow = ({ employee, isHighlighted = false }) => {
 
       <td className="px-6 py-4 text-gray-600 font-medium">{employee.date}</td>
 
-      <td className="px-6 py-4 text-gray-600">{employee.role}</td>
+      <td className="px-6 py-4 text-gray-600">
+        {employee.role}
+        {employee.designation && employee.designation !== employee.role
+          ? ` • ${employee.designation}`
+          : ""}
+      </td>
 
       <td className="px-6 py-4 text-gray-600">{employee.department}</td>
     </tr>

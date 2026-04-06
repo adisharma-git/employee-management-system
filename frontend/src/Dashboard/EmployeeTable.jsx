@@ -12,7 +12,16 @@ const EmployeeTable = ({ Employee, highlightQuery = "", searchTrigger = 0 }) => 
       .filter((em) => {
         const name = (em.name || "").toLowerCase();
         const email = (em.email || "").toLowerCase();
-        return name.includes(normalizedQuery) || email.includes(normalizedQuery);
+        const role = (em.role || "").toLowerCase();
+        const designation = (em.designation || "").toLowerCase();
+        const department = (em.department || "").toLowerCase();
+        return (
+          name.includes(normalizedQuery) ||
+          email.includes(normalizedQuery) ||
+          role.includes(normalizedQuery) ||
+          designation.includes(normalizedQuery) ||
+          department.includes(normalizedQuery)
+        );
       })
       .map((em) => em.id);
   }, [Employee, normalizedQuery]);
@@ -40,7 +49,7 @@ const EmployeeTable = ({ Employee, highlightQuery = "", searchTrigger = 0 }) => 
             <th className="px-6 py-4">Employee Name</th>
             <th className="px-6 py-4">Employee Email</th>
             <th className="px-6 py-4">Date</th>
-            <th className="px-6 py-4">Job Title</th>
+            <th className="px-6 py-4">Role / Designation</th>
             <th className="px-6 py-4">Department</th>
           </tr>
         </thead>
