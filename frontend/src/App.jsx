@@ -58,7 +58,11 @@ function App() {
           <Route path="/employeeInfoPage" element={<EmployeeInfoPage />} />
           <Route
             path="/EmployeeRegistration"
-            element={<EmployeeRegistration />}
+            element={
+              <ProtectedRoute permission="create_employee">
+                <EmployeeRegistration />
+              </ProtectedRoute>
+            }
           />
 
           <Route

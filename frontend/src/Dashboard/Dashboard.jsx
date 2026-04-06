@@ -38,8 +38,6 @@ export default function Dashboard() {
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
   const { permissions, setUserPermissions } = useAuth();
   const { can } = usePermission();
-  console.log("Dashboard permissions:", permissions);
-  console.log("can",can);
 
   const handleFilterSearch = () => {
     const query = searchTerm.trim().toLowerCase();
@@ -99,7 +97,6 @@ export default function Dashboard() {
         if (perms && perms.length > 0) {
           setUserPermissions(perms, userData?.user?.isSuperAdmin);
         }
-        console.log("API perms:", perms);
 
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -171,6 +168,9 @@ export default function Dashboard() {
         }
         return <TimeLogDashboard />;
       case "adminRegistration":
+        if (!can("create_employee")) {
+          return <div>Access Denied</div>;
+        }
         return <EmployeeRegistration />;
       case "settings":
         return <Settings />;

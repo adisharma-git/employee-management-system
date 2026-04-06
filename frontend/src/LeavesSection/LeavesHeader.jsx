@@ -10,7 +10,7 @@ import { usePermission } from "../hooks/usePermission"; // 🔥 ADD
 const LeavesHeader = () => {
   const [activeSection, setActiveSection] = useState("menu");
 
-  const { can, canAny } = usePermission(); // 🔥 ADD
+  const { can } = usePermission(); // 🔥 ADD
 
   const handleApplyLeave = () => {
     setActiveSection("applyLeave");
@@ -59,6 +59,7 @@ const LeavesHeader = () => {
           )}
 
           
+          {can("manage_leave_types") && (
             <button
               onClick={handleCreateLeave}
               className="bg-[#021f54] text-white hover:bg-orange-400
@@ -67,6 +68,7 @@ const LeavesHeader = () => {
             >
               Create Leave
             </button>
+          )}
          
         </div>
       </header>
