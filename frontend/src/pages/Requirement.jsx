@@ -33,8 +33,7 @@ const Requirement = () => {
           </h3>
 
           <p className="text-gray-600 mt-2">
-            Track employee attendance, work hours, overtime worked, and late
-            arrivals with great precision.
+            Track employee attendance, work hours, breaks, and late arrivals with clear daily records.
           </p>
 
           <h4 className="mt-5 font-semibold text-gray-800">
@@ -50,7 +49,7 @@ const Requirement = () => {
           <div className="mt-6">
             <p className="font-bold text-lg text-gray-800">FREE</p>
             <p className="text-sm text-gray-500">
-              First month • Then 50₹/employee
+              First month • Then ₹50/employee
             </p>
 
             <button
@@ -72,8 +71,7 @@ const Requirement = () => {
           </h3>
 
           <p className="text-gray-600 mt-2">
-            Streamline leave requests, approvals, and tracking with automated
-            workflows and policies.
+            Streamline leave requests, approvals, and tracking with automated workflows and policy-aware calculations.
           </p>
 
           <h4 className="mt-5 font-semibold text-gray-800">
@@ -89,7 +87,7 @@ const Requirement = () => {
           <div className="mt-6">
             <p className="font-bold text-lg text-gray-800">FREE</p>
             <p className="text-sm text-gray-500">
-              First month • Then 50₹/employee
+              First month • Then ₹50/employee
             </p>
 
             <button
@@ -106,12 +104,11 @@ const Requirement = () => {
           </div>
 
           <h3 className="text-xl font-semibold mt-6 text-gray-800">
-            Salary Management
+            Payroll Management
           </h3>
 
           <p className="text-gray-600 mt-2">
-            Accurately process payroll, manage deductions, bonuses, and tax
-            laws.
+            Accurately process payroll, manage deductions, generate records, and keep salary history in one place.
           </p>
 
           <h4 className="mt-5 font-semibold text-gray-800">
@@ -120,14 +117,14 @@ const Requirement = () => {
 
           <ul className="mt-3 space-y-2 text-gray-700">
             <li className="text-blue-600">✔ Automated Payroll Processing</li>
-            <li className="text-blue-600">✔ Tax Compliance</li>
-            <li className="text-blue-600">✔ Salary Slip Generation</li>
+            <li className="text-blue-600">✔ Salary Structure Tracking</li>
+            <li className="text-blue-600">✔ Payroll Record Generation</li>
           </ul>
 
           <div className="mt-6">
             <p className="font-bold text-lg text-gray-800">FREE</p>
             <p className="text-sm text-gray-500">
-              First month • Then 50₹/employee
+              First month • Then ₹50/employee
             </p>
 
             <button

@@ -41,7 +41,7 @@ export default function CostFilter() {
             Calculate Your Monthly Cost
           </h2>
           <p className="mt-2 text-slate-200 text-sm">
-            See how much you&apos;ll pay after your free month
+            After the free month, the core plan costs ₹50 per employee each month.
           </p>
         </div>
 
@@ -75,16 +75,14 @@ export default function CostFilter() {
             <p className="text-3xl sm:text-4xl font-extrabold text-white">
               ₹{formatInr(monthlyCost)}
             </p>
-            <p className="mt-2 text-sm sm:text-base text-slate-200">Monthly Cost (After Trial)</p>
-
-            
+            <p className="mt-2 text-sm sm:text-base text-slate-200">Monthly Cost After Trial</p>
           </div>
 
           <div className="text-center rounded-2xl border border-white/15 bg-[#021f54]/60 p-4 sm:p-5">
             <p className="text-3xl sm:text-4xl font-extrabold text-white">
               ₹{formatInr(annualCost)}
             </p>
-            <p className="mt-2 text-sm sm:text-base text-slate-200">Annual Cost (After Trial)</p>
+            <p className="mt-2 text-sm sm:text-base text-slate-200">Annual Cost After Trial</p>
 
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-blue-500/20 border border-blue-300/30 px-3 py-1.5 text-xs font-semibold text-blue-200">
               <svg
