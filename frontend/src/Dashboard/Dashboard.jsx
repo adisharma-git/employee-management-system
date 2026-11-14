@@ -195,7 +195,8 @@ export default function Dashboard() {
         }
         return <UpcomingMeetings />
       case "Holidays":
-        if (!can("manage_holidays")) {
+        // manage_holidays is the old name, still on some existing roles.
+        if (!can("view_holidays") && !can("manage_holidays")) {
           return <div>Access Denied</div>;
         }
         return <Holidays />;

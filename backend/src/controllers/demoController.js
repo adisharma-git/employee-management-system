@@ -2,7 +2,7 @@ const { randomUUID } = require('crypto');
 const prisma = require('../utils/prisma');
 const { hashPassword } = require('../utils/password');
 const { generateToken } = require('../utils/jwt');
-const { runDemoCleanup } = require('../utils/demoCleanup');
+const { runDemoMaintenance } = require('../utils/demoMaintenance');
 const {
   DEMO_ROLE_NAME,
   DEMO_SESSION_MINUTES,
@@ -21,9 +21,10 @@ exports.startDemo = async (req, res) => {
     const rawName = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
     const name = rawName.slice(0, MAX_NAME_LENGTH) || 'Demo User';
 
-    // Clear out expired demo accounts first. On serverless hosts, where the
-    // cleanup timer can't run, this is what keeps the database tidy.
-    await runDemoCleanup();
+    // Delete expired demo accounts, and reset the sample company if it's due.
+    // On serverless hosts, where the maintenance timer can't run, this is
+    // what keeps the demo data tidy and current.
+    await runDemoMaintenance();
 
     // Soft cap: two requests at the same moment can both pass the check.
     const activeDemoUsers = await prisma.user.count({

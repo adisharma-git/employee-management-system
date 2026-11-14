@@ -21,7 +21,7 @@ const taskRoutes = require('./src/routes/taskRoutes');
 const roleRoutes = require('./src/routes/roleRoutes');
 const { ensureDefaultEmployeePermissions, ensureDemoRole } = require('./src/utils/defaultRolePermissions');
 const { isDemoMode } = require('./src/constants/demo');
-const { startDemoCleanupSchedule } = require('./src/utils/demoCleanup');
+const { startDemoMaintenanceSchedule } = require('./src/utils/demoMaintenance');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -108,7 +108,9 @@ async function startServer() {
       console.error('Failed to ensure demo role:', error);
     }
 
-    startDemoCleanupSchedule();
+    // On a fresh demo database the first run builds the sample company, so
+    // wait for it before taking requests.
+    await startDemoMaintenanceSchedule();
   }
 
   app.listen(PORT, () => {
