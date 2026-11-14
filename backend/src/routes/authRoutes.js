@@ -1,6 +1,8 @@
 const express = require('express');
 const { register, login, logout } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
+const { startDemo } = require('../controllers/demoController');
+const { requireDemoMode, demoSessionLimiter } = require('../middleware/demoMiddleware');
 
 const router = express.Router();
 
@@ -21,5 +23,8 @@ router.post('/login', login);
 
 // POST /api/auth/logout
 router.post('/logout', authenticate, logout);
+
+// POST /api/auth/demo -> start a 15-minute demo session (DEMO_MODE only)
+router.post('/demo', requireDemoMode, demoSessionLimiter, startDemo);
 
 module.exports = router;

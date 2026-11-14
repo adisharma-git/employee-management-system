@@ -19,10 +19,17 @@ const payrollRoutes = require('./src/routes/payrollRoutes');
 const projectRoutes = require('./src/routes/projectRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 const roleRoutes = require('./src/routes/roleRoutes');
-const { ensureDefaultEmployeePermissions } = require('./src/utils/defaultRolePermissions');
+const { ensureDefaultEmployeePermissions, ensureDemoRole } = require('./src/utils/defaultRolePermissions');
+const { isDemoMode } = require('./src/constants/demo');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// The demo deployment runs behind one proxy (Render/Vercel); trust it so the
+// demo rate limiter sees the visitor's IP instead of the proxy's.
+if (isDemoMode()) {
+  app.set('trust proxy', 1);
+}
 
 // CORS Configuration - Cross Origin Resource Sharing
 const corsOptions = {
@@ -90,6 +97,15 @@ async function startServer() {
     await ensureDefaultEmployeePermissions(prisma);
   } catch (error) {
     console.error('Failed to ensure default employee permissions:', error);
+  }
+
+  if (isDemoMode()) {
+    try {
+      await ensureDemoRole(prisma);
+      console.log('Demo mode is ON: /api/auth/demo is enabled and emails are disabled.');
+    } catch (error) {
+      console.error('Failed to ensure demo role:', error);
+    }
   }
 
   app.listen(PORT, () => {

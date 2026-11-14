@@ -1,6 +1,15 @@
 const jwt = require('jsonwebtoken');
 const prisma = require('../utils/prisma');
 
+const ACCOUNT_EXPIRED_RESPONSE = {
+  success: false,
+  code: 'DEMO_EXPIRED',
+  message: 'Your demo session has ended.'
+};
+
+const isAccountExpired = (user) =>
+  Boolean(user.expiresAt) && new Date(user.expiresAt) <= new Date();
+
 // ==========================================
 // AUTHENTICATE MIDDLEWARE
 // Verifies JWT token and attaches user to request
@@ -51,6 +60,8 @@ const authenticate = async (req, res, next) => {
         id: true,
         email: true,
         isSuperAdmin: true,
+        isDemo: true,
+        expiresAt: true,
         role: {
           select: {
             id: true,
@@ -64,8 +75,14 @@ const authenticate = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ 
         success: false,
-        message: 'User not found. Token invalid.' 
+        message: 'User not found. Token invalid.'
       });
+    }
+
+    // Temporary (demo) account whose time is up, even if the cleanup job
+    // hasn't deleted it yet.
+    if (isAccountExpired(user)) {
+      return res.status(401).json(ACCOUNT_EXPIRED_RESPONSE);
     }
 
     // Attach user to request object
@@ -124,4 +141,4 @@ const authorize = (...allowedRoles) => {
   };
 };
 
-module.exports = { authenticate, authorize };
+module.exports = { authenticate, authorize, isAccountExpired, ACCOUNT_EXPIRED_RESPONSE };

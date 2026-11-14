@@ -93,7 +93,10 @@ exports.createEmployee = async (req, res) => {
           email,
           passwordHash: hashedPassword,
           roleId: assignedRoleId,
-          isSuperAdmin: false
+          isSuperAdmin: false,
+          // Accounts created by a demo visitor expire with that visitor's
+          // session; otherwise they'd be a way to keep access past 15 minutes.
+          ...(req.user.isDemo && { isDemo: true, expiresAt: req.user.expiresAt })
         },
         include: { role: true }
       });
