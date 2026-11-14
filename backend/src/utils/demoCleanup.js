@@ -1,4 +1,4 @@
-const prisma = require('./prisma');
+const { getDemoClient } = require('./demoDatabase');
 const { DEMO_CLEANUP_BATCH_SIZE } = require('../constants/demo');
 
 // A big backlog (e.g. after the server slept for hours) is spread over
@@ -19,6 +19,7 @@ const MAX_BATCHES_PER_RUN = 20;
 //   announcements.created_by, meetings.created_by
 // ==========================================
 async function purgeExpiredDemoUsers(now = new Date()) {
+  const prisma = getDemoClient();
   let purged = 0;
 
   for (let batch = 0; batch < MAX_BATCHES_PER_RUN; batch++) {

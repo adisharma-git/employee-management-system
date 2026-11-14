@@ -1,5 +1,5 @@
 const { randomUUID } = require('crypto');
-const prisma = require('../utils/prisma');
+const { getDemoClient } = require('../utils/demoDatabase');
 const { hashPassword } = require('../utils/password');
 const { generateToken } = require('../utils/jwt');
 const { runDemoMaintenance } = require('../utils/demoMaintenance');
@@ -13,10 +13,13 @@ const {
 const MAX_NAME_LENGTH = 50;
 
 // POST /api/auth/demo
-// Creates a temporary account that stops working after DEMO_SESSION_MINUTES.
+// Creates a temporary account in the demo schema that stops working after
+// DEMO_SESSION_MINUTES.
 // Body: { name?: string }. Response has the same shape as /api/auth/login,
 // plus user.isDemo and user.expiresAt for the frontend countdown.
 exports.startDemo = async (req, res) => {
+  const prisma = getDemoClient();
+
   try {
     const rawName = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
     const name = rawName.slice(0, MAX_NAME_LENGTH) || 'Demo User';

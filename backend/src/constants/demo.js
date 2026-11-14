@@ -1,10 +1,14 @@
 // ==========================================
 // DEMO MODE
-// Enabled per deployment with DEMO_MODE=true. Meant for a separate demo
-// environment (own database with fake data), never the production one.
+// On unless DEMO_MODE=false. Demo visitors use a sample company stored in a
+// separate schema (DEMO_SCHEMA) of the same database, so they never see or
+// change real data. See docs/GUIDES/DEMO_MODE.md.
 // ==========================================
 
 const DEMO_ROLE_NAME = 'Demo';
+
+// Postgres schema that holds all demo data (DATABASE_URL with ?schema=demo).
+const DEMO_SCHEMA = 'demo';
 const DEMO_SESSION_MINUTES = 15;
 
 // Per-IP limit on starting new demo sessions.
@@ -37,10 +41,11 @@ const DEMO_PROFILE_DEFAULTS = {
 // other account that isn't a demo account.
 const DEMO_SEED_EMAIL_DOMAIN = 'demo-company.test';
 
-const isDemoMode = () => process.env.DEMO_MODE === 'true';
+const isDemoMode = () => process.env.DEMO_MODE !== 'false';
 
 module.exports = {
   DEMO_ROLE_NAME,
+  DEMO_SCHEMA,
   DEMO_SESSION_MINUTES,
   DEMO_RATE_LIMIT_WINDOW_MINUTES,
   DEMO_RATE_LIMIT_MAX_SESSIONS,

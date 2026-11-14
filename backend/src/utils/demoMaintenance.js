@@ -1,15 +1,16 @@
 // ==========================================
 // DEMO MAINTENANCE
-// Housekeeping for a DEMO_MODE server, run every few minutes and before each
-// new demo:
+// Sets up the demo schema when the server starts, then keeps it tidy. Every
+// few minutes, and before each new demo:
 //   1. delete expired demo accounts (demoCleanup.js)
 //   2. rebuild the sample company once a day, while nobody is in a demo
 //      (demoReset.js)
 //   3. otherwise, top up the sample company's attendance for yesterday and
 //      today, so people check in and out as the day goes on (demoSeed.js)
 // ==========================================
-const prisma = require('./prisma');
 const { DEMO_MAINTENANCE_INTERVAL_MINUTES } = require('../constants/demo');
+const { getDemoClient, migrateDemoSchema } = require('./demoDatabase');
+const { ensureDemoRole } = require('./defaultRolePermissions');
 const { purgeExpiredDemoUsers } = require('./demoCleanup');
 const { resetDemoCompanyIfDue } = require('./demoReset');
 const { syncDemoAttendance, utcDay, addDays } = require('./demoSeed');
@@ -48,24 +49,42 @@ async function runDemoMaintenance() {
     }
 
     await runStep('Attendance top-up', () =>
-      syncDemoAttendance(prisma, { from: addDays(utcDay(new Date()), -1) })
+      syncDemoAttendance(getDemoClient(), { from: addDays(utcDay(new Date()), -1) })
     );
   } finally {
     running = false;
   }
 }
 
-// Runs once now, then every DEMO_MAINTENANCE_INTERVAL_MINUTES. Returns the
-// first run's promise so startup can wait for it (on a fresh database, that
-// run builds the sample company). Needs a long-running server; on serverless
-// hosts the run in POST /api/auth/demo does the work instead.
-function startDemoMaintenanceSchedule() {
-  const timer = setInterval(runDemoMaintenance, DEMO_MAINTENANCE_INTERVAL_MINUTES * 60 * 1000);
-  timer.unref();
-  return runDemoMaintenance();
+// Demo requests are refused (503) until setup finishes.
+let ready = false;
+const isDemoReady = () => ready;
+
+// Called once at startup, after the server is already taking requests, so the
+// main app never waits for it. Creates or updates the demo schema, makes sure
+// the Demo role exists, builds the sample company if it's due (always, on a
+// new schema), then repeats maintenance every DEMO_MAINTENANCE_INTERVAL_MINUTES.
+// Needs a long-running server; on serverless hosts the maintenance run in
+// POST /api/auth/demo does the work instead. Never throws: if setup fails,
+// the demo stays off and the rest of the app is unaffected.
+async function startDemo() {
+  try {
+    await migrateDemoSchema();
+    await ensureDemoRole(getDemoClient());
+    await runDemoMaintenance();
+
+    const timer = setInterval(runDemoMaintenance, DEMO_MAINTENANCE_INTERVAL_MINUTES * 60 * 1000);
+    timer.unref();
+
+    ready = true;
+    console.log('[demo] Demo is ready: /api/auth/demo is enabled.');
+  } catch (error) {
+    console.error('[demo] Setup failed, so the demo is off:', error);
+  }
 }
 
 module.exports = {
   runDemoMaintenance,
-  startDemoMaintenanceSchedule
+  startDemo,
+  isDemoReady
 };

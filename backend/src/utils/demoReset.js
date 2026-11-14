@@ -1,26 +1,31 @@
 // ==========================================
 // DEMO RESET
-// Empties the demo database and rebuilds the sample company, once a day.
+// Empties the demo schema and rebuilds the sample company, once a day.
 // Visitors change the shared data (approve leave, run payroll, edit
 // projects...), so this puts it back to a clean, current state.
 //
-// Safety: it refuses to run if the database has any account that is neither a
-// demo visitor nor a sample-company account (seed email domain). So pointing
-// a DEMO_MODE server at a real database can't wipe it.
+// Safety:
+// - It only uses the demo schema's client, and its raw SQL names the demo
+//   schema explicitly, so it can't touch the main (real) tables.
+// - It also refuses to run if the demo schema has any account that is neither
+//   a demo visitor nor a sample-company account (seed email domain).
 // ==========================================
 const { Prisma } = require('@prisma/client');
-const prisma = require('./prisma');
-const { DEMO_SEED_EMAIL_DOMAIN } = require('../constants/demo');
+const { getDemoClient } = require('./demoDatabase');
+const { DEMO_SCHEMA, DEMO_SEED_EMAIL_DOMAIN } = require('../constants/demo');
 const { seedDemoCompany, seededAccountsWhere, utcDay } = require('./demoSeed');
 
 // Any fixed number; identifies the reset's Postgres advisory lock.
 const RESET_LOCK_KEY = 482017;
 
-// Every table except roles. Visitors can't change roles, and keeping their
-// IDs means a demo that starts while a reset runs still finds the Demo role.
+const qualified = (table) => `"${DEMO_SCHEMA}"."${table}"`;
+
+// Every demo table except roles. Visitors can't change roles, and keeping
+// their IDs means a demo that starts while a reset runs still finds the Demo
+// role.
 const TABLES_TO_EMPTY = Prisma.dmmf.datamodel.models
   .filter((model) => model.name !== 'Role')
-  .map((model) => `"${model.dbName || model.name}"`);
+  .map((model) => qualified(model.dbName || model.name));
 
 class DemoResetRefusedError extends Error {}
 
@@ -45,11 +50,11 @@ async function isResetDue(db, now = new Date()) {
 // "is it due" check (for the manual npm script). Returns the seed counts, or
 // null if no reset was due.
 async function resetDemoCompany({ force = false, now = new Date() } = {}) {
-  return prisma.$transaction(async (tx) => {
+  return getDemoClient().$transaction(async (tx) => {
     // One reset at a time, across server instances.
     await tx.$queryRawUnsafe(`SELECT 1 FROM pg_advisory_xact_lock(${RESET_LOCK_KEY})`);
     // No new accounts until this transaction ends, so the checks below stay true.
-    await tx.$executeRawUnsafe('LOCK TABLE "users" IN EXCLUSIVE MODE');
+    await tx.$executeRawUnsafe(`LOCK TABLE ${qualified('users')} IN EXCLUSIVE MODE`);
 
     const otherAccounts = await tx.user.count({
       where: { isDemo: false, NOT: { email: { endsWith: `@${DEMO_SEED_EMAIL_DOMAIN}` } } }
@@ -74,7 +79,7 @@ async function resetDemoCompany({ force = false, now = new Date() } = {}) {
 let refused = false;
 
 async function resetDemoCompanyIfDue(now = new Date()) {
-  if (refused || !(await isResetDue(prisma, now))) return null;
+  if (refused || !(await isResetDue(getDemoClient(), now))) return null;
 
   try {
     return await resetDemoCompany({ now });

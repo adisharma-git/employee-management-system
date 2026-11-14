@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const { isDemoMode } = require('../constants/demo');
+const { isDemoDatabaseActive } = require('./demoDatabase');
 
 // 1. Configure the Transporter
 const transporter = nodemailer.createTransport({
@@ -12,8 +12,8 @@ const transporter = nodemailer.createTransport({
 
 // 2. The Universal Send Function
 const sendMail = async ({ to, bcc, subject, html }) => {
-  // The demo environment never sends real email.
-  if (isDemoMode()) {
+  // Nothing a demo visitor does sends real email.
+  if (isDemoDatabaseActive()) {
     console.log(`[demo] Email suppressed: ${subject}`);
     return true;
   }
