@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import ToastContainer from "../Toaster/Toast";
 import { useAuth } from "../../Context/AuthContext";
+import { DEMO_ENTRY_URL } from "../demo/demoConfig";
 
 
 export default function Login() {
@@ -185,6 +186,14 @@ export default function Login() {
                 Create an Account
               </Link>
             </p>
+            {DEMO_ENTRY_URL && (
+              <p className="text-sm text-center mt-2 text-gray-500">
+                Just looking around?{" "}
+                <a href={DEMO_ENTRY_URL} className="text-orange-500">
+                  Try the live demo
+                </a>
+              </p>
+            )}
           </div>
           <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-[#021f54] to-[#043a8f] text-white relative">
             <div className="text-center px-8">

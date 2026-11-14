@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import { DEMO_ENTRY_URL } from "../demo/demoConfig";
 
 export default function Navbar() {
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -157,6 +158,14 @@ export default function Navbar() {
               </div> */}
 
               <div className="hidden sm:flex gap-3 lg:gap-4 z-50">
+                {DEMO_ENTRY_URL && (
+                  <a
+                    href={DEMO_ENTRY_URL}
+                    className="bg-orange-500 px-4 py-2 rounded-lg font-semibold hover:bg-orange-400 transition-all duration-200 shadow-lg shadow-orange-500/20 whitespace-nowrap"
+                  >
+                    Live demo
+                  </a>
+                )}
               <button
   className="border border-white/40 px-4 py-2 rounded-lg hover:bg-white hover:text-[#021f54] transition-all duration-200 flex items-center justify-center"
   onClick={handleLogin}
@@ -231,6 +240,14 @@ export default function Navbar() {
                 >
                   Support
                 </button>
+                {DEMO_ENTRY_URL && (
+                  <a
+                    href={DEMO_ENTRY_URL}
+                    className="block w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 text-orange-400 font-semibold"
+                  >
+                    Try the live demo
+                  </a>
+                )}
               </div>
             </div>
           )}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { logout } from '../services/authService';
 import {
   getNotifications,
   markAllNotificationsAsRead,
@@ -44,10 +45,8 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
     setProfileDropdownOpen(false);
-    navigate('/login');
+    navigate(logout());
   };
 
   const loadNotifications = async () => {

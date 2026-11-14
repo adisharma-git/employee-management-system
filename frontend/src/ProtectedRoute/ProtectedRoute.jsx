@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
+import { getRecentExitPath } from "../utils/session";
 
 
 const ProtectedRoute = ({ children, permission }) => {
@@ -7,7 +8,8 @@ const ProtectedRoute = ({ children, permission }) => {
   const { permissions } = useAuth();
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    // A session that just ended (logout, demo over) has its own destination.
+    return <Navigate to={getRecentExitPath() || "/login"} replace />;
   }
 
   if (permission && !permissions.includes(permission)) {

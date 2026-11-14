@@ -1,24 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
+import { logout } from "../services/authService";
 
 export default function Sidebar({ selectedTab, setSelectedTab }) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleLogout = async () => {
-    try {
-      await api.post("/auth/logout");
-    } catch (error) {
-      console.error("Logout API error:", error);
-    } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("permissions");
-      localStorage.removeItem("isSuperAdmin");
-      navigate("/login");
-    }
+  const handleLogout = () => {
+    navigate(logout());
   };
 
   const menuItems = [
