@@ -1,8 +1,5 @@
 const prisma = require('./prisma');
-const {
-  DEMO_CLEANUP_INTERVAL_MINUTES,
-  DEMO_CLEANUP_BATCH_SIZE
-} = require('../constants/demo');
+const { DEMO_CLEANUP_BATCH_SIZE } = require('../constants/demo');
 
 // A big backlog (e.g. after the server slept for hours) is spread over
 // several runs instead of one long one.
@@ -54,41 +51,6 @@ async function purgeExpiredDemoUsers(now = new Date()) {
   return purged;
 }
 
-// Never throws, and skips if a previous run is still going, so it's safe to
-// call from a timer or a request handler.
-let cleanupRunning = false;
-
-async function runDemoCleanup() {
-  if (cleanupRunning) return 0;
-
-  cleanupRunning = true;
-  try {
-    const purged = await purgeExpiredDemoUsers();
-    if (purged > 0) {
-      console.log(`[demo] Deleted ${purged} expired demo account(s).`);
-    }
-    return purged;
-  } catch (error) {
-    console.error('[demo] Cleanup failed:', error);
-    return 0;
-  } finally {
-    cleanupRunning = false;
-  }
-}
-
-// Runs once now (clears anything that expired while the server was down),
-// then every DEMO_CLEANUP_INTERVAL_MINUTES. Needs a long-running server; on
-// serverless hosts the run in POST /api/auth/demo does the work instead.
-function startDemoCleanupSchedule() {
-  runDemoCleanup();
-
-  const timer = setInterval(runDemoCleanup, DEMO_CLEANUP_INTERVAL_MINUTES * 60 * 1000);
-  timer.unref();
-  return timer;
-}
-
 module.exports = {
-  purgeExpiredDemoUsers,
-  runDemoCleanup,
-  startDemoCleanupSchedule
+  purgeExpiredDemoUsers
 };

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/authService";
+import { usePermission } from "../hooks/usePermission";
 
 export default function Sidebar({ selectedTab, setSelectedTab }) {
   const navigate = useNavigate();
+  const { canAny } = usePermission();
   const [isOpen, setIsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -11,16 +13,18 @@ export default function Sidebar({ selectedTab, setSelectedTab }) {
     navigate(logout());
   };
 
+  // `permissions`: shown if the user has any of them. Keep in sync with the
+  // checks in Dashboard.jsx, so the sidebar never leads to "Access Denied".
   const menuItems = [
     { key: "dashboard", icon: "fas fa-chart-line", label: "Dashboard" },
     // { key: "EmployeeForm", icon: "fas fa-people-group", label: "Profile" },
-    { key: "performance", icon: "fas fa-clock", label: "Performance" },
-    { key: "adminRegistration", icon: "fas fa-user-plus", label: "Add Employee" },
+    { key: "performance", icon: "fas fa-clock", label: "Performance", permissions: ["view_logs", "view_daily_logs"] },
+    { key: "adminRegistration", icon: "fas fa-user-plus", label: "Add Employee", permissions: ["create_employee"] },
     { key: "Pull Requests", icon: "fab fa-github", label: "Pull Requests" },
-    { key: "Meetings", icon: "fa-solid fa-calendar-check", label: "Meetings" },
-    { key: "Holidays", icon: "fa-solid fa-calendar-days", label: "Holidays" },
-    {key: "Permissions", icon: "fas fa-shield-alt", label: "Permissions"},
-  ];
+    { key: "Meetings", icon: "fa-solid fa-calendar-check", label: "Meetings", permissions: ["view_meetings"] },
+    { key: "Holidays", icon: "fa-solid fa-calendar-days", label: "Holidays", permissions: ["view_holidays", "manage_holidays"] },
+    { key: "Permissions", icon: "fas fa-shield-alt", label: "Permissions", permissions: ["manage_roles"] },
+  ].filter((item) => !item.permissions || canAny(item.permissions));
 
   return (
     <>

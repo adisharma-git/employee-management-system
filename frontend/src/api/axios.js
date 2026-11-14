@@ -1,5 +1,5 @@
 import axios from "axios";
-import { endSession } from "../utils/session";
+import { endSession, getStoredUser } from "../utils/session";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
@@ -34,7 +34,10 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && sentCurrentToken && !isAuthCall && !redirecting) {
       redirecting = true;
-      const nextPath = error.response.data?.code === "DEMO_EXPIRED" ? "/demo-ended" : "/login";
+      // Demo visitors never go to /login: they have no password. Covers
+      // DEMO_EXPIRED and a demo account that no longer exists.
+      const wasDemo = error.response.data?.code === "DEMO_EXPIRED" || getStoredUser()?.isDemo;
+      const nextPath = wasDemo ? "/demo-ended" : "/login";
       endSession(nextPath);
       window.location.assign(nextPath);
     }

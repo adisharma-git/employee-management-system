@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { logout } from '../services/authService';
+import { usePermission } from '../hooks/usePermission';
 import {
   getNotifications,
   markAllNotificationsAsRead,
@@ -9,6 +10,7 @@ import {
 } from '../services/notificationService';
 
 export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
+  const { canAny } = usePermission();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -161,17 +163,19 @@ export default function HorizontalNavbar({ selectedTab, setSelectedTab }) {
     });
   };
 
+  // `permissions`: shown if the user has any of them. Keep in sync with the
+  // checks in Dashboard.jsx, so a tab never leads to "Access Denied".
   const navTabs = [
-    { id: "employees", label: "Employees" },
-    { id: "Attendance", label: "Attendance" },
-    { id: "LeavesPage", label: "Leaves" },
-    { id: "TaskManagement", label: "Tasks" },
+    { id: "employees", label: "Employees", permissions: ["view_employees"] },
+    { id: "Attendance", label: "Attendance", permissions: ["view_attendance"] },
+    { id: "LeavesPage", label: "Leaves", permissions: ["view_all_leaves"] },
+    { id: "TaskManagement", label: "Tasks", permissions: ["view_tasks"] },
     { id: "reports", label: "Reports" },
-    { id: "Announcement", label: "Announcement" },
+    { id: "Announcement", label: "Announcement", permissions: ["view_announcements"] },
     { id: "ProjectActivity", label: "ProjectActivity" },
     { id: "Payroll", label: "Payroll" },
-    { id: "role", label: "role" }
-  ];
+    { id: "role", label: "role", permissions: ["manage_roles"] }
+  ].filter((tab) => !tab.permissions || canAny(tab.permissions));
 
   return (
     <nav className="bg-[#021f54] sticky top-0 z-50 w-full border-b border-blue-900">

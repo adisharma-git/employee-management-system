@@ -7,6 +7,7 @@
     "dev": "nodemon server.js",
     "build": "prisma generate",
     "postinstall": "prisma generate",
+    "demo:reset": "node prisma/demoReset.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
