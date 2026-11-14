@@ -21,6 +21,7 @@ const taskRoutes = require('./src/routes/taskRoutes');
 const roleRoutes = require('./src/routes/roleRoutes');
 const { ensureDefaultEmployeePermissions, ensureDemoRole } = require('./src/utils/defaultRolePermissions');
 const { isDemoMode } = require('./src/constants/demo');
+const { startDemoCleanupSchedule } = require('./src/utils/demoCleanup');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -106,6 +107,8 @@ async function startServer() {
     } catch (error) {
       console.error('Failed to ensure demo role:', error);
     }
+
+    startDemoCleanupSchedule();
   }
 
   app.listen(PORT, () => {

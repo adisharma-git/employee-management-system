@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
 import DashboardHome from "./Dashboard/DashboardHome";
 import { AuthProvider } from "../Context/AuthContext";
+import DemoBanner from "./demo/DemoBanner";
 
 
 const Login = lazy(() => import("./pages/Login"));
@@ -29,11 +30,14 @@ const LeavesPage = lazy(() => import("./LeavesSection/LeavesPage"));
 const ApplyLeaveForm = lazy(() => import("./LeavesSection/LeaveForm"));
 const Announcement = lazy(() => import("./Announcement/Announcement"));
 const ScheduledMeetings = lazy(() => import("../ScheduledMeetings/UpcomingMeetings"));
+const DemoStart = lazy(() => import("./pages/DemoStart"));
+const DemoEnded = lazy(() => import("./pages/DemoEnded"));
 
 function App() {
   return (
     <AuthProvider>
     <BrowserRouter>
+      <DemoBanner />
       <Suspense
         fallback={
           <div className="flex justify-center items-center h-screen text-xl">
@@ -53,6 +57,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgetPassword" element={<ForgetPassword />} />
           <Route path="/thank-you" element={<ThankYou />} />
+          <Route path="/demo" element={<DemoStart />} />
+          <Route path="/demo-ended" element={<DemoEnded />} />
 
           <Route path="/updates" element={<Updates />} />
           <Route path="/employeeInfoPage" element={<EmployeeInfoPage />} />

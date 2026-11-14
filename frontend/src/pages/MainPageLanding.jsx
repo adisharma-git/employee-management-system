@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import emailjs from "@emailjs/browser";
 import { useNavigate } from "react-router-dom";
 import ToastContainer from "../Toaster/Toast";
+import { DEMO_ENTRY_URL, DEMO_SESSION_MINUTES } from "../demo/demoConfig";
 
 export default function MainPageLanding() {
   const [isVisible, setIsVisible] = useState(false);
@@ -137,6 +138,21 @@ export default function MainPageLanding() {
               {loading ? "Sending..." : "Contact Us"}
             </button>
           </div>
+
+          {DEMO_ENTRY_URL && (
+            <p className="mt-6 text-sm sm:text-base text-gray-700">
+              Want to look around first?{" "}
+              <a
+                href={DEMO_ENTRY_URL}
+                className="font-semibold text-orange-500 hover:text-orange-600 whitespace-nowrap"
+              >
+                Try the live demo <i className="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+              </a>
+              <span className="block sm:inline text-gray-500 sm:ml-2">
+                No sign-up, {DEMO_SESSION_MINUTES} minutes.
+              </span>
+            </p>
+          )}
         </div>
       </div>
     </section>

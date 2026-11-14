@@ -116,7 +116,10 @@ exports.login = async (req, res) => {
         email: user.email,
         isSuperAdmin: user.isSuperAdmin,
         role: user.role,
-        name: user.employee ? user.employee.name : "Admin"
+        name: user.employee ? user.employee.name : "Admin",
+        // Lets the frontend show the demo countdown for accounts created
+        // during a demo session.
+        ...(user.isDemo && { isDemo: true, expiresAt: user.expiresAt })
       }
     });
 
