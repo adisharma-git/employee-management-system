@@ -104,7 +104,9 @@ export default function Dashboard() {
     };
 
     fetchUser();
-  }, [permissions]);
+    // Runs once per dashboard visit. Depending on `permissions` here would
+    // loop: every fetch stores a new array, which counts as a change.
+  }, [setUserPermissions]);
 
   useEffect(() => {
     const initialTab = localStorage.getItem(DASHBOARD_TAB_STORAGE_KEY) || "dashboard";
