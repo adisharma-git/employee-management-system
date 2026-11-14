@@ -2,6 +2,7 @@
 const prisma = require('../utils/prisma'); 
 const { hashPassword, comparePassword } = require('../utils/password');
 const { generateToken } = require('../utils/jwt');
+const { isAccountExpired, ACCOUNT_EXPIRED_RESPONSE } = require('../middleware/auth');
 
 // 1. REGISTER LOGIC
 exports.register = async (req, res) => {
@@ -99,6 +100,10 @@ exports.login = async (req, res) => {
     const isMatch = await comparePassword(password, user.passwordHash);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    if (isAccountExpired(user)) {
+      return res.status(401).json(ACCOUNT_EXPIRED_RESPONSE);
     }
 
     const token = generateToken(user);

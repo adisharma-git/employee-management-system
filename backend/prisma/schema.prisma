@@ -20,7 +20,12 @@ model User {
   roleId       String?  @map("role_id") 
   role         Role?    @relation(fields: [roleId], references: [id])
   isSuperAdmin Boolean  @default(false) @map("is_super_admin")
-  
+
+  // Demo accounts (DEMO_MODE) are temporary: access ends at expiresAt and
+  // the cleanup job deletes them afterwards. Null expiresAt = permanent account.
+  isDemo       Boolean   @default(false) @map("is_demo")
+  expiresAt    DateTime? @map("expires_at")
+
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -39,6 +44,7 @@ model User {
   @@map("users")
   @@index([email])
   @@index([roleId])
+  @@index([isDemo, expiresAt])
 }
 
 // --------------------------------------
