@@ -24,7 +24,7 @@ const { ensureDefaultEmployeePermissions } = require('./src/utils/defaultRolePer
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS Configuration - UPDATE THIS
+// CORS Configuration - Cross Origin Resource Sharing
 const corsOptions = {
   origin: [
     'http://localhost:5173',
@@ -61,6 +61,12 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/roles', roleRoutes);
+
+
+app.get('/aniket', (req, res) => {
+  res.send('Hello Aniket! The server is running fine.');
+});
+
 
 app.get('/api/health', async (req, res) => {
   try {

@@ -104,7 +104,7 @@ export default function Dashboard() {
     };
 
     fetchUser();
-  }, [setUserPermissions]);
+  }, [permissions]);
 
   useEffect(() => {
     const initialTab = localStorage.getItem(DASHBOARD_TAB_STORAGE_KEY) || "dashboard";
