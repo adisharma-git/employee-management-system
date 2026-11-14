@@ -19,15 +19,16 @@ const payrollRoutes = require('./src/routes/payrollRoutes');
 const projectRoutes = require('./src/routes/projectRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 const roleRoutes = require('./src/routes/roleRoutes');
-const { ensureDefaultEmployeePermissions, ensureDemoRole } = require('./src/utils/defaultRolePermissions');
+const { ensureDefaultEmployeePermissions } = require('./src/utils/defaultRolePermissions');
 const { isDemoMode } = require('./src/constants/demo');
-const { startDemoMaintenanceSchedule } = require('./src/utils/demoMaintenance');
+const { startDemo } = require('./src/utils/demoMaintenance');
+const { demoRequestContext } = require('./src/middleware/demoMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// The demo deployment runs behind one proxy (Render/Vercel); trust it so the
-// demo rate limiter sees the visitor's IP instead of the proxy's.
+// The app runs behind one proxy (Render/Vercel); trust it so the demo rate
+// limiter sees the visitor's IP instead of the proxy's.
 if (isDemoMode()) {
   app.set('trust proxy', 1);
 }
@@ -52,6 +53,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(express.json()); 
+// Requests with a demo visitor's token use the demo schema (after the body
+// parser, so the whole request runs in that context).
+app.use(demoRequestContext);
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -100,22 +104,16 @@ async function startServer() {
     console.error('Failed to ensure default employee permissions:', error);
   }
 
-  if (isDemoMode()) {
-    try {
-      await ensureDemoRole(prisma);
-      console.log('Demo mode is ON: /api/auth/demo is enabled and emails are disabled.');
-    } catch (error) {
-      console.error('Failed to ensure demo role:', error);
-    }
-
-    // On a fresh demo database the first run builds the sample company, so
-    // wait for it before taking requests.
-    await startDemoMaintenanceSchedule();
-  }
-
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+
+  // In the background: the demo schema is set up (first time: about a
+  // minute) while the main app already serves requests.
+  if (isDemoMode()) {
+    console.log('[demo] Demo mode is on. Setting up the demo schema...');
+    startDemo();
+  }
 }
 
 startServer();

@@ -1,100 +1,66 @@
 # Demo mode
 
-A public demo where anyone can try WorkAlignr without signing up. A visitor opens `/demo`, types a name (optional) and lands on the dashboard of a sample company with 17 people. The session lasts 15 minutes. Afterwards the visitor's account and everything they created are deleted.
+A public demo where anyone can try WorkAlignr without signing up. On the landing page or login page, a visitor clicks **"Live demo"**, types a name (optional) and lands on the dashboard of a sample company with 17 people. The session lasts 15 minutes. Afterwards the visitor's account and everything they created are deleted.
 
-The demo runs as a **separate deployment with its own database**. It never touches production data.
+The demo runs **inside the normal deployment** (same frontend, same backend, same database). Demo data lives in a separate Postgres schema, `demo`, so visitors never see or change real data.
+
+## Turning it on and off
+
+It's **on by default**. No setup is needed.
+
+| To turn off | Set |
+|---|---|
+| The demo itself (backend) | `DEMO_MODE=false` |
+| The "Live demo" links (frontend) | `VITE_DEMO_MODE=false` |
 
 ## How it works
 
 | Part | What it does |
 |---|---|
-| `POST /api/auth/demo` | Creates a temporary account (Demo role, 15-minute token) and returns a login. Limited to 5 starts per IP per hour and 100 active demos at a time. |
-| Demo role | Admin-style access for exploring, with no deletes and no role, permission, leave-type or notification changes. Reset to its defined list on every boot. |
-| Sample company | 17 employees, about two months of attendance, leave requests (5 pending, ready to approve), two months of payslips, 4 projects with 18 tasks, announcements, meetings and holidays. Dates are relative to the reset day, so the data always looks current. |
+| Startup | The server starts serving right away. In the background it creates or updates the `demo` schema (`prisma migrate deploy` with `?schema=demo` added to `DATABASE_URL`/`DIRECT_URL`), then builds the sample company if needed. Until that's done (about a minute the first time), starting a demo returns "The demo is starting up". |
+| `POST /api/auth/demo` | Creates a temporary account in the demo schema (Demo role, 15-minute token marked `demo: true`). Limited to 5 starts per IP per hour and 100 active demos at a time. |
+| Demo requests | A request whose token has `demo: true` runs entirely against the demo schema. The shared Prisma client (`utils/prisma.js`) switches for the duration of that request (`utils/demoDatabase.js`). All other requests use the real data. |
+| Emails | Never sent for demo requests; logged as `[demo] Email suppressed: ...`. Real users' emails are unaffected. |
+| Demo role | Admin-style access for exploring, with no deletes and no role, permission, leave-type or notification changes. |
+| Sample company | 17 employees, about two months of attendance, leave requests (5 pending), two months of payslips, 4 projects with 18 tasks, announcements, meetings and holidays. Dates are relative to the reset day. |
 | Maintenance (every 5 minutes) | 1. Deletes expired demo accounts and their data.<br>2. Rebuilds the sample company once a day.<br>3. Otherwise tops up today's attendance, so people check in and out as the day goes on. |
-| Emails | Never sent in demo mode. They're logged as `[demo] Email suppressed: ...`. |
 
-Code: `backend/src/constants/demo.js` (limits), `backend/src/constants/demoCompany.js` (sample data), `backend/src/utils/demo*.js`, `frontend/src/demo/`, `frontend/src/pages/Demo*.jsx`.
+Code: `backend/src/constants/demo.js` (limits), `backend/src/constants/demoCompany.js` (sample data), `backend/src/utils/demo*.js`, `backend/src/middleware/demoMiddleware.js`, `frontend/src/demo/`, `frontend/src/pages/Demo*.jsx`.
 
 ### The daily reset
 
-Visitors share one company, so their changes (approved leave, payroll runs, new holidays, moved tasks) stay visible to the next visitors. Once a day the reset empties every table except `roles` and rebuilds the sample company.
+Visitors share one sample company, so their changes (approved leave, payroll runs, new holidays, moved tasks) stay visible to later visitors until the reset. Once a day the reset empties every demo table except `roles` and rebuilds the company.
 
 - It's due when the company wasn't built today (UTC; the day changes at 05:30 IST).
 - It runs at the first maintenance run when **nobody is in a demo**, so it never ends anyone's session.
 - It runs in one transaction. A failure leaves the old data in place.
-- On a brand-new database it runs at server start, so you don't need a separate seed step.
 
-To rebuild immediately (for example, after someone posts something unpleasant), run this from `backend/` with the **demo** database in `DATABASE_URL`:
+To rebuild immediately (for example, after someone posts something unpleasant), run this from `backend/`:
 
 ```bash
-DEMO_MODE=true npm run demo:reset
+npm run demo:reset
 ```
 
 This also removes visitors who are in the middle of a demo.
 
-**Safety guard:** the reset (automatic or manual) refuses to run, and changes nothing, if the database contains any account that is neither a demo visitor nor a sample-company account (`@demo-company.test`). If a `DEMO_MODE` server is ever pointed at the real database by mistake, it logs `Refusing to reset the demo data...` once and leaves the data alone. It doesn't stop demo visitors being created there, though, so still keep the databases separate.
+**Safety:**
+- The reset only uses the demo schema's client.
+- Its raw SQL names the `demo` schema explicitly, so it can't touch the real (public) tables.
+- It refuses to run if the demo schema contains any account that is neither a demo visitor nor a sample-company account (`@demo-company.test`).
 
-## Deploying
+## Notes
 
-You need three things: a demo database, a demo backend and a demo frontend. Your main site then links to the demo.
-
-1. **Create a new Postgres database** (for example, a new Supabase project). Don't reuse the production one.
-2. **Apply the migrations** to it from `backend/`:
-   ```bash
-   DATABASE_URL="<demo db url>" DIRECT_URL="<demo db direct url>" npx prisma migrate deploy
-   ```
-3. **Deploy the backend a second time** (for example, a second Render web service from the same repo, root `backend`, start command `npm start`) with the variables below. On first start it logs `[demo] Sample company rebuilt: ...`.
-4. **Deploy the frontend a second time** (a second Vercel project, root `frontend`) with the variables below.
-5. **Link the demo from the main site:** set `VITE_DEMO_URL` on the main frontend and redeploy. The "Live demo" links on the landing page, navbar and login page appear only when this is set.
-6. **Check it:** open `<demo frontend>/demo`, start a demo and confirm the Employees tab lists the sample staff.
-
-### Environment variables
-
-**Demo backend**
-
-| Variable | Value |
-|---|---|
-| `DEMO_MODE` | `true` |
-| `DATABASE_URL`, `DIRECT_URL` | The demo database |
-| `JWT_SECRET` | A new secret, different from production |
-| `FRONTEND_URL` | The demo frontend's origin, e.g. `https://demo.workalignr.in` (CORS) |
-| `PORT` | As your host requires |
-| `ENABLE_SELF_REGISTRATION` | Leave unset. A registered account isn't a demo account, so the reset would refuse to run. |
-| `EMAIL_USER`, `EMAIL_PASS` | Not needed (emails are off) |
-
-**Demo frontend**
-
-| Variable | Value |
-|---|---|
-| `VITE_API_URL` | The demo backend, e.g. `https://<demo-backend>/api` |
-| `VITE_DEMO_MODE` | `true` |
-
-**Main (production) frontend**
-
-| Variable | Value |
-|---|---|
-| `VITE_DEMO_URL` | `https://<demo frontend>/demo` |
-
-### Hosting notes
-
-- **A long-running host (such as Render) is best.** Maintenance runs every 5 minutes. On serverless hosts it runs only when someone starts a demo, so expired accounts wait for the next visitor, and that day's first visitor waits a few seconds while the company is rebuilt.
-- **Free tiers that sleep:** the first request after a sleep is slow. On waking, the server runs maintenance before taking requests.
-- **The per-IP limit is kept in memory.** It resets when the server restarts and isn't shared between instances.
-- `backend/vercel.json`'s crons aren't needed for the demo.
+- **A long-running host (such as Render) is best.** Maintenance runs every 5 minutes. On serverless hosts it runs only when someone starts a demo.
+- **The database user must be able to create a schema.** Supabase's default user can. If setup fails, the log shows `[demo] Setup failed, so the demo is off`, and the rest of the app keeps working.
+- **New migrations** are applied to the demo schema automatically on the next start.
+- **A demo visitor can add employees, but those employees can't log in** (they exist only in the demo schema).
+- **The per-IP limit is kept in memory.** It resets when the server restarts.
 
 ## Running it locally
 
-Use a local database, never the one in `backend/.env`:
+`npm run dev` in `backend/` and `frontend/` is enough: the demo is on by default and uses a `demo` schema in whatever database `DATABASE_URL` points to. Open http://localhost:5173/demo.
 
-```bash
-# backend/
-DATABASE_URL=<local demo db> DIRECT_URL=<local demo db> DEMO_MODE=true FRONTEND_URL=http://localhost:5173 npm run dev
-# frontend/
-VITE_DEMO_MODE=true VITE_API_URL=http://localhost:5000/api npm run dev
-```
-
-Then open http://localhost:5173/demo.
+**Watch out:** Prisma also reads `backend/.env` and fills in any variable you didn't set yourself, including the real `EMAIL_USER`/`EMAIL_PASS`. When testing against a scratch database, set those two explicitly (for example to dummy values). Otherwise real users' actions in your test will send real emails.
 
 ## Limits
 
